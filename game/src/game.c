@@ -1,9 +1,9 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include "game.h"
 
@@ -18,6 +18,10 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#if defined(__APPLE__) && defined(__MACH__)
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
     if ((win = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Game", NULL, NULL)) != NULL)
     {
@@ -40,6 +44,14 @@ int main()
 
             glfwTerminate();
         }
+        else
+        {
+            fprintf(stderr, "Failed to initialise GLAD\n");
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Failed to initialise window\n");
     }
 }
 
