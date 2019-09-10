@@ -43,6 +43,8 @@ endif(WIN32)
 add_library(GLAD "src/glad.c")
 set(LIBS ${LIBS} GLAD)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c99")
+
 file(GLOB SRC "src/*.c" "src/*.h")
 add_executable(${EXEC} ${SRC})
 target_link_libraries(${EXEC} ${LIBS})
