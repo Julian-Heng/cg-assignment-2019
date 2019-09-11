@@ -1,28 +1,26 @@
-#define STB_IMAGE_IMPLEMENTATION
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
-#include <stb_image.h>
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "shader.h"
+#include "texture.h"
 #include "graphics.h"
 
 #define WIDTH 1440
 #define HEIGHT 900
 #define TITLE "Game"
 
-backend* init()
+Backend* init()
 {
-    backend* engine;
+    Backend* engine;
 
-    if ((engine = (backend*)malloc(sizeof(backend))))
+    if ((engine = (Backend*)malloc(sizeof(Backend))))
     {
-        memset(engine, 0, sizeof(backend));
+        memset(engine, 0, sizeof(Backend));
 
         initWindow(engine);
         initGlad(engine);
@@ -31,6 +29,7 @@ backend* init()
         {
             initShader(engine);
             initShapes(engine);
+            initTextures(engine);
         }
     }
     else
@@ -42,7 +41,7 @@ backend* init()
 }
 
 
-void initWindow(backend* engine)
+void initWindow(Backend* engine)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -66,7 +65,7 @@ void initWindow(backend* engine)
 }
 
 
-void initGlad(backend* engine)
+void initGlad(Backend* engine)
 {
     if (engine->window &&
         ! gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -77,14 +76,14 @@ void initGlad(backend* engine)
 }
 
 
-void initShader(backend* engine)
+void initShader(Backend* engine)
 {
     int shader = makeShader("shaders/shader.vs", "shaders/shader.fs");
     engine->shaderPrograms[engine->programCount++] = shader;
 }
 
 
-void initShapes(backend* engine)
+void initShapes(Backend* engine)
 {
     float vertices[] = {
         // Positions            Color               Texture
@@ -99,9 +98,6 @@ void initShapes(backend* engine)
         1, 2, 3
     };
 
-    int width, height, nrChannels;
-    unsigned char* data;
-
     glGenVertexArrays(1, &(engine->VAO));
     glGenBuffers(1, &(engine->VBO));
     glGenBuffers(1, &(engine->EBO));
@@ -114,47 +110,45 @@ void initShapes(backend* engine)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float), (void*)0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float), (void*)(6 * sizeof(float)));
+
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
-
-    glGenTextures(1, &(engine->texture));
-    glBindTexture(GL_TEXTURE_2D, engine->texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    data = stbi_load("resources/container.jpg", &width, &height, &nrChannels, 0);
-
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        fprintf(stderr, "Failed to load texture \"%s\"\n", "container.jpg");
-    }
-    stbi_image_free(data);
 }
 
 
-void loop(backend* engine)
+void initTextures(Backend* engine)
 {
-    float timeValue;
-    float greenValue;
-    int vertexColorLocation;
+    TextureSpec spec;
+
+    spec.filename = "resources/container.jpg";
+    spec.rgbMode = GL_RGB;
+    spec.flip = false;
+    generateTexture(&(engine->textures[engine->textureCount++]), spec);
+
+    spec.filename = "resources/awesomeface.png";
+    spec.rgbMode = GL_RGBA;
+    spec.flip = true;
+    generateTexture(&(engine->textures[engine->textureCount++]), spec);
+}
+
+
+void loop(Backend* engine)
+{
+    useShader(engine->shaderPrograms[0]);
+    glUniform1i(glGetUniformLocation(engine->shaderPrograms[0], "texture1"), 0);
+    setShaderInt(engine->shaderPrograms[0], "texture2", 1);
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -163,12 +157,11 @@ void loop(backend* engine)
 
         useShader(engine->shaderPrograms[0]);
 
-        timeValue = glfwGetTime();
-        greenValue = sin(timeValue) / 2.0f + 0.5f;
-        vertexColorLocation = glGetUniformLocation(engine->shaderPrograms[0], "ourColor");
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, engine->textures[0]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, engine->textures[1]);
 
-        glBindTexture(GL_TEXTURE_2D, engine->texture);
         glBindVertexArray(engine->VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -178,7 +171,7 @@ void loop(backend* engine)
 }
 
 
-void terminate(backend** engine)
+void terminate(Backend** engine)
 {
     glDeleteVertexArrays(1, &((*engine)->VAO));
     glDeleteBuffers(1, &((*engine)->VBO));

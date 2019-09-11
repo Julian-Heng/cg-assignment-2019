@@ -51,7 +51,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c99")
 
 file(GLOB SRC "src/*.c" "src/*.h")
 file(GLOB SHADERS "src/shaders/*.vs" "src/shaders/*.fs")
-file(GLOB RESOURCES "resources/*.jpg")
+file(GLOB RESOURCES "resources/*.jpg" "resources/*.png")
 
 add_executable(${EXEC} ${SRC})
 target_link_libraries(${EXEC} ${LIBS})

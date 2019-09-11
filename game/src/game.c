@@ -10,7 +10,7 @@
 int main()
 {
     bool ret = false;
-    backend* engine = init();
+    Backend* engine = init();
 
     if (engine->window)
     {

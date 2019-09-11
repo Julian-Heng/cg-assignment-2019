@@ -3,29 +3,31 @@
 
 #include <stdio.h>
 
-typedef struct backend
+typedef struct Backend
 {
     GLFWwindow* window;
     unsigned int VAO;
     unsigned int VBO;
     unsigned int EBO;
 
-    int shaderPrograms[BUFSIZ];
+    unsigned int shaderPrograms[BUFSIZ];
     unsigned int programCount;
 
-    unsigned int texture;
-} backend;
+    unsigned int textures[BUFSIZ];
+    unsigned int textureCount;
+} Backend;
 
-backend* init(void);
-void initWindow(backend*);
-void initGlad(backend*);
-void initShader(backend*);
-void initShapes(backend*);
+Backend* init(void);
+void initWindow(Backend*);
+void initGlad(Backend*);
+void initShader(Backend*);
+void initShapes(Backend*);
+void initTextures(Backend*);
 
 
-void loop(backend*);
+void loop(Backend*);
 
-void terminate(backend**);
+void terminate(Backend**);
 
 void input(GLFWwindow*, int, int, int, int);
 void framebuffer_size_callback(GLFWwindow*, int, int);
