@@ -15,6 +15,19 @@ int main()
 {
     GLFWwindow* win;
 
+    if ((win = init()))
+    {
+        loop(win);
+    }
+
+    terminate();
+    return win == NULL;
+}
+
+GLFWwindow* init()
+{
+    GLFWwindow* win;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -27,20 +40,29 @@ int main()
     if ((win = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Game", NULL, NULL)) == NULL)
     {
         fprintf(stderr, "Failed to initialise window\n");
-        glfwTerminate();
-        return -1;
     }
-
-    glfwMakeContextCurrent(win);
-    glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
-
-    if (! gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    else
     {
-        fprintf(stderr, "Failed to initialise GLAD\n");
-        glfwTerminate();
-        return -1;
+        glfwMakeContextCurrent(win);
+        glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
+
+        if (! gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            fprintf(stderr, "Failed to initialise GLAD\n");
+            win = NULL;
+        }
     }
 
+    return win;
+}
+
+void terminate()
+{
+    glfwTerminate();
+}
+
+void loop(GLFWwindow* win)
+{
     while (! glfwWindowShouldClose(win))
     {
         if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -52,8 +74,6 @@ int main()
         glfwSwapBuffers(win);
         glfwPollEvents();
     }
-
-    glfwTerminate();
 }
 
 void framebuffer_size_callback(GLFWwindow* win, int width, int height)
