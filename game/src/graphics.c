@@ -143,6 +143,10 @@ void initTextures(Backend* engine)
 
 void loop(Backend* engine)
 {
+    double lastTime = glfwGetTime();
+    double currentTime;
+    unsigned int nFrames = 0;
+
     unsigned int transformLoc;
     useShader(engine->shaderPrograms[0]);
     setShaderInt(engine->shaderPrograms[0], "texture1", 0);
@@ -150,6 +154,17 @@ void loop(Backend* engine)
 
     while (! glfwWindowShouldClose(engine->window))
     {
+        currentTime = glfwGetTime();
+        nFrames++;
+
+        if (currentTime - lastTime >= 1.0)
+        {
+            fprintf(stderr, "%d fps, %0.5f ms\n", nFrames,
+                                               1000.0 / (double)nFrames);
+            nFrames = 0;
+            lastTime += 1.0;
+        }
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
