@@ -1,11 +1,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "graphics.h"
 
 #define WIDTH 1440
 #define HEIGHT 900
+#define TITLE "Game"
 
 GLFWwindow* init()
 {
@@ -26,7 +29,7 @@ void windowInit(GLFWwindow** win)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    if ((*win = glfwCreateWindow(WIDTH, HEIGHT, "Game", NULL, NULL)) == NULL)
+    if (! (*win = glfwCreateWindow(WIDTH, HEIGHT, TITLE, NULL, NULL)))
     {
         fprintf(stderr, "Failed to initialise window\n");
     }
@@ -50,6 +53,21 @@ void gladInit(GLFWwindow** win)
 void terminate()
 {
     glfwTerminate();
+}
+
+void loop(GLFWwindow* win)
+{
+    while (! glfwWindowShouldClose(win))
+    {
+        if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(win, true);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glfwSwapBuffers(win);
+        glfwPollEvents();
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* win, int width, int height)
