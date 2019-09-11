@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <cglm/cglm.h>
 
 #include <stdbool.h>
@@ -10,8 +11,8 @@
 #include "texture.h"
 #include "graphics.h"
 
-#define WIDTH 1440
-#define HEIGHT 900
+#define WIDTH 800
+#define HEIGHT 600
 #define TITLE "Game"
 
 Backend* init()
@@ -86,11 +87,11 @@ void initShader(Backend* engine)
 void initShapes(Backend* engine)
 {
     float vertices[] = {
-        // Positions            Color               Texture
-        0.5f,   0.5f,   0.0f,   1.0f, 0.0f, 0.0f,   1.0f,   1.0f,   // top right
-        0.5f,   -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f,   0.0f,   // bottom right
-        -0.5f,  -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f,   0.0f,   // bottom left
-        -0.5f,  0.5f,   0.0f,   1.0f, 1.0f, 0.0f,   0.0f,   1.0f    // top left
+        // Positions            Texture
+        0.5f,   0.5f,   0.0f,   1.0f,   1.0f,   // top right
+        0.5f,   -0.5f,  0.0f,   1.0f,   0.0f,   // bottom right
+        -0.5f,  -0.5f,  0.0f,   0.0f,   0.0f,   // bottom left
+        -0.5f,  0.5f,   0.0f,   0.0f,   1.0f    // top left
     };
 
     unsigned int indices[] = {
@@ -111,17 +112,13 @@ void initShapes(Backend* engine)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float), (void*)0);
+                          5 * sizeof(float), (void*)0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(float), (void*)(3 * sizeof(float)));
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -146,8 +143,9 @@ void initTextures(Backend* engine)
 
 void loop(Backend* engine)
 {
+    unsigned int transformLoc;
     useShader(engine->shaderPrograms[0]);
-    glUniform1i(glGetUniformLocation(engine->shaderPrograms[0], "texture1"), 0);
+    setShaderInt(engine->shaderPrograms[0], "texture1", 0);
     setShaderInt(engine->shaderPrograms[0], "texture2", 1);
 
     while (! glfwWindowShouldClose(engine->window))
@@ -155,12 +153,24 @@ void loop(Backend* engine)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        useShader(engine->shaderPrograms[0]);
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, engine->textures[0]);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, engine->textures[1]);
+
+        mat4 transform = {
+            {1, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+        };
+
+        glm_translate(transform, (vec3){0.5f, -0.5f, 0.0f});
+        glm_rotate(transform, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
+
+        useShader(engine->shaderPrograms[0]);
+        transformLoc = glGetUniformLocation(engine->shaderPrograms[0], "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform[0]);
 
         glBindVertexArray(engine->VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
