@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include <stdio.h>
+
 typedef struct backend
 {
     GLFWwindow* window;
@@ -8,7 +10,8 @@ typedef struct backend
     unsigned int VBO;
     unsigned int EBO;
 
-    int shaderProgram;
+    int shaderPrograms[BUFSIZ];
+    unsigned int programCount;
 } backend;
 
 backend* init(void);

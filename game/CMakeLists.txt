@@ -21,9 +21,7 @@ endif(WIN32)
 find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
 
-if(WIN32)
-    set(LIBS glfw3 opengl32)
-elseif(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE)
     set(LIBS ${GLFW3_LIBRARY} dl)
     set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE} -ldl")
 elseif(APPLE)
@@ -38,7 +36,11 @@ elseif(APPLE)
     set(LIBS ${LIBS} ${APPLE_LIBS})
 else()
     set(LIBS )
-endif(WIN32)
+endif(UNIX AND NOT APPLE)
+
+macro(makeLink src dest target)
+  add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dest}  DEPENDS  ${dest} COMMENT "mklink ${src} -> ${dest}")
+endmacro()
 
 set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE} -lm")
 
@@ -48,6 +50,12 @@ set(LIBS ${LIBS} GLAD)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c99")
 
 file(GLOB SRC "src/*.c" "src/*.h")
+file(GLOB SHADERS "src/*.vs" "src/*.fs")
+
 add_executable(${EXEC} ${SRC})
 target_link_libraries(${EXEC} ${LIBS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
+
+foreach(SHADER ${SHADERS})
+    file(COPY ${SHADER} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endforeach(SHADER)
