@@ -2,19 +2,21 @@
 #include <GLFW/glfw3.h>
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "graphics.h"
 #include "game.h"
 
 int main()
 {
-    GLFWwindow* win = init();
+    bool ret = false;
+    backend* engine = init();
 
-    if (win)
+    if (engine->window)
     {
-        loop(win);
+        loop(engine);
     }
 
-    terminate();
-    return win == NULL;
+    terminate(&engine);
+    return (int)ret;
 }
