@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
@@ -77,7 +79,7 @@ void initGlad(backend* engine)
 
 void initShader(backend* engine)
 {
-    int shader = makeShader("shader.vs", "shader.fs");
+    int shader = makeShader("shaders/shader.vs", "shaders/shader.fs");
     engine->shaderPrograms[engine->programCount++] = shader;
 }
 
@@ -85,17 +87,20 @@ void initShader(backend* engine)
 void initShapes(backend* engine)
 {
     float vertices[] = {
-        // Positions            Color
-        0.5f,   0.5f,   0.0f,   1.0f, 0.0f, 0.0f,   // top right
-        0.5f,   -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   // bottom right
-        -0.5f,  -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   // bottom left
-        -0.5f,  0.5f,   0.0f,   1.0f, 0.0f, 0.0f  // top left
+        // Positions            Color               Texture
+        0.5f,   0.5f,   0.0f,   1.0f, 0.0f, 0.0f,   1.0f,   1.0f,   // top right
+        0.5f,   -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f,   0.0f,   // bottom right
+        -0.5f,  -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f,   0.0f,   // bottom left
+        -0.5f,  0.5f,   0.0f,   1.0f, 1.0f, 0.0f,   0.0f,   1.0f    // top left
     };
 
     unsigned int indices[] = {
         0, 1, 3,
         1, 2, 3
     };
+
+    int width, height, nrChannels;
+    unsigned char* data;
 
     glGenVertexArrays(1, &(engine->VAO));
     glGenBuffers(1, &(engine->VBO));
@@ -109,14 +114,39 @@ void initShapes(backend* engine)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+
+    glGenTextures(1, &(engine->texture));
+    glBindTexture(GL_TEXTURE_2D, engine->texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    data = stbi_load("resources/container.jpg", &width, &height, &nrChannels, 0);
+
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        fprintf(stderr, "Failed to load texture \"%s\"\n", "container.jpg");
+    }
+    stbi_image_free(data);
 }
 
 
@@ -138,6 +168,7 @@ void loop(backend* engine)
         vertexColorLocation = glGetUniformLocation(engine->shaderPrograms[0], "ourColor");
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
+        glBindTexture(GL_TEXTURE_2D, engine->texture);
         glBindVertexArray(engine->VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

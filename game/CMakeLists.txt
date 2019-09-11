@@ -50,12 +50,17 @@ set(LIBS ${LIBS} GLAD)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c99")
 
 file(GLOB SRC "src/*.c" "src/*.h")
-file(GLOB SHADERS "src/*.vs" "src/*.fs")
+file(GLOB SHADERS "src/shaders/*.vs" "src/shaders/*.fs")
+file(GLOB RESOURCES "resources/*.jpg")
 
 add_executable(${EXEC} ${SRC})
 target_link_libraries(${EXEC} ${LIBS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 foreach(SHADER ${SHADERS})
-    file(COPY ${SHADER} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    file(COPY ${SHADER} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders")
 endforeach(SHADER)
+
+foreach(RESOURCE_FILE ${RESOURCES})
+    file(COPY ${RESOURCE_FILE} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources")
+endforeach(RESOURCE_FILE)

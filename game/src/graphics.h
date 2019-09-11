@@ -12,6 +12,8 @@ typedef struct backend
 
     int shaderPrograms[BUFSIZ];
     unsigned int programCount;
+
+    unsigned int texture;
 } backend;
 
 backend* init(void);
