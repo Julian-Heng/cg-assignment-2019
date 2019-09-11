@@ -85,10 +85,11 @@ void initShader(backend* engine)
 void initShapes(backend* engine)
 {
     float vertices[] = {
-        0.5f,  0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f  // top left
+        // Positions            Color
+        0.5f,   0.5f,   0.0f,   1.0f, 0.0f, 0.0f,   // top right
+        0.5f,   -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   // bottom right
+        -0.5f,  -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   // bottom left
+        -0.5f,  0.5f,   0.0f,   1.0f, 0.0f, 0.0f  // top left
     };
 
     unsigned int indices[] = {
@@ -108,8 +109,11 @@ void initShapes(backend* engine)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -118,12 +122,22 @@ void initShapes(backend* engine)
 
 void loop(backend* engine)
 {
+    float timeValue;
+    float greenValue;
+    int vertexColorLocation;
+
     while (! glfwWindowShouldClose(engine->window))
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         useShader(engine->shaderPrograms[0]);
+
+        timeValue = glfwGetTime();
+        greenValue = sin(timeValue) / 2.0f + 0.5f;
+        vertexColorLocation = glGetUniformLocation(engine->shaderPrograms[0], "ourColor");
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
         glBindVertexArray(engine->VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -135,6 +149,9 @@ void loop(backend* engine)
 
 void terminate(backend** engine)
 {
+    glDeleteVertexArrays(1, &((*engine)->VAO));
+    glDeleteBuffers(1, &((*engine)->VBO));
+
     if (*engine)
     {
         free(*engine);
