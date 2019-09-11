@@ -16,8 +16,13 @@ void initWindow(backend*);
 void initGlad(backend*);
 void initShader(backend*);
 void initShapes(backend*);
+
+
 void loop(backend*);
+
 void terminate(backend**);
+
+void input(GLFWwindow*, int, int, int, int);
 void framebuffer_size_callback(GLFWwindow*, int, int);
 
 #endif
