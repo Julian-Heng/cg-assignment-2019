@@ -2,6 +2,7 @@
 #define GRAPHICS_H
 
 #include <stdio.h>
+#include "shader.h"
 
 typedef struct Backend
 {
@@ -10,7 +11,7 @@ typedef struct Backend
     unsigned int VBO;
     unsigned int EBO;
 
-    unsigned int shaderPrograms[BUFSIZ];
+    Shader* shaderPrograms[BUFSIZ];
     unsigned int programCount;
 
     unsigned int textures[BUFSIZ];

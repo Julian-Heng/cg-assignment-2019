@@ -16,6 +16,8 @@
 #define TITLE "Game"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
+#define ERR_WINDOW "Failed to initialise window\n"
+#define ERR_GLAD "Failed to initialise GLAD\n"
 
 Backend* init()
 {
@@ -63,7 +65,7 @@ void initWindow(Backend* engine)
     }
     else
     {
-        fprintf(stderr, "Failed to initialise window\n");
+        fprintf(stderr, ERR_WINDOW);
     }
 }
 
@@ -73,7 +75,7 @@ void initGlad(Backend* engine)
     if (engine->window &&
         ! gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        fprintf(stderr, "Failed to initialise GLAD\n");
+        fprintf(stderr, ERR_GLAD);
         engine->window = NULL;
     }
 }
@@ -81,7 +83,7 @@ void initGlad(Backend* engine)
 
 void initShader(Backend* engine)
 {
-    int shader = makeShader("shaders/shader.vs", "shaders/shader.fs");
+    Shader* shader = makeShader("shaders/shader.vs", "shaders/shader.fs");
     engine->shaderPrograms[engine->programCount++] = shader;
 }
 
@@ -184,7 +186,7 @@ void loop(Backend* engine)
         glm_rotate(transform, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
 
         useShader(engine->shaderPrograms[0]);
-        transformLoc = glGetUniformLocation(engine->shaderPrograms[0], "transform");
+        transformLoc = glGetUniformLocation(engine->shaderPrograms[0]->ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform[0]);
 
         glBindVertexArray(engine->VAO);
@@ -198,11 +200,19 @@ void loop(Backend* engine)
 
 void terminate(Backend** engine)
 {
+    int i;
+
     glDeleteVertexArrays(1, &((*engine)->VAO));
     glDeleteBuffers(1, &((*engine)->VBO));
 
     if (*engine)
     {
+        for (i = 0; i < (*engine)->programCount; i++)
+        {
+            free((*engine)->shaderPrograms[i]);
+            (*engine)->shaderPrograms[i] = NULL;
+        }
+
         free(*engine);
         *engine = NULL;
     }

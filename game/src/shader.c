@@ -18,20 +18,27 @@ static void checkCompile(unsigned int, int, char*);
 static char* fileRead(char*);
 
 
-unsigned int makeShader(char* vertexFilename, char* fragmentFilename)
+Shader* makeShader(char* vertexFilename, char* fragmentFilename)
 {
-    unsigned int ID;
+    Shader* shader;
+
     unsigned int vertex;
     unsigned int fragment;
 
-    vertex = compileShader(vertexFilename, GL_VERTEX_SHADER);
-    fragment = compileShader(fragmentFilename, GL_FRAGMENT_SHADER);
-    ID = linkProgram(vertex, fragment, vertexFilename);
+    if ((shader = (Shader*)malloc(sizeof(Shader))))
+    {
+        vertex = compileShader(vertexFilename, GL_VERTEX_SHADER);
+        fragment = compileShader(fragmentFilename, GL_FRAGMENT_SHADER);
 
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
+        shader->ID = linkProgram(vertex, fragment, vertexFilename);
+        strncpy(shader->vertexFilename, vertexFilename, BUFSIZ);
+        strncpy(shader->fragmentFilename, fragmentFilename, BUFSIZ);
 
-    return ID;
+        glDeleteShader(vertex);
+        glDeleteShader(fragment);
+    }
+
+    return shader;
 }
 
 
@@ -65,27 +72,27 @@ linkProgram(unsigned int vertex, unsigned int fragment, char* filename)
 }
 
 
-void useShader(int ID)
+void useShader(Shader* shader)
 {
-    glUseProgram(ID);
+    glUseProgram(shader->ID);
 }
 
 
-void setShaderBool(int ID, char* name, bool value)
+void setShaderBool(Shader* shader, char* name, bool value)
 {
-    glUniform1i(glGetUniformLocation(ID, name), value);
+    glUniform1i(glGetUniformLocation(shader->ID, name), (int)value);
 }
 
 
-void setShaderInt(int ID, char* name, int value)
+void setShaderInt(Shader* shader, char* name, int value)
 {
-    glUniform1i(glGetUniformLocation(ID, name), value);
+    glUniform1i(glGetUniformLocation(shader->ID, name), value);
 }
 
 
-void setShaderFloat(int ID, char* name, float value)
+void setShaderFloat(Shader* shader, char* name, float value)
 {
-    glUniform1f(glGetUniformLocation(ID, name), value);
+    glUniform1f(glGetUniformLocation(shader->ID, name), value);
 }
 
 

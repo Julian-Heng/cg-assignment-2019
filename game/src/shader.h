@@ -5,11 +5,19 @@
 
 typedef enum {SHADER, PROGRAM} type;
 
-unsigned int makeShader(char*, char*);
-void useShader(int);
+typedef struct Shader
+{
+    unsigned int ID;
+    char vertexFilename[BUFSIZ];
+    char fragmentFilename[BUFSIZ];
+    bool success;
+} Shader;
 
-void setShaderBool(int, char*, bool);
-void setShaderInt(int, char*, int);
-void setShaderFloat(int, char*, float);
+Shader* makeShader(char*, char*);
+void useShader(Shader*);
+
+void setShaderBool(Shader*, char*, bool);
+void setShaderInt(Shader*, char*, int);
+void setShaderFloat(Shader*, char*, float);
 
 #endif
