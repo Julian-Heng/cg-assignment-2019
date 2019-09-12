@@ -15,6 +15,8 @@
 #define HEIGHT 600
 #define TITLE "Game"
 
+#define LOG_FPS "%d fps, %0.5f ms\n"
+
 Backend* init()
 {
     Backend* engine;
@@ -159,8 +161,7 @@ void loop(Backend* engine)
 
         if (currentTime - lastTime >= 1.0)
         {
-            fprintf(stderr, "%d fps, %0.5f ms\n", nFrames,
-                                               1000.0 / (double)nFrames);
+            fprintf(stderr, LOG_FPS, nFrames, 1000.0 / (double)nFrames);
             nFrames = 0;
             lastTime += 1.0;
         }
@@ -180,7 +181,6 @@ void loop(Backend* engine)
             {0, 0, 0, 1}
         };
 
-        glm_translate(transform, (vec3){0.5f, -0.5f, 0.0f});
         glm_rotate(transform, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
 
         useShader(engine->shaderPrograms[0]);
