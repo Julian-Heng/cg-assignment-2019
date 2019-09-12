@@ -13,15 +13,6 @@
 
 #include "graphics.h"
 
-#define WIDTH 800
-#define HEIGHT 600
-#define ASPECT_RATIO ((float)WIDTH / (float)HEIGHT)
-#define TITLE "CG Assignment"
-
-#define LOG_FPS "%d fps, %0.5f ms\n"
-#define ERR_WINDOW "Failed to initialise window\n"
-#define ERR_GLAD "Failed to initialise GLAD\n"
-
 
 Backend* init()
 {
@@ -36,6 +27,7 @@ Backend* init()
 
         if (engine->window)
         {
+            glEnable(GL_DEPTH_TEST);
             initShader(engine);
             initShapes(engine);
             initTextures(engine);
@@ -95,29 +87,75 @@ void initShader(Backend* engine)
 void initShapes(Backend* engine)
 {
     float vertices[] = {
-        // Positions            Texture
-        0.5f,   0.5f,   0.0f,   1.0f,   1.0f,   // top right
-        0.5f,   -0.5f,  0.0f,   1.0f,   0.0f,   // bottom right
-        -0.5f,  -0.5f,  0.0f,   0.0f,   0.0f,   // bottom left
-        -0.5f,  0.5f,   0.0f,   0.0f,   1.0f    // top left
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    unsigned int indices[] = {
-        0, 1, 3,
-        1, 2, 3
+    vec3 cubePositions[] = {
+        { 0.0f,  0.0f,  0.0f},
+        { 2.0f,  5.0f, -15.0f},
+        {-1.5f, -2.2f, -2.5f},
+        {-3.8f, -2.0f, -12.3f},
+        { 2.4f, -0.4f, -3.5f},
+        {-1.7f,  3.0f, -7.5f},
+        { 1.3f, -2.0f, -2.5f},
+        { 1.5f,  2.0f, -2.5f},
+        { 1.5f,  0.2f, -1.5f},
+        {-1.3f,  1.0f, -1.5f}
     };
+
+    engine->vertices = (float*)malloc(sizeof(vertices) * sizeof(float));
+    engine->positions = (vec3*)malloc(sizeof(cubePositions) * sizeof(vec3));
+
+    memcpy(engine->vertices, vertices, sizeof(vertices));
+    memcpy(engine->positions, cubePositions, sizeof(cubePositions));
 
     glGenVertexArrays(1, &(engine->VAO));
     glGenBuffers(1, &(engine->VBO));
-    glGenBuffers(1, &(engine->EBO));
 
     glBindVertexArray(engine->VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, engine->VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                           5 * sizeof(float), (void*)0);
@@ -151,13 +189,15 @@ void initTextures(Backend* engine)
 
 void loop(Backend* engine)
 {
+    int i;
+
     double lastTime = glfwGetTime();
     double currentTime;
     unsigned int nFrames = 0;
 
-    useShader(engine->shaderPrograms[0]);
-    setShaderInt(engine->shaderPrograms[0], "texture1", 0);
-    setShaderInt(engine->shaderPrograms[0], "texture2", 1);
+    USE_SHADER(engine->shaderPrograms[0]);
+    SET_SHADER_INT(engine->shaderPrograms[0], "texture1", 0);
+    SET_SHADER_INT(engine->shaderPrograms[0], "texture2", 1);
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -172,29 +212,33 @@ void loop(Backend* engine)
         }
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, engine->textures[0]);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, engine->textures[1]);
 
-        useShader(engine->shaderPrograms[0]);
+        USE_SHADER(engine->shaderPrograms[0]);
 
-        mat4 model = IDENTITY_MAT4;
-        mat4 view = IDENTITY_MAT4;
-        mat4 projection = IDENTITY_MAT4;
+        for (i = 0; i < 10; i++)
+        {
+            mat4 model = IDENTITY_MAT4;
+            mat4 view = IDENTITY_MAT4;
+            mat4 projection = IDENTITY_MAT4;
 
-        glm_rotate(model, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
-        glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
-        glm_perspective(glm_rad(45.0f), ASPECT_RATIO, 0.1f, 100.0f, projection);
+            glm_translate(model, engine->positions[i]);
+            glm_rotate(model, RAD(20.0f * i), (vec3){1.0f, 0.3f, 0.5f});
+            glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
+            glm_perspective(RAD(45.0f), ASPECT_RATIO, 0.1f, 100.0f, projection);
 
-        setShaderMat4(engine->shaderPrograms[0], "model", model);
-        setShaderMat4(engine->shaderPrograms[0], "view", view);
-        setShaderMat4(engine->shaderPrograms[0], "projection", projection);
+            SET_SHADER_MAT4(engine->shaderPrograms[0], "model", model);
+            SET_SHADER_MAT4(engine->shaderPrograms[0], "view", view);
+            SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
 
-        glBindVertexArray(engine->VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(engine->VAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(engine->window);
         glfwPollEvents();
@@ -216,6 +260,9 @@ void terminate(Backend** engine)
             free((*engine)->shaderPrograms[i]);
             (*engine)->shaderPrograms[i] = NULL;
         }
+
+        SAFE_FREE((*engine)->vertices);
+        SAFE_FREE((*engine)->positions);
 
         free(*engine);
         *engine = NULL;
