@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cglm/cglm.h>
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -11,6 +12,9 @@
 #define ERR_SHADER "Error: Shader file \"%s\" failed to compile\n%s"
 #define ERR_PROGRAM "Error: Shader file \"%s\" failed to link\n%s"
 
+#define UNIFORM_LOC(shaderPtr, name) \
+    glGetUniformLocation((shaderPtr)->ID, (name))
+
 
 static unsigned int compileShader(char*, int);
 static unsigned int linkProgram(unsigned int, unsigned int, char*);
@@ -21,7 +25,6 @@ static char* fileRead(char*);
 Shader* makeShader(char* vertexFilename, char* fragmentFilename)
 {
     Shader* shader;
-
     unsigned int vertex;
     unsigned int fragment;
 
@@ -80,19 +83,25 @@ void useShader(Shader* shader)
 
 void setShaderBool(Shader* shader, char* name, bool value)
 {
-    glUniform1i(glGetUniformLocation(shader->ID, name), (int)value);
+    glUniform1i(UNIFORM_LOC(shader, name), (int)value);
 }
 
 
 void setShaderInt(Shader* shader, char* name, int value)
 {
-    glUniform1i(glGetUniformLocation(shader->ID, name), value);
+    glUniform1i(UNIFORM_LOC(shader, name), value);
 }
 
 
 void setShaderFloat(Shader* shader, char* name, float value)
 {
-    glUniform1f(glGetUniformLocation(shader->ID, name), value);
+    glUniform1f(UNIFORM_LOC(shader, name), value);
+}
+
+
+void setShaderMat4(Shader* shader, char* name, mat4 mat)
+{
+    glUniformMatrix4fv(UNIFORM_LOC(shader, name), 1, GL_FALSE, mat[0]);
 }
 
 

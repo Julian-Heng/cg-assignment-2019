@@ -7,17 +7,21 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "macros.h"
 #include "shader.h"
 #include "texture.h"
+
 #include "graphics.h"
 
 #define WIDTH 800
 #define HEIGHT 600
-#define TITLE "Game"
+#define ASPECT_RATIO ((float)WIDTH / (float)HEIGHT)
+#define TITLE "CG Assignment"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
 #define ERR_WINDOW "Failed to initialise window\n"
 #define ERR_GLAD "Failed to initialise GLAD\n"
+
 
 Backend* init()
 {
@@ -151,7 +155,6 @@ void loop(Backend* engine)
     double currentTime;
     unsigned int nFrames = 0;
 
-    unsigned int transformLoc;
     useShader(engine->shaderPrograms[0]);
     setShaderInt(engine->shaderPrograms[0], "texture1", 0);
     setShaderInt(engine->shaderPrograms[0], "texture2", 1);
@@ -176,18 +179,19 @@ void loop(Backend* engine)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, engine->textures[1]);
 
-        mat4 transform = {
-            {1, 0, 0, 0},
-            {0, 1, 0, 0},
-            {0, 0, 1, 0},
-            {0, 0, 0, 1}
-        };
-
-        glm_rotate(transform, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
-
         useShader(engine->shaderPrograms[0]);
-        transformLoc = glGetUniformLocation(engine->shaderPrograms[0]->ID, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform[0]);
+
+        mat4 model = IDENTITY_MAT4;
+        mat4 view = IDENTITY_MAT4;
+        mat4 projection = IDENTITY_MAT4;
+
+        glm_rotate(model, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
+        glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
+        glm_perspective(glm_rad(45.0f), ASPECT_RATIO, 0.1f, 100.0f, projection);
+
+        setShaderMat4(engine->shaderPrograms[0], "model", model);
+        setShaderMat4(engine->shaderPrograms[0], "view", view);
+        setShaderMat4(engine->shaderPrograms[0], "projection", projection);
 
         glBindVertexArray(engine->VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -225,23 +229,25 @@ void input(GLFWwindow* win, int key, int scancode, int action, int mods)
 {
     static int wireframeToggle = 0;
 
-    if (action == GLFW_PRESS)
+    if (action != GLFW_PRESS)
     {
-        switch (key)
-        {
-            case GLFW_KEY_ESCAPE: case GLFW_KEY_Q:
-                glfwSetWindowShouldClose(win, true);
-                break;
-            case GLFW_KEY_TAB:
-                wireframeToggle= (wireframeToggle + 1) % 3;
-                glPolygonMode(GL_FRONT_AND_BACK,
-                              wireframeToggle == 0 ? GL_FILL :
-                              wireframeToggle == 1 ? GL_LINE :
-                              GL_POINT);
-                break;
-            default:
-                break;
-        }
+        return;
+    }
+
+    switch (key)
+    {
+        case GLFW_KEY_ESCAPE: case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(win, true);
+            break;
+        case GLFW_KEY_TAB:
+            wireframeToggle= (wireframeToggle + 1) % 3;
+            glPolygonMode(GL_FRONT_AND_BACK,
+                          wireframeToggle == 0 ? GL_FILL :
+                          wireframeToggle == 1 ? GL_LINE :
+                          GL_POINT);
+            break;
+        default:
+            break;
     }
 }
 
