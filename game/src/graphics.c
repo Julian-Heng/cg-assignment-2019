@@ -66,6 +66,10 @@ void initWindow(Backend* engine)
         glfwMakeContextCurrent(engine->window);
         glfwSetKeyCallback(engine->window, input);
         glfwSetFramebufferSizeCallback(engine->window, framebuffer_size_callback);
+        glfwSetCursorPosCallback(engine->window, mouse);
+        glfwSetScrollCallback(engine->window, scroll);
+
+        glfwSetInputMode(engine->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     else
     {
@@ -187,11 +191,6 @@ void initTextures(Backend* engine)
     spec.rgbMode = GL_RGB;
     spec.flip = false;
     generateTexture(&(engine->textures[engine->textureCount++]), spec);
-
-    spec.filename = "resources/awesomeface.png";
-    spec.rgbMode = GL_RGBA;
-    spec.flip = true;
-    generateTexture(&(engine->textures[engine->textureCount++]), spec);
 }
 
 
@@ -210,6 +209,10 @@ void loop(Backend* engine)
     SET_SHADER_INT(engine->shaderPrograms[0], "texture1", 0);
     SET_SHADER_INT(engine->shaderPrograms[0], "texture2", 1);
 
+    glm_mat4_identity(model);
+    glm_mat4_identity(projection);
+    glm_mat4_identity(view);
+
     while (! glfwWindowShouldClose(engine->window))
     {
         currentTime = glfwGetTime();
@@ -221,29 +224,26 @@ void loop(Backend* engine)
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, engine->textures[0]);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, engine->textures[1]);
 
         USE_SHADER(engine->shaderPrograms[0]);
 
-        glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO, 0.1f, 100.0f, projection);
-        SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
-
+        glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO, 0.1f, 100.0f,
+                        projection);
         getCameraViewMatrix(engine->cam, view);
+
+        SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
         SET_SHADER_MAT4(engine->shaderPrograms[0], "view", view);
 
         glBindVertexArray(engine->VAO);
         for (i = 0; i < 10; i++)
         {
-            glm_mat4_copy((mat4)IDENTITY_MAT4, model);
+            glm_mat4_identity(model);
 
             glm_translate(model, engine->positions[i]);
             glm_rotate(model, glm_rad(20.0f * i), (vec3){1.0f, 0.3f, 0.5f});
             glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
-            glm_perspective(glm_rad(45.0f), ASPECT_RATIO, 0.1f, 100.0f, projection);
 
             SET_SHADER_MAT4(engine->shaderPrograms[0], "model", model);
-
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
@@ -325,6 +325,41 @@ void input(GLFWwindow* win, int key, int scancode, int action, int mods)
                 break;
         }
     }
+}
+
+
+void mouse(GLFWwindow* win, double x, double y)
+{
+    static bool firstMouse = true;
+    static double lastX = 0.0f;
+    static double lastY = 0.0f;
+
+    Backend* engine = glfwGetWindowUserPointer(win);
+
+    float xoffset;
+    float yoffset;
+
+    if (firstMouse)
+    {
+        lastX = x;
+        lastY = y;
+        firstMouse = false;
+    }
+
+    xoffset = x - lastX;
+    yoffset = lastY - y;
+
+    lastX = x;
+    lastY = y;
+
+    doCameraMouseMovement(engine->cam, xoffset, yoffset, true);
+}
+
+
+void scroll(GLFWwindow* win, double xoffset, double yoffset)
+{
+    Backend* engine = glfwGetWindowUserPointer(win);
+    doCameraMouseScroll(engine->cam, yoffset);
 }
 
 

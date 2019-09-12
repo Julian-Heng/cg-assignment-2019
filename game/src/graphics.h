@@ -51,6 +51,8 @@ void loop(Backend*);
 void terminate(Backend**);
 
 void input(GLFWwindow*, int, int, int, int);
+void mouse(GLFWwindow*, double, double);
+void scroll(GLFWwindow*, double, double);
 void framebuffer_size_callback(GLFWwindow*, int, int);
 
 #endif

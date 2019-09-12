@@ -38,5 +38,7 @@ void doCameraForwardMovement(Camera*, float);
 void doCameraLeftMovement(Camera*, float);
 void doCameraBackwardMovement(Camera*, float);
 void doCameraRightMovement(Camera*, float);
+void doCameraMouseMovement(Camera*, double, double, bool);
+void doCameraMouseScroll(Camera*, float);
 
 #endif

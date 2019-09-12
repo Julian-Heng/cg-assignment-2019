@@ -1,17 +1,24 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define IDENTITY_MAT4 \
-    {{1, 0, 0, 0}, \
-     {0, 1, 0, 0}, \
-     {0, 0, 1, 0}, \
-     {0, 0, 0, 1}}
-
 #define SAFE_FREE(p) \
     if ((p)) \
     { \
         free((p)); \
         (p) = NULL; \
     }
+
+
+#define RANGE_INC(a, b, c) \
+    ((a) >= (b) && (c) >= (a))
+
+
+#define MAX(a, b) \
+    ((a) >= (b) ? (a) : (b))
+
+
+#define MIN(a, b) \
+    ((a) >= (b) ? (b) : (a))
+
 
 #endif
