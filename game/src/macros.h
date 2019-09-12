@@ -7,8 +7,6 @@
      {0, 0, 1, 0}, \
      {0, 0, 0, 1}}
 
-#define RAD(angle) glm_rad((angle))
-
 #define SAFE_FREE(p) \
     if ((p)) \
     { \

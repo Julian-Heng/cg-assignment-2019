@@ -22,7 +22,7 @@
     glUniformMatrix4fv(UNIFORM_LOC((shader), (name)), 1, GL_FALSE, (mat)[0])
 
 
-typedef enum {SHADER, PROGRAM} type;
+typedef enum {SHADER, PROGRAM} Type;
 
 typedef struct Shader
 {

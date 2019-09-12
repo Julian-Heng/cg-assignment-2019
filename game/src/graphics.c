@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "macros.h"
+#include "camera.h"
 #include "shader.h"
 #include "texture.h"
 
@@ -18,25 +19,32 @@ Backend* init()
 {
     Backend* engine;
 
-    if ((engine = (Backend*)malloc(sizeof(Backend))))
+    if (! (engine = (Backend*)malloc(sizeof(Backend))))
     {
-        memset(engine, 0, sizeof(Backend));
-
-        initWindow(engine);
-        initGlad(engine);
-
-        if (engine->window)
-        {
-            glEnable(GL_DEPTH_TEST);
-            initShader(engine);
-            initShapes(engine);
-            initTextures(engine);
-        }
+        fprintf(stderr, ERR_ENGINE_MALLOC);
+        return NULL;
     }
-    else
+
+    memset(engine, 0, sizeof(Backend));
+
+    if (! (engine->cam = makeCamera()))
     {
-        fprintf(stderr, "Cannot allocate memory\n");
+        fprintf(stderr, ERR_CAMERA_MALLOC);
+        return NULL;
     }
+
+    initWindow(engine);
+    initGlad(engine);
+
+    if (engine->window)
+    {
+        glEnable(GL_DEPTH_TEST);
+        initShader(engine);
+        initShapes(engine);
+        initTextures(engine);
+    }
+
+    glfwSetWindowUserPointer(engine->window, engine);
 
     return engine;
 }
@@ -191,9 +199,12 @@ void loop(Backend* engine)
 {
     int i;
 
-    double lastTime = glfwGetTime();
-    double currentTime;
-    unsigned int nFrames = 0;
+    float lastTime = glfwGetTime();
+    float currentTime;
+
+    mat4 model;
+    mat4 projection;
+    mat4 view;
 
     USE_SHADER(engine->shaderPrograms[0]);
     SET_SHADER_INT(engine->shaderPrograms[0], "texture1", 0);
@@ -202,14 +213,8 @@ void loop(Backend* engine)
     while (! glfwWindowShouldClose(engine->window))
     {
         currentTime = glfwGetTime();
-        nFrames++;
-
-        if (currentTime - lastTime >= 1.0)
-        {
-            fprintf(stderr, LOG_FPS, nFrames, 1000.0 / (double)nFrames);
-            nFrames = 0;
-            lastTime += 1.0;
-        }
+        engine->timeDelta = currentTime - lastTime;
+        lastTime = currentTime;
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -221,22 +226,24 @@ void loop(Backend* engine)
 
         USE_SHADER(engine->shaderPrograms[0]);
 
+        glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO, 0.1f, 100.0f, projection);
+        SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
+
+        getCameraViewMatrix(engine->cam, view);
+        SET_SHADER_MAT4(engine->shaderPrograms[0], "view", view);
+
+        glBindVertexArray(engine->VAO);
         for (i = 0; i < 10; i++)
         {
-            mat4 model = IDENTITY_MAT4;
-            mat4 view = IDENTITY_MAT4;
-            mat4 projection = IDENTITY_MAT4;
+            glm_mat4_copy((mat4)IDENTITY_MAT4, model);
 
             glm_translate(model, engine->positions[i]);
-            glm_rotate(model, RAD(20.0f * i), (vec3){1.0f, 0.3f, 0.5f});
+            glm_rotate(model, glm_rad(20.0f * i), (vec3){1.0f, 0.3f, 0.5f});
             glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
-            glm_perspective(RAD(45.0f), ASPECT_RATIO, 0.1f, 100.0f, projection);
+            glm_perspective(glm_rad(45.0f), ASPECT_RATIO, 0.1f, 100.0f, projection);
 
             SET_SHADER_MAT4(engine->shaderPrograms[0], "model", model);
-            SET_SHADER_MAT4(engine->shaderPrograms[0], "view", view);
-            SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
 
-            glBindVertexArray(engine->VAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
@@ -275,26 +282,48 @@ void terminate(Backend** engine)
 void input(GLFWwindow* win, int key, int scancode, int action, int mods)
 {
     static int wireframeToggle = 0;
+    Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
 
-    if (action != GLFW_PRESS)
+    if (action == GLFW_PRESS)
     {
-        return;
+        switch (key)
+        {
+            case GLFW_KEY_ESCAPE: case GLFW_KEY_Q:
+                glfwSetWindowShouldClose(win, true);
+                break;
+
+            case GLFW_KEY_TAB:
+                wireframeToggle = (wireframeToggle + 1) % 3;
+                glPolygonMode(GL_FRONT_AND_BACK,
+                              wireframeToggle == 0 ? GL_FILL :
+                              wireframeToggle == 1 ? GL_LINE :
+                              GL_POINT);
+                break;
+        }
     }
-
-    switch (key)
+    else if (action == GLFW_REPEAT)
     {
-        case GLFW_KEY_ESCAPE: case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(win, true);
-            break;
-        case GLFW_KEY_TAB:
-            wireframeToggle= (wireframeToggle + 1) % 3;
-            glPolygonMode(GL_FRONT_AND_BACK,
-                          wireframeToggle == 0 ? GL_FILL :
-                          wireframeToggle == 1 ? GL_LINE :
-                          GL_POINT);
-            break;
-        default:
-            break;
+        switch (key)
+        {
+            case GLFW_KEY_W:
+                doCameraForwardMovement(engine->cam, engine->timeDelta);
+                break;
+
+            case GLFW_KEY_A:
+                doCameraLeftMovement(engine->cam, engine->timeDelta);
+                break;
+
+            case GLFW_KEY_S:
+                doCameraBackwardMovement(engine->cam, engine->timeDelta);
+                break;
+
+            case GLFW_KEY_D:
+                doCameraRightMovement(engine->cam, engine->timeDelta);
+                break;
+
+            default:
+                break;
+        }
     }
 }
 

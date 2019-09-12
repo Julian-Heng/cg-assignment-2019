@@ -3,6 +3,8 @@
 
 #include <cglm/cglm.h>
 #include <stdio.h>
+
+#include "camera.h"
 #include "shader.h"
 
 #define WIDTH 800
@@ -11,6 +13,9 @@
 #define TITLE "CG Assignment"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
+
+#define ERR_ENGINE_MALLOC "Cannot allocate memory for engine\n"
+#define ERR_CAMERA_MALLOC "Cannot allocate memory for camera\n"
 #define ERR_WINDOW "Failed to initialise window\n"
 #define ERR_GLAD "Failed to initialise GLAD\n"
 
@@ -28,6 +33,9 @@ typedef struct Backend
 
     float* vertices;
     vec3* positions;
+
+    Camera* cam;
+    float timeDelta;
 } Backend;
 
 Backend* init(void);
