@@ -8,12 +8,12 @@
 
 #include "shader.h"
 
-#define SHADER_ERR "Error: Shader file \"%s\" failed to compile\n%s"
-#define PROGRAM_ERR "Error: Shader file \"%s\" failed to link\n%s"
+#define ERR_SHADER "Error: Shader file \"%s\" failed to compile\n%s"
+#define ERR_PROGRAM "Error: Shader file \"%s\" failed to link\n%s"
 
 
-static unsigned int compileShader(const char*, int);
-static unsigned int linkProgram(unsigned int, unsigned int);
+static unsigned int compileShader(char*, int);
+static unsigned int linkProgram(unsigned int, unsigned int, char*);
 static void checkCompile(unsigned int, int, char*);
 static char* fileRead(char*);
 
@@ -24,45 +24,43 @@ unsigned int makeShader(char* vertexFilename, char* fragmentFilename)
     unsigned int vertex;
     unsigned int fragment;
 
-    const char* vertexSource = fileRead(vertexFilename);
-    const char* fragmentSource = fileRead(fragmentFilename);
-
-    vertex = compileShader(vertexSource, GL_VERTEX_SHADER);
-    checkCompile(vertex, SHADER, vertexFilename);
-
-    fragment = compileShader(fragmentSource, GL_FRAGMENT_SHADER);
-    checkCompile(fragment, SHADER, fragmentFilename);
-
-    ID = linkProgram(vertex, fragment);
-    checkCompile(ID, PROGRAM, vertexFilename);
+    vertex = compileShader(vertexFilename, GL_VERTEX_SHADER);
+    fragment = compileShader(fragmentFilename, GL_FRAGMENT_SHADER);
+    ID = linkProgram(vertex, fragment, vertexFilename);
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-
-    free((char*)vertexSource);
-    vertexSource = NULL;
-    free((char*)fragmentSource);
-    fragmentSource = NULL;
 
     return ID;
 }
 
 
-static unsigned int compileShader(const char* source, int type)
+static unsigned int compileShader(char* filename, int type)
 {
+    const char* source = fileRead(filename);
     unsigned int shader = glCreateShader(type);
+
     glShaderSource(shader, 1, &source, NULL);
     glCompileShader(shader);
+    checkCompile(shader, SHADER, filename);
+
+    free((char*)source);
+    source = NULL;
+
     return shader;
 }
 
 
-static unsigned int linkProgram(unsigned int vertex, unsigned int fragment)
+static unsigned int
+linkProgram(unsigned int vertex, unsigned int fragment, char* filename)
 {
     unsigned int ID = glCreateProgram();
+
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
+    checkCompile(ID, PROGRAM, filename);
+
     return ID;
 }
 
@@ -104,15 +102,16 @@ static void checkCompile(unsigned int shader, int type, char* name)
             if (! success)
             {
                 glGetShaderInfoLog(shader, BUFSIZ, NULL, info);
-                fprintf(stderr, SHADER_ERR, name, info);
+                fprintf(stderr, ERR_SHADER, name, info);
             }
             break;
+
         case PROGRAM:
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
             if (! success)
             {
                 glGetProgramInfoLog(shader, BUFSIZ, NULL, info);
-                fprintf(stderr, PROGRAM_ERR, name, info);
+                fprintf(stderr, ERR_PROGRAM, name, info);
             }
             break;
     }
