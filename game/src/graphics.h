@@ -9,7 +9,6 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define ASPECT_RATIO ((float)WIDTH / (float)HEIGHT)
 #define TITLE "CG Assignment"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
@@ -19,11 +18,15 @@
 #define ERR_WINDOW "Failed to initialise window\n"
 #define ERR_GLAD "Failed to initialise GLAD\n"
 
+
 typedef struct Backend
 {
     GLFWwindow* window;
     unsigned int VAO;
     unsigned int VBO;
+
+    unsigned int frameDelta;
+    double fpsLastTime;
 
     Shader* shaderPrograms[BUFSIZ];
     unsigned int programCount;
@@ -45,14 +48,20 @@ void initShader(Backend*);
 void initShapes(Backend*);
 void initTextures(Backend*);
 
-
 void loop(Backend*);
+
+void printFps(Backend* engine);
+void draw(Backend* engine);
+
+void toggleWireframe(void);
+
+void normalInputCallback(GLFWwindow*, int, int, int, int);
+void keyInputCallback(GLFWwindow*);
+void mouseCallback(GLFWwindow*, double, double);
+void scrollCallback(GLFWwindow*, double, double);
+void framebufferSizeCallback(GLFWwindow*, int, int);
 
 void terminate(Backend**);
 
-void input(GLFWwindow*, int, int, int, int);
-void mouse(GLFWwindow*, double, double);
-void scroll(GLFWwindow*, double, double);
-void framebuffer_size_callback(GLFWwindow*, int, int);
 
 #endif

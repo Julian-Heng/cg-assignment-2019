@@ -21,4 +21,7 @@
     ((a) >= (b) ? (b) : (a))
 
 
+#define ASPECT_RATIO(w, h) \
+    ((float)(w) / (float)(h))
+
 #endif
