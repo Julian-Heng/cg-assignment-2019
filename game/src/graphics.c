@@ -260,7 +260,7 @@ void draw(Backend* engine)
 
     glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO(width, height),
                     0.1f, 100.0f, projection);
-    getCameraViewMatrix(engine->cam, view);
+    engine->cam->getViewMatrix(engine->cam, view);
 
     SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
     SET_SHADER_MAT4(engine->shaderPrograms[0], "view", view);
@@ -327,10 +327,10 @@ void keyInputCallback(GLFWwindow* win)
     };
 
     void (*camActions[])(Camera*, float) = {
-        doCameraForwardMovement,
-        doCameraLeftMovement,
-        doCameraBackwardMovement,
-        doCameraRightMovement
+        cam->moveForward,
+        cam->moveLeft,
+        cam->moveBackward,
+        cam->moveRight
     };
 
     n = sizeof(pressed) / sizeof(int);
@@ -349,6 +349,8 @@ void mouseCallback(GLFWwindow* win, double x, double y)
     static double lastX = 0.0f;
     static double lastY = 0.0f;
 
+    Camera* cam = ((Backend*)glfwGetWindowUserPointer(win))->cam;
+
     float xoffset;
     float yoffset;
 
@@ -365,14 +367,14 @@ void mouseCallback(GLFWwindow* win, double x, double y)
     lastX = x;
     lastY = y;
 
-    doCameraMouseMovement(((Backend*)glfwGetWindowUserPointer(win))->cam,
-                          xoffset, yoffset, true);
+    cam->moveMouse(cam, xoffset, yoffset, true);
 }
 
 
 void scrollCallback(GLFWwindow* win, double xoffset, double yoffset)
 {
-    doCameraMouseScroll(((Backend*)glfwGetWindowUserPointer(win))->cam, yoffset);
+    Camera* cam = ((Backend*)glfwGetWindowUserPointer(win))->cam;
+    cam->scrollMouse(cam, yoffset);
 }
 
 

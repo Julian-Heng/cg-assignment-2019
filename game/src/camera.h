@@ -27,19 +27,18 @@ typedef struct Camera
     float speed;
     float mouseSensitivity;
     float zoom;
+
+    void (*getViewMatrix)(struct Camera*, mat4);
+
+    void (*moveForward)(struct Camera*, float);
+    void (*moveLeft)(struct Camera*, float);
+    void (*moveBackward)(struct Camera*, float);
+    void (*moveRight)(struct Camera*, float);
+    void (*moveMouse)(struct Camera*, double, double, bool);
+    void (*scrollMouse)(struct Camera*, float);
 } Camera;
 
 
 Camera* makeCamera(void);
-
-void getCameraViewMatrix(Camera*, mat4);
-
-void updateCameraVectors(Camera*);
-void doCameraForwardMovement(Camera*, float);
-void doCameraLeftMovement(Camera*, float);
-void doCameraBackwardMovement(Camera*, float);
-void doCameraRightMovement(Camera*, float);
-void doCameraMouseMovement(Camera*, double, double, bool);
-void doCameraMouseScroll(Camera*, float);
 
 #endif
