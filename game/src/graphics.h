@@ -6,8 +6,8 @@
 #include "camera.h"
 #include "shader.h"
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1440
+#define HEIGHT 900
 #define TITLE "CG Assignment"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"

@@ -1,9 +1,9 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <GLFW/glfw3.h>
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
-#include <GLFW/glfw3.h>
 
 typedef enum Movement
 {
@@ -12,6 +12,7 @@ typedef enum Movement
     BACKWARD = GLFW_KEY_S,
     RIGHT = GLFW_KEY_D
 } Movement;
+
 
 typedef struct Camera
 {
