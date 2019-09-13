@@ -3,7 +3,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
-
 #include <stdbool.h>
 
 #include "texture.h"
@@ -40,6 +39,6 @@ void loadTexture(TextureSpec spec)
     }
     else
     {
-        fprintf(stderr, "Failed to load texture \"%s\"\n", spec.filename);
+        fprintf(stderr, ERR_TEXTURE_LOAD, spec.filename);
     }
 }

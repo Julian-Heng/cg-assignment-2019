@@ -2,7 +2,6 @@
 #define SHADER_H
 
 #include <stdbool.h>
-#include <cglm/cglm.h>
 
 #define ERR_SHADER "Error: Shader file \"%s\" failed to compile\n%s"
 #define ERR_PROGRAM "Error: Shader file \"%s\" failed to link\n%s"

@@ -1,14 +1,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <cglm/cglm.h>
+#include <cglm/affine.h>
+#include <cglm/cam.h>
+#include <cglm/vec3.h>
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "macros.h"
 #include "camera.h"
+#include "macros.h"
 #include "shader.h"
 #include "texture.h"
 

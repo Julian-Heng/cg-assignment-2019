@@ -1,7 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <cglm/cglm.h>
+#include <cglm/vec3.h>
+#include <cglm/mat4.h>
 #include <GLFW/glfw3.h>
 
 typedef enum Movement

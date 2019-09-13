@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include <cglm/cglm.h>
 #include <stdio.h>
 
 #include "camera.h"
@@ -12,7 +11,6 @@
 #define TITLE "CG Assignment"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
-
 #define ERR_ENGINE_MALLOC "Cannot allocate memory for engine\n"
 #define ERR_CAMERA_MALLOC "Cannot allocate memory for camera\n"
 #define ERR_WINDOW "Failed to initialise window\n"
