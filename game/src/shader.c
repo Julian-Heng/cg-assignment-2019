@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cglm/mat4.h>
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -9,11 +10,18 @@
 #include "shader.h"
 
 
+static void linkMethods(Shader*);
+
+static void use(Shader*);
+static void setBool(Shader*, const char*, bool);
+static void setInt(Shader*, const char*, int);
+static void setFloat(Shader*, const char*, float);
+static void setMat4(Shader*, const char*, mat4);
+
 static unsigned int compileShader(char*, int);
 static unsigned int linkProgram(unsigned int, unsigned int, char*);
 static void checkCompile(unsigned int, int, char*);
 static char* fileRead(char*);
-
 
 Shader* makeShader(char* vertexFilename, char* fragmentFilename)
 {
@@ -21,20 +29,64 @@ Shader* makeShader(char* vertexFilename, char* fragmentFilename)
     unsigned int vertex;
     unsigned int fragment;
 
-    if ((shader = (Shader*)malloc(sizeof(Shader))))
+    if (! (shader = (Shader*)malloc(sizeof(Shader))))
     {
-        vertex = compileShader(vertexFilename, GL_VERTEX_SHADER);
-        fragment = compileShader(fragmentFilename, GL_FRAGMENT_SHADER);
-
-        shader->ID = linkProgram(vertex, fragment, vertexFilename);
-        strncpy(shader->vertexFilename, vertexFilename, BUFSIZ);
-        strncpy(shader->fragmentFilename, fragmentFilename, BUFSIZ);
-
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
+        return NULL;
     }
 
+    linkMethods(shader);
+
+    vertex = compileShader(vertexFilename, GL_VERTEX_SHADER);
+    fragment = compileShader(fragmentFilename, GL_FRAGMENT_SHADER);
+
+    shader->ID = linkProgram(vertex, fragment, vertexFilename);
+    strncpy(shader->vertexFilename, vertexFilename, BUFSIZ);
+    strncpy(shader->fragmentFilename, fragmentFilename, BUFSIZ);
+
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+
     return shader;
+}
+
+
+static void linkMethods(Shader* this)
+{
+    this->use = use;
+    this->setBool = setBool;
+    this->setInt = setInt;
+    this->setFloat = setFloat;
+    this->setMat4 = setMat4;
+}
+
+
+static void use(Shader* this)
+{
+    glUseProgram(this->ID);
+}
+
+
+static void setBool(Shader* this, const char* name, bool val)
+{
+    glUniform1i(UNIFORM_LOC(this, name), (int)val);
+}
+
+
+static void setInt(Shader* this, const char* name, int val)
+{
+    glUniform1i(UNIFORM_LOC(this, name), val);
+}
+
+
+static void setFloat(Shader* this, const char* name, float val)
+{
+    glUniform1f(UNIFORM_LOC(this, name), val);
+}
+
+
+static void setMat4(Shader* this, const char* name, mat4 mat)
+{
+    glUniformMatrix4fv(UNIFORM_LOC(this, name), 1, GL_FALSE, mat[0]);
 }
 
 

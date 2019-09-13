@@ -9,18 +9,6 @@
 #define UNIFORM_LOC(shaderPtr, name) \
     glGetUniformLocation((shaderPtr)->ID, (name))
 
-
-#define USE_SHADER(shader) glUseProgram((shader)->ID)
-#define SET_SHADER_BOOL(shader, name, val) \
-    glUniform1i(UNIFORM_LOC((shader), (name)), (int)(val))
-#define SET_SHADER_INT(shader, name, val) \
-    glUniform1i(UNIFORM_LOC((shader), (name)), (val))
-#define SET_SHADER_FLOAT(shader, name, val) \
-    glUniform1f(UNIFORM_LOC((shader), (name)), (val))
-#define SET_SHADER_MAT4(shader, name, mat) \
-    glUniformMatrix4fv(UNIFORM_LOC((shader), (name)), 1, GL_FALSE, (mat)[0])
-
-
 typedef enum {SHADER, PROGRAM} Type;
 
 typedef struct Shader
@@ -28,9 +16,14 @@ typedef struct Shader
     unsigned int ID;
     char vertexFilename[BUFSIZ];
     char fragmentFilename[BUFSIZ];
+
+    void (*use)(struct Shader*);
+    void (*setBool)(struct Shader*, const char*, bool);
+    void (*setInt)(struct Shader*, const char*, int);
+    void (*setFloat)(struct Shader*, const char*, float);
+    void (*setMat4)(struct Shader*, const char*, mat4);
 } Shader;
 
 Shader* makeShader(char*, char*);
-void useShader(Shader*);
 
 #endif
