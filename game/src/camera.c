@@ -1,5 +1,5 @@
-#include <cglm/cam.h>
 #include <cglm/mat4.h>
+#include <cglm/cam.h>
 #include <cglm/vec3.h>
 
 #include <math.h>
