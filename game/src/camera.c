@@ -65,71 +65,71 @@ static void linkMethods(Camera* cam)
 }
 
 
-static void getViewMatrix(Camera* cam, mat4 result)
+static void getViewMatrix(Camera* this, mat4 result)
 {
     vec3 temp;
-    glm_vec3_add(cam->position, cam->front, temp);
-    glm_lookat(cam->position, temp, cam->up, result);
+    glm_vec3_add(this->position, this->front, temp);
+    glm_lookat(this->position, temp, this->up, result);
 }
 
 
-static void moveForward(Camera* cam, float timeDelta)
+static void moveForward(Camera* this, float timeDelta)
 {
-    glm_vec3_muladds(cam->front, cam->speed * timeDelta, cam->position);
+    glm_vec3_muladds(this->front, this->speed * timeDelta, this->position);
 }
 
 
-static void moveLeft(Camera* cam, float timeDelta)
+static void moveLeft(Camera* this, float timeDelta)
 {
-    float velocity = cam->speed * timeDelta;
+    float velocity = this->speed * timeDelta;
     vec3 temp;
-    glm_vec3_scale(cam->right, velocity, temp);
-    glm_vec3_sub(cam->position, temp, cam->position);
+    glm_vec3_scale(this->right, velocity, temp);
+    glm_vec3_sub(this->position, temp, this->position);
 }
 
 
-static void moveBackward(Camera* cam, float timeDelta)
+static void moveBackward(Camera* this, float timeDelta)
 {
-    float velocity = cam->speed * timeDelta;
+    float velocity = this->speed * timeDelta;
     vec3 temp;
-    glm_vec3_scale(cam->front, velocity, temp);
-    glm_vec3_sub(cam->position, temp, cam->position);
+    glm_vec3_scale(this->front, velocity, temp);
+    glm_vec3_sub(this->position, temp, this->position);
 }
 
 
-static void moveRight(Camera* cam, float timeDelta)
+static void moveRight(Camera* this, float timeDelta)
 {
-    glm_vec3_muladds(cam->right, cam->speed * timeDelta, cam->position);
+    glm_vec3_muladds(this->right, this->speed * timeDelta, this->position);
 }
 
 
-static void moveMouse(Camera* cam, double xoffset,
+static void moveMouse(Camera* this, double xoffset,
                            double yoffset, bool constraint)
 {
-    cam->yaw += xoffset * cam->mouseSensitivity;
-    cam->pitch += yoffset * cam->mouseSensitivity;
-    cam->pitch = constraint && cam->pitch > 89.0f ? 89.0f : cam->pitch;
-    cam->pitch = constraint && cam->pitch < -89.0f ? -89.0f : cam->pitch;
+    this->yaw += xoffset * this->mouseSensitivity;
+    this->pitch += yoffset * this->mouseSensitivity;
+    this->pitch = constraint && this->pitch > 89.0f ? 89.0f : this->pitch;
+    this->pitch = constraint && this->pitch < -89.0f ? -89.0f : this->pitch;
 
-    updateCameraVectors(cam);
+    updateCameraVectors(this);
 }
 
 
-static void scrollMouse(Camera* cam, float yoffset)
+static void scrollMouse(Camera* this, float yoffset)
 {
-    cam->zoom -= RANGE_INC(cam->zoom, 1.0f, 45.0f) ? yoffset : 0;
-    cam->zoom = MAX(cam->zoom, 1.0f);
-    cam->zoom = MIN(cam->zoom, 45.0f);
+    this->zoom -= RANGE_INC(this->zoom, 1.0f, 45.0f) ? yoffset : 0;
+    this->zoom = MAX(this->zoom, 1.0f);
+    this->zoom = MIN(this->zoom, 45.0f);
 }
 
 
-static void updateCameraVectors(Camera* cam)
+static void updateCameraVectors(Camera* this)
 {
     glm_vec3_normalize_to((vec3){
-        cos(glm_rad(cam->yaw)) * cos(glm_rad(cam->pitch)),
-        sin(glm_rad(cam->pitch)),
-        sin(glm_rad(cam->yaw)) * cos(glm_rad(cam->pitch))
-    }, cam->front);
-    glm_vec3_crossn(cam->front, cam->worldUp, cam->right);
-    glm_vec3_crossn(cam->right, cam->front, cam->up);
+        cos(glm_rad(this->yaw)) * cos(glm_rad(this->pitch)),
+        sin(glm_rad(this->pitch)),
+        sin(glm_rad(this->yaw)) * cos(glm_rad(this->pitch))
+    }, this->front);
+    glm_vec3_crossn(this->front, this->worldUp, this->right);
+    glm_vec3_crossn(this->right, this->front, this->up);
 }
