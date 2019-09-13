@@ -200,9 +200,11 @@ void loop(Backend* engine)
     float lastTime = glfwGetTime();
     float currentTime;
 
-    USE_SHADER(engine->shaderPrograms[0]);
-    SET_SHADER_INT(engine->shaderPrograms[0], "texture1", 0);
-    SET_SHADER_INT(engine->shaderPrograms[0], "texture2", 1);
+    Shader* shader = engine->shaderPrograms[0];
+
+    shader->use(shader);
+    shader->setInt(shader, "texture1", 0);
+    shader->setInt(shader, "texture2", 1);
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -240,6 +242,7 @@ void printFps(Backend* engine)
 
 void draw(Backend* engine)
 {
+    Shader* shader = engine->shaderPrograms[0];
     int width, height;
     int i;
 
@@ -256,14 +259,14 @@ void draw(Backend* engine)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, engine->textures[0]);
 
-    USE_SHADER(engine->shaderPrograms[0]);
+    shader->use(shader);
 
     glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO(width, height),
                     0.1f, 100.0f, projection);
     engine->cam->getViewMatrix(engine->cam, view);
 
-    SET_SHADER_MAT4(engine->shaderPrograms[0], "projection", projection);
-    SET_SHADER_MAT4(engine->shaderPrograms[0], "view", view);
+    shader->setMat4(shader, "projection", projection);
+    shader->setMat4(shader, "view", view);
 
     glBindVertexArray(engine->VAO);
 
@@ -275,7 +278,7 @@ void draw(Backend* engine)
         glm_rotate(model, glm_rad(20.0f * i), (vec3){1.0f, 0.3f, 0.5f});
         glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
 
-        SET_SHADER_MAT4(engine->shaderPrograms[0], "model", model);
+        shader->setMat4(shader, "model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 }
