@@ -101,6 +101,7 @@ void initShader(Backend* engine)
 
 void initShapes(Backend* engine)
 {
+    int i;
     Box* box;
     vec3 cubePositions[] = {
         { 0.0f,  0.0f,  0.0f},
@@ -114,8 +115,6 @@ void initShapes(Backend* engine)
         { 1.5f,  0.2f, -1.5f},
         {-1.3f,  1.0f, -1.5f}
     };
-
-    int i;
 
     engine->boxes = newList();
 
