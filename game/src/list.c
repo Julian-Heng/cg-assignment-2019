@@ -16,6 +16,7 @@ static void removeFirst(List*, void**, bool*);
 static void removeLast(List*, void**, bool*);
 static void peekFirst(List*, void**, bool*);
 static void peekLast(List*, void**, bool*);
+static void peekAt(List*, int, void**, bool*);
 static void deleteList(List**);
 
 static void peek(ListNode*, void**, bool*);
@@ -69,6 +70,7 @@ static void linkMethods(List* this)
     this->removeLast = removeLast;
     this->peekFirst = peekFirst;
     this->peekLast = peekLast;
+    this->peekAt = peekAt;
     this->deleteList = deleteList;
 }
 
@@ -183,6 +185,15 @@ static void peekLast(List* this, void** dest, bool* isMalloc)
 }
 
 
+static void peekAt(List* this, int index, void** dest, bool* isMalloc)
+{
+    int i;
+    ListNode* node = this->head;
+    for (i = 0; node && i < index; (node = node->next), i++);
+    peek(node, dest, isMalloc);
+}
+
+
 static void deleteList(List** this)
 {
     void* value;
@@ -206,8 +217,10 @@ static void peek(ListNode* node, void** dest, bool* isMalloc)
 {
     if (node)
     {
-        *dest = node->value;
-        *isMalloc = node->isMalloc;
+        if (dest)
+            *dest = node->value;
+        if (isMalloc)
+            *isMalloc = node->isMalloc;
     }
 }
 
