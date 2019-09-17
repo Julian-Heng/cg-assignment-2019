@@ -11,6 +11,7 @@
 
 #include "macros.h"
 #include "shader.h"
+#include "texture.h"
 
 #include "box.h"
 
@@ -65,7 +66,7 @@ static unsigned int VBO;
 static void linkMethods(Box*);
 
 static void setShader(Box*, Shader*);
-static void setTexture(Box*, unsigned int);
+static void setTexture(Box*, Texture*);
 static void setPosition(Box*, vec3);
 static void draw(Box*);
 
@@ -131,7 +132,7 @@ static void setShader(Box* box, Shader* shader)
 }
 
 
-static void setTexture(Box* box, unsigned int texture)
+static void setTexture(Box* box, Texture* texture)
 {
     box->texture = texture;
 }

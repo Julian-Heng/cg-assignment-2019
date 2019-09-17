@@ -33,6 +33,7 @@ Backend* init()
 
     if (! (engine->cam = newCamera()))
     {
+        SAFE_FREE(engine);
         return NULL;
     }
 
@@ -129,12 +130,11 @@ void initShapes(Backend* engine)
 
 void initTextures(Backend* engine)
 {
-    TextureSpec spec;
+    Texture* texture;
+    engine->textures = newList();
 
-    spec.filename = "resources/container.jpg";
-    spec.rgbMode = GL_RGB;
-    spec.flip = false;
-    generateTexture(&(engine->textures[engine->textureCount++]), spec);
+    texture = newTexture("resources/container.jpg", GL_RGB, false);
+    engine->textures->insertLast(engine->textures, texture, true);
 }
 
 
@@ -187,6 +187,7 @@ void printFps(Backend* engine)
 void draw(Backend* engine)
 {
     Shader* shader;
+    Texture* texture;
     Box* box;
 
     int width, height;
@@ -197,6 +198,7 @@ void draw(Backend* engine)
     ListNode* node;
 
     engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
+    engine->textures->peekFirst(engine->textures, (void**)&texture, NULL);
     glfwGetWindowSize(engine->window, &width, &height);
 
     glm_mat4_identity(projection);
@@ -216,7 +218,7 @@ void draw(Backend* engine)
     {
         box = (Box*)node->value;
         box->setShader(box, shader);
-        box->setTexture(box, engine->textures[0]);
+        box->setTexture(box, texture);
         box->draw(box);
         node = node->next;
     }
@@ -280,7 +282,9 @@ void keyInputCallback(GLFWwindow* win)
     for (i = 0; i < n; i++)
     {
         if (pressed[i])
+        {
             camActions[i](cam, timeDelta);
+        }
     }
 }
 
@@ -335,6 +339,7 @@ void terminate(Backend** engine)
     if (*engine)
     {
         (*engine)->shaders->deleteList(&((*engine)->shaders));
+        (*engine)->textures->deleteList(&((*engine)->textures));
         (*engine)->boxes->deleteList(&((*engine)->boxes));
 
         free(*engine);

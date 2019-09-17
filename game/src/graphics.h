@@ -27,10 +27,7 @@ typedef struct Backend
     double fpsLastTime;
 
     List* shaders;
-
-    unsigned int textures[BUFSIZ];
-    unsigned int textureCount;
-
+    List* textures;
     List* boxes;
 
     Camera* cam;
