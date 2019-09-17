@@ -93,8 +93,9 @@ void initGlad(Backend* engine)
 
 void initShader(Backend* engine)
 {
+    engine->shaders = newList();
     Shader* shader = makeShader("shaders/shader.vs", "shaders/shader.fs");
-    engine->shaderPrograms[engine->programCount++] = shader;
+    engine->shaders->insertLast(engine->shaders, shader, true);
 }
 
 
@@ -142,7 +143,8 @@ void loop(Backend* engine)
     float lastTime = glfwGetTime();
     float currentTime;
 
-    Shader* shader = engine->shaderPrograms[0];
+    Shader* shader;
+    engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
 
     shader->use(shader);
     shader->setInt(shader, "texture1", 0);
@@ -184,16 +186,17 @@ void printFps(Backend* engine)
 
 void draw(Backend* engine)
 {
-    Shader* shader = engine->shaderPrograms[0];
+    Shader* shader;
+    Box* box;
+
     int width, height;
 
     mat4 projection;
     mat4 view;
 
-    ListNode* node = engine->boxes->head;
+    ListNode* node;
 
-    Box* box;
-
+    engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
     glfwGetWindowSize(engine->window, &width, &height);
 
     glm_mat4_identity(projection);
@@ -206,6 +209,8 @@ void draw(Backend* engine)
 
     shader->setMat4(shader, "projection", projection);
     shader->setMat4(shader, "view", view);
+
+    node = engine->boxes->head;
 
     while (node)
     {
@@ -324,19 +329,12 @@ void framebufferSizeCallback(GLFWwindow* win, int width, int height)
 
 void terminate(Backend** engine)
 {
-    int i;
-
     glDeleteVertexArrays(1, &((*engine)->VAO));
     glDeleteBuffers(1, &((*engine)->VBO));
 
     if (*engine)
     {
-        for (i = 0; i < (*engine)->programCount; i++)
-        {
-            free((*engine)->shaderPrograms[i]);
-            (*engine)->shaderPrograms[i] = NULL;
-        }
-
+        (*engine)->shaders->deleteList(&((*engine)->shaders));
         (*engine)->boxes->deleteList(&((*engine)->boxes));
 
         free(*engine);

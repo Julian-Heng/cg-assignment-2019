@@ -26,8 +26,7 @@ typedef struct Backend
     unsigned int frameDelta;
     double fpsLastTime;
 
-    Shader* shaderPrograms[BUFSIZ];
-    unsigned int programCount;
+    List* shaders;
 
     unsigned int textures[BUFSIZ];
     unsigned int textureCount;
