@@ -6,7 +6,7 @@
 #include "texture.h"
 #include "shader.h"
 
-#define ERR_BOX_MALLOC "Cannot allocate memory for box\n"
+#define ERR_BOX_MALLOC "Error: unable to allocate memory for box\n"
 
 typedef struct Box
 {

@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-#define ERR_NODE_MALLOC "Cannot allocate memory for node\n"
-#define ERR_LIST_MALLOC "Cannot allocate memory for list\n"
+#define ERR_NODE_MALLOC "Error: unable to allocate memory for node\n"
+#define ERR_LIST_MALLOC "Error: unable to allocate memory for list\n"
 
 typedef struct ListNode
 {

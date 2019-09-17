@@ -12,9 +12,9 @@
 #define TITLE "CG Assignment"
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
-#define ERR_ENGINE_MALLOC "Cannot allocate memory for engine\n"
-#define ERR_WINDOW "Failed to initialise window\n"
-#define ERR_GLAD "Failed to initialise GLAD\n"
+#define ERR_ENGINE_MALLOC "Error: Unable to allocate memory for engine\n"
+#define ERR_WINDOW "Error: failed to initialise window\n"
+#define ERR_GLAD "Error: failed to initialise GLAD\n"
 
 
 typedef struct Backend

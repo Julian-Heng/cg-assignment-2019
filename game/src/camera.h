@@ -5,7 +5,7 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 
-#define ERR_CAMERA_MALLOC "Cannot allocate memory for camera\n"
+#define ERR_CAMERA_MALLOC "Error: unable to allocate memory for camera\n"
 
 typedef enum Movement
 {
