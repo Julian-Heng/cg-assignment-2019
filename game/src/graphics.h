@@ -13,7 +13,6 @@
 
 #define LOG_FPS "%d fps, %0.5f ms\n"
 #define ERR_ENGINE_MALLOC "Cannot allocate memory for engine\n"
-#define ERR_CAMERA_MALLOC "Cannot allocate memory for camera\n"
 #define ERR_WINDOW "Failed to initialise window\n"
 #define ERR_GLAD "Failed to initialise GLAD\n"
 
@@ -33,10 +32,6 @@ typedef struct Backend
     unsigned int textures[BUFSIZ];
     unsigned int textureCount;
 
-    /*
-    float* vertices;
-    vec3* positions;
-    */
     List* boxes;
 
     Camera* cam;

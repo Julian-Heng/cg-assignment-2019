@@ -33,7 +33,6 @@ Backend* init()
 
     if (! (engine->cam = makeCamera()))
     {
-        fprintf(stderr, ERR_CAMERA_MALLOC);
         return NULL;
     }
 

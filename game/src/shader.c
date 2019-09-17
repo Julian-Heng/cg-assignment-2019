@@ -31,6 +31,7 @@ Shader* makeShader(char* vertexFilename, char* fragmentFilename)
 
     if (! (shader = (Shader*)malloc(sizeof(Shader))))
     {
+        fprintf(stderr, ERR_SHADER_MALLOC);
         return NULL;
     }
 

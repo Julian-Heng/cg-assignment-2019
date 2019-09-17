@@ -3,6 +3,7 @@
 #include <cglm/vec3.h>
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -29,6 +30,7 @@ Camera* makeCamera()
 
     if (! (cam = (Camera*)malloc(sizeof(Camera))))
     {
+        fprintf(stderr, ERR_CAMERA_MALLOC);
         return NULL;
     }
 

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define ERR_SHADER_MALLOC "Cannot allocate memory for shader\n"
 #define ERR_SHADER "Error: Shader file \"%s\" failed to compile\n%s"
 #define ERR_PROGRAM "Error: Shader file \"%s\" failed to link\n%s"
 
