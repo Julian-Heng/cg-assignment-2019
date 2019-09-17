@@ -18,6 +18,6 @@ typedef struct Box
     void (*draw)(struct Box*);
 } Box;
 
-Box* makeBox();
+Box* newBox();
 
 #endif

@@ -42,6 +42,6 @@ typedef struct Camera
 } Camera;
 
 
-Camera* makeCamera(void);
+Camera* newCamera(void);
 
 #endif

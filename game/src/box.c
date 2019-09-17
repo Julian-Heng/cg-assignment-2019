@@ -70,7 +70,7 @@ static void setPosition(Box*, vec3);
 static void draw(Box*);
 
 
-Box* makeBox()
+Box* newBox()
 {
     static bool firstRun = true;
     Box* box;

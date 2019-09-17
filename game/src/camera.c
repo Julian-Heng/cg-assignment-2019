@@ -24,7 +24,7 @@ static void scrollMouse(Camera*, float);
 
 static void updateCameraVectors(Camera*);
 
-Camera* makeCamera()
+Camera* newCamera()
 {
     Camera* cam;
 

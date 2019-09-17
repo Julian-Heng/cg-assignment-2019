@@ -23,7 +23,7 @@ static unsigned int linkProgram(unsigned int, unsigned int, char*);
 static void checkCompile(unsigned int, int, char*);
 static char* fileRead(char*);
 
-Shader* makeShader(char* vertexFilename, char* fragmentFilename)
+Shader* newShader(char* vertexFilename, char* fragmentFilename)
 {
     Shader* shader;
     unsigned int vertex;

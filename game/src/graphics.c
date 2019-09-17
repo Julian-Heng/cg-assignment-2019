@@ -31,7 +31,7 @@ Backend* init()
 
     memset(engine, 0, sizeof(Backend));
 
-    if (! (engine->cam = makeCamera()))
+    if (! (engine->cam = newCamera()))
     {
         return NULL;
     }
@@ -94,7 +94,7 @@ void initGlad(Backend* engine)
 void initShader(Backend* engine)
 {
     engine->shaders = newList();
-    Shader* shader = makeShader("shaders/shader.vs", "shaders/shader.fs");
+    Shader* shader = newShader("shaders/shader.vs", "shaders/shader.fs");
     engine->shaders->insertLast(engine->shaders, shader, true);
 }
 
@@ -120,7 +120,7 @@ void initShapes(Backend* engine)
 
     for (i = 0; i < sizeof(cubePositions) / sizeof(vec3); i++)
     {
-        box = makeBox();
+        box = newBox();
         box->setPosition(box, cubePositions[i]);
         engine->boxes->insertLast(engine->boxes, box, true);
     }
