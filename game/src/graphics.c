@@ -130,11 +130,34 @@ void initShapes(Backend* engine)
 
 void initTextures(Backend* engine)
 {
+    Box* box;
+    ListNode* iter1;
+    ListNode* iter2;
+
     Texture* texture;
     engine->textures = newList();
 
     texture = newTexture("resources/container.jpg", GL_RGB, false);
     engine->textures->insertLast(engine->textures, texture, true);
+
+    texture = newTexture("resources/awesomeface.png", GL_RGBA, false);
+    engine->textures->insertLast(engine->textures, texture, true);
+
+    iter1 = engine->boxes->head;
+    while (iter1)
+    {
+        box = (Box*)iter1->value;
+
+        iter2 = engine->textures->head;
+        while (iter2)
+        {
+            texture = (Texture*)iter2->value;
+            box->addTexture(box, texture);
+            iter2 = iter2->next;
+        }
+
+        iter1 = iter1->next;
+    }
 }
 
 
@@ -218,7 +241,6 @@ void draw(Backend* engine)
     {
         box = (Box*)node->value;
         box->setShader(box, shader);
-        box->setTexture(box, texture);
         box->draw(box);
         node = node->next;
     }
@@ -333,11 +355,22 @@ void framebufferSizeCallback(GLFWwindow* win, int width, int height)
 
 void terminate(Backend** engine)
 {
+    Box* box;
+    ListNode* iter;
     glDeleteVertexArrays(1, &((*engine)->VAO));
     glDeleteBuffers(1, &((*engine)->VBO));
 
     if (*engine)
     {
+        iter = (*engine)->boxes->head;
+
+        while (iter)
+        {
+            box = (Box*)iter->value;
+            box->textures->deleteListShallow(&(box->textures));
+            iter = iter->next;
+        }
+
         (*engine)->shaders->deleteList(&((*engine)->shaders));
         (*engine)->textures->deleteList(&((*engine)->textures));
         (*engine)->boxes->deleteList(&((*engine)->boxes));

@@ -29,6 +29,7 @@ typedef struct List
     void (*peekLast)(struct List*, void**, bool*);
     void (*peekAt)(struct List*, int, void**, bool*);
     void (*deleteList)(struct List**);
+    void (*deleteListShallow)(struct List**);
 } List;
 
 List* newList(void);

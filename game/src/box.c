@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "list.h"
 #include "macros.h"
 #include "shader.h"
 #include "texture.h"
@@ -66,7 +67,7 @@ static unsigned int VBO;
 static void linkMethods(Box*);
 
 static void setShader(Box*, Shader*);
-static void setTexture(Box*, Texture*);
+static void addTexture(Box*, Texture*);
 static void setPosition(Box*, vec3);
 static void draw(Box*);
 
@@ -84,6 +85,8 @@ Box* newBox()
 
     memset(box, 0, sizeof(Box));
     linkMethods(box);
+
+    box->textures = newList();
 
     if (firstRun)
     {
@@ -120,7 +123,7 @@ Box* newBox()
 static void linkMethods(Box* box)
 {
     box->setShader = setShader;
-    box->setTexture = setTexture;
+    box->addTexture = addTexture;
     box->setPosition = setPosition;
     box->draw = draw;
 }
@@ -132,9 +135,9 @@ static void setShader(Box* box, Shader* shader)
 }
 
 
-static void setTexture(Box* box, Texture* texture)
+static void addTexture(Box* box, Texture* texture)
 {
-    box->texture = texture;
+    box->textures->insertLast(box->textures, texture, true);
 }
 
 
@@ -146,7 +149,17 @@ static void setPosition(Box* box, vec3 position)
 
 static void draw(Box* box)
 {
+    ListNode* iter = box->textures->head;
+    int i = 0;
+
     mat4 model;
+
+    while (iter)
+    {
+        glActiveTexture(GL_TEXTURE0 + i++);
+        glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
+        iter = iter->next;
+    }
 
     glBindVertexArray(VAO);
     glm_mat4_identity(model);
