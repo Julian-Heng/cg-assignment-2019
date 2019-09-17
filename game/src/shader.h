@@ -1,6 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <stdio.h>
 #include <stdbool.h>
 
 #define ERR_SHADER "Error: Shader file \"%s\" failed to compile\n%s"

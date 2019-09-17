@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+#include "list.h"
 #include "camera.h"
 #include "shader.h"
 
@@ -32,8 +33,11 @@ typedef struct Backend
     unsigned int textures[BUFSIZ];
     unsigned int textureCount;
 
+    /*
     float* vertices;
     vec3* positions;
+    */
+    List* boxes;
 
     Camera* cam;
     float timeDelta;

@@ -9,7 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "box.h"
 #include "camera.h"
+#include "list.h"
 #include "macros.h"
 #include "shader.h"
 #include "texture.h"
@@ -99,50 +101,7 @@ void initShader(Backend* engine)
 
 void initShapes(Backend* engine)
 {
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
+    Box* box;
     vec3 cubePositions[] = {
         { 0.0f,  0.0f,  0.0f},
         { 2.0f,  5.0f, -15.0f},
@@ -156,31 +115,16 @@ void initShapes(Backend* engine)
         {-1.3f,  1.0f, -1.5f}
     };
 
-    engine->vertices = (float*)malloc(sizeof(vertices) * sizeof(float));
-    engine->positions = (vec3*)malloc(sizeof(cubePositions) * sizeof(vec3));
+    int i;
 
-    memcpy(engine->vertices, vertices, sizeof(vertices));
-    memcpy(engine->positions, cubePositions, sizeof(cubePositions));
+    engine->boxes = newList();
 
-    glGenVertexArrays(1, &(engine->VAO));
-    glGenBuffers(1, &(engine->VBO));
-
-    glBindVertexArray(engine->VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, engine->VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          5 * sizeof(float), (void*)0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-                          5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    for (i = 0; i < sizeof(cubePositions) / sizeof(vec3); i++)
+    {
+        box = makeBox();
+        box->setPosition(box, cubePositions[i]);
+        engine->boxes->insertLast(engine->boxes, box, true);
+    }
 }
 
 
@@ -244,23 +188,20 @@ void draw(Backend* engine)
 {
     Shader* shader = engine->shaderPrograms[0];
     int width, height;
-    int i;
 
-    mat4 model;
     mat4 projection;
     mat4 view;
 
+    ListNode* node = engine->boxes->head;
+
+    Box* box;
+
     glfwGetWindowSize(engine->window, &width, &height);
 
-    glm_mat4_identity(model);
     glm_mat4_identity(projection);
     glm_mat4_identity(view);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, engine->textures[0]);
-
     shader->use(shader);
-
     glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO(width, height),
                     0.1f, 100.0f, projection);
     engine->cam->getViewMatrix(engine->cam, view);
@@ -268,18 +209,13 @@ void draw(Backend* engine)
     shader->setMat4(shader, "projection", projection);
     shader->setMat4(shader, "view", view);
 
-    glBindVertexArray(engine->VAO);
-
-    for (i = 0; i < 10; i++)
+    while (node)
     {
-        glm_mat4_identity(model);
-
-        glm_translate(model, engine->positions[i]);
-        glm_rotate(model, glm_rad(20.0f * i), (vec3){1.0f, 0.3f, 0.5f});
-        glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
-
-        shader->setMat4(shader, "model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        box = (Box*)node->value;
+        box->setShader(box, shader);
+        box->setTexture(box, engine->textures[0]);
+        box->draw(box);
+        node = node->next;
     }
 }
 
@@ -403,8 +339,7 @@ void terminate(Backend** engine)
             (*engine)->shaderPrograms[i] = NULL;
         }
 
-        SAFE_FREE((*engine)->vertices);
-        SAFE_FREE((*engine)->positions);
+        (*engine)->boxes->deleteList(&((*engine)->boxes));
 
         free(*engine);
         *engine = NULL;
