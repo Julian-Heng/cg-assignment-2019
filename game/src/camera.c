@@ -15,6 +15,7 @@
 static void linkMethods(Camera*);
 
 static void getViewMatrix(Camera*, mat4);
+
 static void moveForward(Camera*, float);
 static void moveLeft(Camera*, float);
 static void moveBackward(Camera*, float);
@@ -22,7 +23,13 @@ static void moveRight(Camera*, float);
 static void moveMouse(Camera*, double, double, bool);
 static void scrollMouse(Camera*, float);
 
+static void setJumping(Camera*, bool);
+
+static void poll(Camera*);
+static void jump(Camera*);
+
 static void updateCameraVectors(Camera*);
+
 
 Camera* newCamera()
 {
@@ -59,12 +66,18 @@ Camera* newCamera()
 static void linkMethods(Camera* cam)
 {
     cam->getViewMatrix = getViewMatrix;
+
     cam->moveForward = moveForward;
     cam->moveLeft = moveLeft;
     cam->moveBackward = moveBackward;
     cam->moveRight = moveRight;
     cam->moveMouse = moveMouse;
     cam->scrollMouse = scrollMouse;
+
+    cam->setJumping = setJumping;
+
+    cam->poll = poll;
+    cam->jump = jump;
 }
 
 
@@ -124,6 +137,53 @@ static void scrollMouse(Camera* this, float yoffset)
     this->zoom -= RANGE_INC(this->zoom, 1.0f, 45.0f) ? yoffset : 0;
     this->zoom = MAX(this->zoom, 1.0f);
     this->zoom = MIN(this->zoom, 45.0f);
+}
+
+
+static void setJumping(Camera* this, bool value)
+{
+    this->jumping = value;
+}
+
+
+static void poll(Camera* this)
+{
+    this->jump(this);
+}
+
+
+static void jump(Camera* this)
+{
+    static bool start = true;
+    static float startTime = 0.0f;
+    static float initialPosition = 0.0f;
+
+    float deltaTime;
+
+    if (! this->jumping)
+    {
+        return;
+    }
+
+    if (start)
+    {
+        start = false;
+        startTime = glfwGetTime();
+        initialPosition = this->position[1];
+        return;
+    }
+
+    deltaTime = glfwGetTime() - startTime;
+    this->position[1] = initialPosition + JUMP_FORMULA(deltaTime);
+
+    if (this->position[1] - initialPosition < 0.0f)
+    {
+        start = true;
+        startTime = 0.0f;
+        initialPosition = 0.0f;
+        this->position[1] = initialPosition;
+        this->setJumping(this, false);
+    }
 }
 
 

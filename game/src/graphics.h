@@ -17,6 +17,14 @@
 #define ERR_GLAD "Error: failed to initialise GLAD\n"
 
 
+typedef enum {
+    CAM_MOVE_FORWARD,
+    CAM_MOVE_LEFT,
+    CAM_MOVE_BACKWARD,
+    CAM_MOVE_RIGHT,
+    CAM_JUMP
+} KeyAction;
+
 typedef struct Backend
 {
     GLFWwindow* window;

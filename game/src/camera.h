@@ -6,14 +6,13 @@
 #include <cglm/mat4.h>
 
 #define ERR_CAMERA_MALLOC "Error: unable to allocate memory for camera\n"
+#define JUMP_DURATION 0.75f
+#define JUMP_HEIGHT 1.0f
 
-typedef enum Movement
-{
-    FORWARD = GLFW_KEY_W,
-    LEFT = GLFW_KEY_A,
-    BACKWARD = GLFW_KEY_S,
-    RIGHT = GLFW_KEY_D
-} Movement;
+#define JUMP_FORMULA(time) \
+    ((JUMP_HEIGHT / (-(((JUMP_DURATION / 2.0f) - JUMP_DURATION) * \
+    (JUMP_DURATION / 2.0f)))) * \
+    -(((time) - JUMP_DURATION) * (time)))
 
 
 typedef struct Camera
@@ -31,6 +30,8 @@ typedef struct Camera
     float mouseSensitivity;
     float zoom;
 
+    bool jumping;
+
     void (*getViewMatrix)(struct Camera*, mat4);
 
     void (*moveForward)(struct Camera*, float);
@@ -39,6 +40,11 @@ typedef struct Camera
     void (*moveRight)(struct Camera*, float);
     void (*moveMouse)(struct Camera*, double, double, bool);
     void (*scrollMouse)(struct Camera*, float);
+
+    void (*setJumping)(struct Camera*, bool);
+
+    void (*poll)(struct Camera*);
+    void (*jump)(struct Camera*);
 } Camera;
 
 

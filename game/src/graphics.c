@@ -163,7 +163,10 @@ void loop(Backend* engine)
     float currentTime;
 
     Shader* shader;
+    Camera* cam;
+
     engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
+    cam = engine->cam;
 
     shader->use(shader);
     shader->setInt(shader, "texture1", 0);
@@ -181,6 +184,7 @@ void loop(Backend* engine)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        cam->poll(cam);
         draw(engine);
 
         glfwSwapBuffers(engine->window);
@@ -280,27 +284,37 @@ void keyInputCallback(GLFWwindow* win)
     Camera* cam = engine->cam;
     float timeDelta = engine->timeDelta;
 
-    int i;
-    int pressed[] = {
-        glfwGetKey(win, GLFW_KEY_W),
-        glfwGetKey(win, GLFW_KEY_A),
-        glfwGetKey(win, GLFW_KEY_S),
-        glfwGetKey(win, GLFW_KEY_D)
+    bool keys[] = {
+        KEY_PRESSED(win, GLFW_KEY_W),
+        KEY_PRESSED(win, GLFW_KEY_A),
+        KEY_PRESSED(win, GLFW_KEY_S),
+        KEY_PRESSED(win, GLFW_KEY_D),
+        KEY_PRESSED(win, GLFW_KEY_SPACE)
     };
 
-    void (*camActions[])(Camera*, float) = {
-        cam->moveForward,
-        cam->moveLeft,
-        cam->moveBackward,
-        cam->moveRight
-    };
-
-    for (i = 0; i < sizeof(pressed) / sizeof(int); i++)
+    if (keys[CAM_MOVE_FORWARD] && ! keys[CAM_MOVE_BACKWARD])
     {
-        if (pressed[i])
-        {
-            camActions[i](cam, timeDelta);
-        }
+        cam->moveForward(cam, timeDelta);
+    }
+
+    if (keys[CAM_MOVE_LEFT] && ! keys[CAM_MOVE_RIGHT])
+    {
+        cam->moveLeft(cam, timeDelta);
+    }
+
+    if (keys[CAM_MOVE_BACKWARD] && ! keys[CAM_MOVE_FORWARD])
+    {
+        cam->moveBackward(cam, timeDelta);
+    }
+
+    if (keys[CAM_MOVE_RIGHT] && ! keys[CAM_MOVE_LEFT])
+    {
+        cam->moveRight(cam, timeDelta);
+    }
+
+    if (keys[CAM_JUMP])
+    {
+        cam->setJumping(cam, true);
     }
 }
 

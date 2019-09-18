@@ -24,4 +24,9 @@
 #define ASPECT_RATIO(w, h) \
     ((float)(w) / (float)(h))
 
+
+#define KEY_PRESSED(window, key) \
+    glfwGetKey((window), (key)) == GLFW_PRESS
+
+
 #endif
