@@ -78,24 +78,25 @@ static void getViewMatrix(Camera* this, mat4 result)
 
 static void moveForward(Camera* this, float timeDelta)
 {
-    glm_vec3_muladds(this->front, this->speed * timeDelta, this->position);
+    glm_vec3_muladds((vec3){this->front[0], 0.0f, this->front[2]},
+                     this->speed * timeDelta,
+                     this->position);
 }
 
 
 static void moveLeft(Camera* this, float timeDelta)
 {
-    float velocity = this->speed * timeDelta;
     vec3 temp;
-    glm_vec3_scale(this->right, velocity, temp);
+    glm_vec3_scale(this->right, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
 }
 
 
 static void moveBackward(Camera* this, float timeDelta)
 {
-    float velocity = this->speed * timeDelta;
     vec3 temp;
-    glm_vec3_scale(this->front, velocity, temp);
+    glm_vec3_copy((vec3){this->front[0], 0.0f, this->front[2]}, temp);
+    glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
 }
 
