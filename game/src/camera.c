@@ -68,26 +68,26 @@ Camera* newCamera()
 }
 
 
-static void linkMethods(Camera* cam)
+static void linkMethods(Camera* this)
 {
-    cam->getViewMatrix = getViewMatrix;
+    this->getViewMatrix = getViewMatrix;
 
-    cam->moveForward = moveForward;
-    cam->moveLeft = moveLeft;
-    cam->moveBackward = moveBackward;
-    cam->moveRight = moveRight;
-    cam->moveMouse = moveMouse;
-    cam->scrollMouse = scrollMouse;
+    this->moveForward = moveForward;
+    this->moveLeft = moveLeft;
+    this->moveBackward = moveBackward;
+    this->moveRight = moveRight;
+    this->moveMouse = moveMouse;
+    this->scrollMouse = scrollMouse;
 
-    cam->setPosition = setPosition;
-    cam->setFront = setFront;
-    cam->setJumping = setJumping;
+    this->setPosition = setPosition;
+    this->setFront = setFront;
+    this->setJumping = setJumping;
 
-    cam->resetPosition = resetPosition;
-    cam->resetFront = resetFront;
+    this->resetPosition = resetPosition;
+    this->resetFront = resetFront;
 
-    cam->poll = poll;
-    cam->jump = jump;
+    this->poll = poll;
+    this->jump = jump;
 }
 
 

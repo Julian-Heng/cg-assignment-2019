@@ -122,37 +122,36 @@ Box* newBox(vec3 position)
 }
 
 
-static void linkMethods(Box* box)
+static void linkMethods(Box* this)
 {
-    box->setShader = setShader;
-    box->addTexture = addTexture;
-    box->setPosition = setPosition;
-    box->draw = draw;
+    this->setShader = setShader;
+    this->addTexture = addTexture;
+    this->setPosition = setPosition;
+    this->draw = draw;
 }
 
 
-static void setShader(Box* box, Shader* shader)
+static void setShader(Box* this, Shader* shader)
 {
-    box->shader = shader;
+    this->shader = shader;
 }
 
 
-static void addTexture(Box* box, Texture* texture)
+static void addTexture(Box* this, Texture* texture)
 {
-    box->textures->insertLast(box->textures, texture, true);
+    this->textures->insertLast(this->textures, texture, true);
 }
 
 
-static void setPosition(Box* box, vec3 position)
+static void setPosition(Box* this, vec3 position)
 {
-    glm_vec3_copy(position ? position : (vec3){0.0f, 0.0f, 0.0f},
-                  box->position);
+    glm_vec3_copy(position ? position : (vec3){0.0f, 0.0f, 0.0f}, this->position);
 }
 
 
-static void draw(Box* box)
+static void draw(Box* this)
 {
-    ListNode* iter = box->textures->head;
+    ListNode* iter = this->textures->head;
     int i = 0;
 
     mat4 model;
@@ -167,7 +166,7 @@ static void draw(Box* box)
     glBindVertexArray(VAO);
     glm_mat4_identity(model);
 
-    glm_translate(model, box->position);
-    box->shader->setMat4(box->shader, "model", model);
+    glm_translate(model, this->position);
+    this->shader->setMat4(this->shader, "model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
