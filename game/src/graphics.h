@@ -11,17 +11,11 @@
 #define HEIGHT 900
 #define TITLE "CG Assignment"
 
-#define LOG_FORMAT \
-    LOG_CLEAR \
-    LOG_FPS LOG_SEP \
-    LOG_FRAME_LATENCY LOG_SEP \
-    LOG_CAM_LOCATION
-
-#define LOG_SEP " | "
-#define LOG_CLEAR "\r\e[2K"
-#define LOG_FPS "%d fps"
-#define LOG_FRAME_LATENCY "%0.5f ms"
-#define LOG_CAM_LOCATION "Camera : (%0.3f, %0.3f, %0.3f)"
+#define LOG_CLEAR           "\r\e[2K"
+#define LOG_FPS             "Framerate           : %d fps"
+#define LOG_FRAME_LATENCY   "Latency             : %f ms"
+#define LOG_CAM_LOCATION    "Camera position     : (%f, %f, %f)"
+#define LOG_CAM_FRONT       "Camera front vector : (%f, %f, %f)"
 
 #define ERR_ENGINE_MALLOC "Error: Unable to allocate memory for engine\n"
 #define ERR_WINDOW "Error: failed to initialise window\n"
@@ -33,7 +27,9 @@ typedef enum {
     CAM_MOVE_LEFT,
     CAM_MOVE_BACKWARD,
     CAM_MOVE_RIGHT,
-    CAM_JUMP
+    CAM_JUMP,
+
+    CAM_RESET
 } KeyAction;
 
 typedef struct Backend

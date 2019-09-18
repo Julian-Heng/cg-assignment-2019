@@ -196,25 +196,36 @@ void loop(Backend* engine)
 void printInfo(Backend* engine)
 {
     static unsigned int freezeFrameDelta;
-    static float freezeFps;
+    static float freezeFrameLatency;
 
+    int rows = 0;
     engine->frameDelta++;
 
     if ((glfwGetTime() - engine->fpsLastTime) >= 1.0)
     {
         freezeFrameDelta = engine->frameDelta;
-        freezeFps = 1000.0 / (double)(freezeFrameDelta);
+        freezeFrameLatency = 1000.0 / (double)(freezeFrameDelta);
 
         engine->frameDelta = 0;
         engine->fpsLastTime += 1.0f;
     }
 
-    fprintf(stderr, LOG_FORMAT,
-            freezeFrameDelta,
-            freezeFps,
-            engine->cam->position[0],
-            engine->cam->position[1],
-            engine->cam->position[2]);
+    fprintf(stderr, LOG_CLEAR LOG_FPS "\n", freezeFrameDelta);
+    rows++;
+
+    fprintf(stderr, LOG_CLEAR LOG_FRAME_LATENCY "\n", freezeFrameLatency);
+    rows++;
+
+    fprintf(stderr, LOG_CLEAR LOG_CAM_LOCATION "\n", engine->cam->position[0],
+                                                     engine->cam->position[1],
+                                                     engine->cam->position[2]);
+    rows++;
+
+    fprintf(stderr, LOG_CLEAR LOG_CAM_FRONT "\n", engine->cam->front[0],
+                                                  engine->cam->front[1],
+                                                  engine->cam->front[2]);
+    rows++;
+    fprintf(stderr, "\e[%dA", rows);
 }
 
 
@@ -300,7 +311,9 @@ void keyInputCallback(GLFWwindow* win)
         KEY_PRESSED(win, GLFW_KEY_A),
         KEY_PRESSED(win, GLFW_KEY_S),
         KEY_PRESSED(win, GLFW_KEY_D),
-        KEY_PRESSED(win, GLFW_KEY_SPACE)
+        KEY_PRESSED(win, GLFW_KEY_SPACE),
+
+        KEY_PRESSED(win, GLFW_KEY_R)
     };
 
     if (keys[CAM_MOVE_FORWARD] && ! keys[CAM_MOVE_BACKWARD])
@@ -326,6 +339,12 @@ void keyInputCallback(GLFWwindow* win)
     if (keys[CAM_JUMP])
     {
         cam->setJumping(cam, true);
+    }
+
+    if (keys[CAM_RESET])
+    {
+        cam->resetPosition(cam);
+        cam->resetFront(cam);
     }
 }
 
