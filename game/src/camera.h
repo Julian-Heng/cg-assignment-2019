@@ -6,6 +6,7 @@
 #include <cglm/mat4.h>
 
 #define ERR_CAMERA_MALLOC "Error: unable to allocate memory for camera\n"
+
 #define JUMP_DURATION 0.75f
 #define JUMP_HEIGHT 1.0f
 
@@ -41,6 +42,11 @@ typedef struct Camera
     void (*moveMouse)(struct Camera*, double, double, bool);
     void (*scrollMouse)(struct Camera*, float);
 
+    void (*resetPosition)(struct Camera*);
+    void (*resetFront)(struct Camera*);
+
+    void (*setPosition)(struct Camera*, vec3);
+    void (*setFront)(struct Camera*, vec3);
     void (*setJumping)(struct Camera*, bool);
 
     void (*poll)(struct Camera*);

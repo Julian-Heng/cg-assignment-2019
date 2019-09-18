@@ -23,7 +23,12 @@ static void moveRight(Camera*, float);
 static void moveMouse(Camera*, double, double, bool);
 static void scrollMouse(Camera*, float);
 
+static void setPosition(Camera*, vec3);
+static void setFront(Camera*, vec3);
 static void setJumping(Camera*, bool);
+
+static void resetPosition(Camera*);
+static void resetFront(Camera*);
 
 static void poll(Camera*);
 static void jump(Camera*);
@@ -74,7 +79,12 @@ static void linkMethods(Camera* cam)
     cam->moveMouse = moveMouse;
     cam->scrollMouse = scrollMouse;
 
+    cam->setPosition = setPosition;
+    cam->setFront = setFront;
     cam->setJumping = setJumping;
+
+    cam->resetPosition = resetPosition;
+    cam->resetFront = resetFront;
 
     cam->poll = poll;
     cam->jump = jump;
@@ -143,9 +153,36 @@ static void scrollMouse(Camera* this, float yoffset)
 }
 
 
+static void setPosition(Camera* this, vec3 newPos)
+{
+    glm_vec3_copy(newPos, this->position);
+}
+
+
+static void setFront(Camera* this, vec3 newPos)
+{
+    glm_vec3_copy(newPos, this->front);
+}
+
+
 static void setJumping(Camera* this, bool value)
 {
     this->jumping = value;
+}
+
+
+static void resetPosition(Camera* this)
+{
+    this->setPosition(this, (vec3){0.0f, 0.0f, 3.0f});
+}
+
+
+static void resetFront(Camera* this)
+{
+    this->setFront(this, (vec3){0.0f, 0.0f, 3.0f});
+    this->yaw = -90.0f;
+    this->pitch = 0.0f;
+    updateCameraVectors(this);
 }
 
 
