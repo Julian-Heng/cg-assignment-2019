@@ -12,6 +12,10 @@
 
 typedef struct Box
 {
+    unsigned int VAO;
+    unsigned int VBO;
+    unsigned int vertexAttribPointerIndex;
+
     Shader* shader;
     List* textures;
     vec3 position;

@@ -61,10 +61,8 @@ static float VERTICES[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-static unsigned int VAO;
-static unsigned int VBO;
-
 static void linkMethods(Box*);
+static void setGlBuffers(Box*);
 
 static void setShader(Box*, Shader*);
 static void addTexture(Box*, Texture*);
@@ -74,7 +72,6 @@ static void draw(Box*);
 
 Box* newBox(vec3 position)
 {
-    static bool firstRun = true;
     Box* box;
 
     if (! (box = (Box*)malloc(sizeof(Box))))
@@ -87,35 +84,7 @@ Box* newBox(vec3 position)
     linkMethods(box);
 
     box->textures = newList();
-
-    if (firstRun)
-    {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-        glBufferData(GL_ARRAY_BUFFER,
-                     sizeof(VERTICES),
-                     VERTICES,
-                     GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                              5 * sizeof(float), (void*)0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-                              5 * sizeof(float),
-                              (void*)(3 * sizeof(float)));
-
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        firstRun = false;
-    }
-
+    setGlBuffers(box);
     box->setPosition(box, position);
 
     return box;
@@ -128,6 +97,33 @@ static void linkMethods(Box* this)
     this->addTexture = addTexture;
     this->setPosition = setPosition;
     this->draw = draw;
+}
+
+
+static void setGlBuffers(Box* this)
+{
+    glGenVertexArrays(1, &(this->VAO));
+    glGenBuffers(1, &(this->VBO));
+
+    glBindVertexArray(this->VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(VERTICES),
+                 VERTICES,
+                 GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+                          5 * sizeof(float),
+                          (void*)(3 * sizeof(float)));
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 
@@ -163,7 +159,7 @@ static void draw(Box* this)
         iter = iter->next;
     }
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(this->VAO);
     glm_mat4_identity(model);
 
     glm_translate(model, this->position);
