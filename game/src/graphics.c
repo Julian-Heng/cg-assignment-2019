@@ -65,26 +65,27 @@ void initWindow(Backend* engine)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    if ((engine->window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, NULL, NULL)))
+    if (! (engine->window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, NULL, NULL)))
     {
-        glfwMakeContextCurrent(engine->window);
-        glfwSetFramebufferSizeCallback(engine->window, framebufferSizeCallback);
-        glfwSetKeyCallback(engine->window, normalInputCallback);
-        glfwSetCursorPosCallback(engine->window, mouseCallback);
-        glfwSetScrollCallback(engine->window, scrollCallback);
-        glfwSetInputMode(engine->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        fprintf(stderr, ERR_WINDOW);
     }
     else
     {
-        fprintf(stderr, ERR_WINDOW);
+        glfwMakeContextCurrent(engine->window);
+
+        glfwSetCursorPosCallback(engine->window, mouseCallback);
+        glfwSetFramebufferSizeCallback(engine->window, framebufferSizeCallback);
+        glfwSetKeyCallback(engine->window, normalInputCallback);
+        glfwSetScrollCallback(engine->window, scrollCallback);
+
+        glfwSetInputMode(engine->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 }
 
 
 void initGlad(Backend* engine)
 {
-    if (engine->window &&
-        ! gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if (engine->window && ! gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         fprintf(stderr, ERR_GLAD);
         engine->window = NULL;
@@ -95,15 +96,15 @@ void initGlad(Backend* engine)
 void initShader(Backend* engine)
 {
     engine->shaders = newList();
-    Shader* shader = newShader("shaders/shader.vs", "shaders/shader.fs");
-    engine->shaders->insertLast(engine->shaders, shader, true);
+    engine->shaders->insertLast(engine->shaders,
+                                newShader("shaders/shader.vs", "shaders/shader.fs"),
+                                true);
 }
 
 
 void initShapes(Backend* engine)
 {
     int i;
-    Box* box;
     vec3 cubePositions[] = {
         { 0.0f,  0.0f,  0.0f},
         { 2.0f,  5.0f, -15.0f},
@@ -121,9 +122,7 @@ void initShapes(Backend* engine)
 
     for (i = 0; i < sizeof(cubePositions) / sizeof(vec3); i++)
     {
-        box = newBox();
-        box->setPosition(box, cubePositions[i]);
-        engine->boxes->insertLast(engine->boxes, box, true);
+        engine->boxes->insertLast(engine->boxes, newBox(cubePositions[i]), true);
     }
 }
 
@@ -138,9 +137,6 @@ void initTextures(Backend* engine)
     engine->textures = newList();
 
     texture = newTexture("resources/container.jpg", GL_RGB, false);
-    engine->textures->insertLast(engine->textures, texture, true);
-
-    texture = newTexture("resources/awesomeface.png", GL_RGBA, false);
     engine->textures->insertLast(engine->textures, texture, true);
 
     iter1 = engine->boxes->head;
@@ -284,7 +280,7 @@ void keyInputCallback(GLFWwindow* win)
     Camera* cam = engine->cam;
     float timeDelta = engine->timeDelta;
 
-    int i, n;
+    int i;
     int pressed[] = {
         glfwGetKey(win, GLFW_KEY_W),
         glfwGetKey(win, GLFW_KEY_A),
@@ -299,9 +295,7 @@ void keyInputCallback(GLFWwindow* win)
         cam->moveRight
     };
 
-    n = sizeof(pressed) / sizeof(int);
-
-    for (i = 0; i < n; i++)
+    for (i = 0; i < sizeof(pressed) / sizeof(int); i++)
     {
         if (pressed[i])
         {

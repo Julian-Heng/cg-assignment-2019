@@ -22,6 +22,6 @@ typedef struct Box
     void (*draw)(struct Box*);
 } Box;
 
-Box* newBox();
+Box* newBox(vec3);
 
 #endif

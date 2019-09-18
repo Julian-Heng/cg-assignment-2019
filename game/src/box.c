@@ -72,7 +72,7 @@ static void setPosition(Box*, vec3);
 static void draw(Box*);
 
 
-Box* newBox()
+Box* newBox(vec3 position)
 {
     static bool firstRun = true;
     Box* box;
@@ -116,6 +116,8 @@ Box* newBox()
         firstRun = false;
     }
 
+    box->setPosition(box, position);
+
     return box;
 }
 
@@ -143,7 +145,8 @@ static void addTexture(Box* box, Texture* texture)
 
 static void setPosition(Box* box, vec3 position)
 {
-    glm_vec3_copy(position, box->position);
+    glm_vec3_copy(position ? position : (vec3){0.0f, 0.0f, 0.0f},
+                  box->position);
 }
 
 
