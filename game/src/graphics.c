@@ -174,7 +174,7 @@ void loop(Backend* engine)
 
     while (! glfwWindowShouldClose(engine->window))
     {
-        printFps(engine);
+        printInfo(engine);
         keyInputCallback(engine->window);
 
         currentTime = glfwGetTime();
@@ -193,17 +193,28 @@ void loop(Backend* engine)
 }
 
 
-void printFps(Backend* engine)
+void printInfo(Backend* engine)
 {
+    static unsigned int freezeFrameDelta;
+    static float freezeFps;
+
     engine->frameDelta++;
 
     if ((glfwGetTime() - engine->fpsLastTime) >= 1.0)
     {
-        fprintf(stderr, LOG_FPS, engine->frameDelta,
-                                 1000.0 / (double)(engine->frameDelta));
+        freezeFrameDelta = engine->frameDelta;
+        freezeFps = 1000.0 / (double)(freezeFrameDelta);
+
         engine->frameDelta = 0;
         engine->fpsLastTime += 1.0f;
     }
+
+    fprintf(stderr, LOG_FORMAT,
+            freezeFrameDelta,
+            freezeFps,
+            engine->cam->position[0],
+            engine->cam->position[1],
+            engine->cam->position[2]);
 }
 
 

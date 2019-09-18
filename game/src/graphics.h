@@ -11,7 +11,18 @@
 #define HEIGHT 900
 #define TITLE "CG Assignment"
 
-#define LOG_FPS "%d fps, %0.5f ms\n"
+#define LOG_FORMAT \
+    LOG_CLEAR \
+    LOG_FPS LOG_SEP \
+    LOG_FRAME_LATENCY LOG_SEP \
+    LOG_CAM_LOCATION
+
+#define LOG_SEP " | "
+#define LOG_CLEAR "\r\e[2K"
+#define LOG_FPS "%d fps"
+#define LOG_FRAME_LATENCY "%0.5f ms"
+#define LOG_CAM_LOCATION "Camera : (%0.3f, %0.3f, %0.3f)"
+
 #define ERR_ENGINE_MALLOC "Error: Unable to allocate memory for engine\n"
 #define ERR_WINDOW "Error: failed to initialise window\n"
 #define ERR_GLAD "Error: failed to initialise GLAD\n"
@@ -51,7 +62,7 @@ void initTextures(Backend*);
 
 void loop(Backend*);
 
-void printFps(Backend* engine);
+void printInfo(Backend* engine);
 void draw(Backend* engine);
 
 void toggleWireframe(void);
