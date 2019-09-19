@@ -17,7 +17,7 @@
 #include "shader.h"
 #include "texture.h"
 
-#include "graphics.h"
+#include "game.h"
 
 
 int main()
@@ -404,7 +404,7 @@ void instantKeyInputCallback(GLFWwindow* win)
 
 void mouseCallback(GLFWwindow* win, double x, double y)
 {
-    static bool firstMouse = true;
+    static bool first = true;
     static double lastX = 0.0f;
     static double lastY = 0.0f;
 
@@ -419,11 +419,11 @@ void mouseCallback(GLFWwindow* win, double x, double y)
         return;
     }
 
-    if (firstMouse)
+    if (first)
     {
         lastX = x;
         lastY = y;
-        firstMouse = false;
+        first = false;
     }
 
     xoffset = x - lastX;
