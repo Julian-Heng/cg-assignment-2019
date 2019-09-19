@@ -10,11 +10,6 @@
 #define JUMP_DURATION 0.75f
 #define JUMP_HEIGHT 1.0f
 
-#define JUMP_FORMULA(time) \
-    ((JUMP_HEIGHT / (-(((JUMP_DURATION / 2.0f) - JUMP_DURATION) * \
-    (JUMP_DURATION / 2.0f)))) * \
-    -(((time) - JUMP_DURATION) * (time)))
-
 
 typedef struct Camera
 {
@@ -47,10 +42,9 @@ typedef struct Camera
 
     void (*setPosition)(struct Camera*, vec3);
     void (*setFront)(struct Camera*, vec3);
-    void (*setJumping)(struct Camera*, bool);
+    void (*setJump)(struct Camera*, bool);
 
     void (*poll)(struct Camera*);
-    void (*jump)(struct Camera*);
 } Camera;
 
 

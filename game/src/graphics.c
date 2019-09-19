@@ -33,7 +33,8 @@ Backend* init()
 
     if (! (engine->cam = newCamera()))
     {
-        SAFE_FREE(engine);
+        free(engine);
+        engine = NULL;
         return NULL;
     }
 
@@ -96,9 +97,12 @@ void initGlad(Backend* engine)
 void initShader(Backend* engine)
 {
     engine->shaders = newList();
-    engine->shaders->insertLast(engine->shaders,
-                                newShader("shaders/shader.vs", "shaders/shader.fs"),
-                                true);
+
+    engine->shaders->insertLast(
+        engine->shaders,
+        newShader("shaders/shader.vs", "shaders/shader.fs"),
+        true
+    );
 }
 
 
@@ -119,6 +123,7 @@ void initShapes(Backend* engine)
     };
 
     engine->boxes = newList();
+    engine->lamps = newList();
 
     for (i = 0; i < sizeof(cubePositions) / sizeof(vec3); i++)
     {
@@ -303,7 +308,13 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 void keyInputCallback(GLFWwindow* win)
 {
     Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
-    Camera* cam = engine->cam;
+    Camera* cam = engine ? engine->cam : NULL;
+
+    if (! cam)
+    {
+        return;
+    }
+
     float timeDelta = engine->timeDelta;
 
     bool keys[] = {
@@ -338,7 +349,7 @@ void keyInputCallback(GLFWwindow* win)
 
     if (keys[CAM_JUMP])
     {
-        cam->setJumping(cam, true);
+        cam->setJump(cam, true);
     }
 
     if (keys[CAM_RESET])
@@ -355,10 +366,16 @@ void mouseCallback(GLFWwindow* win, double x, double y)
     static double lastX = 0.0f;
     static double lastY = 0.0f;
 
-    Camera* cam = ((Backend*)glfwGetWindowUserPointer(win))->cam;
-
     float xoffset;
     float yoffset;
+
+    Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
+    Camera* cam = engine ? engine->cam : NULL;
+
+    if (! cam)
+    {
+        return;
+    }
 
     if (firstMouse)
     {
@@ -379,43 +396,53 @@ void mouseCallback(GLFWwindow* win, double x, double y)
 
 void scrollCallback(GLFWwindow* win, double xoffset, double yoffset)
 {
-    Camera* cam = ((Backend*)glfwGetWindowUserPointer(win))->cam;
-    cam->scrollMouse(cam, yoffset);
+    Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
+    Camera* cam = engine ? engine->cam : NULL;
+
+    if (cam)
+    {
+        cam->scrollMouse(cam, yoffset);
+    }
 }
 
 
 void framebufferSizeCallback(GLFWwindow* win, int width, int height)
 {
+    Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
     glViewport(0, 0, width, height);
-    draw((Backend*)glfwGetWindowUserPointer(win));
+    draw(engine);
 }
 
 
 void terminate(Backend** engine)
 {
+    Backend* _engine = *engine;
     Box* box;
     ListNode* iter;
-    glDeleteVertexArrays(1, &((*engine)->VAO));
-    glDeleteBuffers(1, &((*engine)->VBO));
+    glDeleteVertexArrays(1, &(_engine->VAO));
+    glDeleteBuffers(1, &(_engine->VBO));
 
-    if (*engine)
+    if (! _engine)
     {
-        iter = (*engine)->boxes->head;
-
-        while (iter)
-        {
-            box = (Box*)iter->value;
-            box->textures->deleteListShallow(&(box->textures));
-            iter = iter->next;
-        }
-
-        (*engine)->shaders->deleteList(&((*engine)->shaders));
-        (*engine)->textures->deleteList(&((*engine)->textures));
-        (*engine)->boxes->deleteList(&((*engine)->boxes));
-
-        free(*engine);
-        *engine = NULL;
+        return;
     }
+
+    iter = _engine->boxes->head;
+
+    while (iter)
+    {
+        box = (Box*)iter->value;
+        box->textures->deleteListShallow(&(box->textures));
+        iter = iter->next;
+    }
+
+    _engine->shaders->deleteList(&(_engine->shaders));
+    _engine->textures->deleteList(&(_engine->textures));
+    _engine->boxes->deleteList(&(_engine->boxes));
+    _engine->lamps->deleteList(&(_engine->lamps));
+
+    free(_engine);
+    _engine = NULL;
 
     glfwTerminate();
 }

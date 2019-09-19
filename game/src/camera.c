@@ -25,15 +25,18 @@ static void scrollMouse(Camera*, float);
 
 static void setPosition(Camera*, vec3);
 static void setFront(Camera*, vec3);
-static void setJumping(Camera*, bool);
+static void setJump(Camera*, bool);
 
 static void resetPosition(Camera*);
 static void resetFront(Camera*);
 
 static void poll(Camera*);
-static void jump(Camera*);
 
 static void updateCameraVectors(Camera*);
+static void jump(Camera*);
+
+static float calcJump(float t);
+static float _calcJump(float t);
 
 
 Camera* newCamera()
@@ -81,13 +84,12 @@ static void linkMethods(Camera* this)
 
     this->setPosition = setPosition;
     this->setFront = setFront;
-    this->setJumping = setJumping;
+    this->setJump = setJump;
 
     this->resetPosition = resetPosition;
     this->resetFront = resetFront;
 
     this->poll = poll;
-    this->jump = jump;
 }
 
 
@@ -165,7 +167,7 @@ static void setFront(Camera* this, vec3 newPos)
 }
 
 
-static void setJumping(Camera* this, bool value)
+static void setJump(Camera* this, bool value)
 {
     this->jumping = value;
 }
@@ -188,7 +190,19 @@ static void resetFront(Camera* this)
 
 static void poll(Camera* this)
 {
-    this->jump(this);
+    jump(this);
+}
+
+
+static void updateCameraVectors(Camera* this)
+{
+    glm_vec3_normalize_to((vec3){
+        cos(glm_rad(this->yaw)) * cos(glm_rad(this->pitch)),
+        sin(glm_rad(this->pitch)),
+        sin(glm_rad(this->yaw)) * cos(glm_rad(this->pitch))
+    }, this->front);
+    glm_vec3_crossn(this->front, this->worldUp, this->right);
+    glm_vec3_crossn(this->right, this->front, this->up);
 }
 
 
@@ -197,8 +211,6 @@ static void jump(Camera* this)
     static bool start = true;
     static float startTime = 0.0f;
     static float initialPosition = 0.0f;
-
-    float deltaTime;
 
     if (! this->jumping)
     {
@@ -213,27 +225,26 @@ static void jump(Camera* this)
         return;
     }
 
-    deltaTime = glfwGetTime() - startTime;
-    this->position[1] = initialPosition + JUMP_FORMULA(deltaTime);
+    this->position[1] = initialPosition + calcJump(glfwGetTime() - startTime);
 
-    if (this->position[1] - initialPosition < 0.0f)
+    if ((this->position[1] - initialPosition) < 0.0f)
     {
         start = true;
         startTime = 0.0f;
         initialPosition = 0.0f;
         this->position[1] = initialPosition;
-        this->setJumping(this, false);
+        this->setJump(this, false);
     }
 }
 
 
-static void updateCameraVectors(Camera* this)
+static float calcJump(float t)
 {
-    glm_vec3_normalize_to((vec3){
-        cos(glm_rad(this->yaw)) * cos(glm_rad(this->pitch)),
-        sin(glm_rad(this->pitch)),
-        sin(glm_rad(this->yaw)) * cos(glm_rad(this->pitch))
-    }, this->front);
-    glm_vec3_crossn(this->front, this->worldUp, this->right);
-    glm_vec3_crossn(this->right, this->front, this->up);
+    return (JUMP_HEIGHT / _calcJump(JUMP_DURATION / 2.0f)) * _calcJump(t);
+}
+
+
+static float _calcJump(float t)
+{
+    return -((t - JUMP_DURATION) * t);
 }

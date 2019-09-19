@@ -32,6 +32,7 @@ typedef enum {
     CAM_RESET
 } KeyAction;
 
+
 typedef struct Backend
 {
     GLFWwindow* window;
@@ -43,11 +44,14 @@ typedef struct Backend
 
     List* shaders;
     List* textures;
+
     List* boxes;
+    List* lamps;
 
     Camera* cam;
     float timeDelta;
 } Backend;
+
 
 Backend* init(void);
 void initWindow(Backend*);
