@@ -40,9 +40,6 @@ typedef struct Backend
     unsigned int VAO;
     unsigned int VBO;
 
-    unsigned int frameDelta;
-    double fpsLastTime;
-
     List* shaders;
     List* textures;
 

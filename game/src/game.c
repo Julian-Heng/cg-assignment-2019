@@ -112,19 +112,21 @@ void initGlad(Backend* engine)
 
 void initShader(Backend* engine)
 {
-    engine->shaders = newList();
+    List* shaders = newList();
 
-    engine->shaders->insertLast(
-        engine->shaders,
+    shaders->insertLast(
+        shaders,
         newShader("shaders/shader.vs", "shaders/shader.fs"),
         true
     );
 
-    engine->shaders->insertLast(
-        engine->shaders,
+    shaders->insertLast(
+        shaders,
         newShader("shaders/lamp.vs", "shaders/lamp.fs"),
         true
     );
+
+    engine->shaders = shaders;
 }
 
 
@@ -144,34 +146,39 @@ void initShapes(Backend* engine)
         {-1.3f,  1.0f, -1.5f}
     };
 
-    engine->boxes = newList();
-    engine->lamps = newList();
+    List* boxes = newList();
+    List* lamps = newList();
 
     for (i = 0; i < sizeof(positions) / sizeof(vec3); i++)
     {
-        engine->boxes->insertLast(engine->boxes, newBox(positions[i]), true);
+        boxes->insertLast(boxes, newBox(positions[i]), true);
     }
+
+    engine->boxes = boxes;
+    engine->lamps = lamps;
 }
 
 
 void initTextures(Backend* engine)
 {
+    List* textures = newList();
+
     Box* box;
     ListNode* iter1;
     ListNode* iter2;
 
     Texture* texture;
-    engine->textures = newList();
 
     texture = newTexture("resources/container.jpg", GL_RGB, false);
-    engine->textures->insertLast(engine->textures, texture, true);
+    textures->insertLast(textures, texture, true);
 
     iter1 = engine->boxes->head;
+
     while (iter1)
     {
         box = (Box*)iter1->value;
 
-        iter2 = engine->textures->head;
+        iter2 = textures->head;
         while (iter2)
         {
             texture = (Texture*)iter2->value;
@@ -181,6 +188,8 @@ void initTextures(Backend* engine)
 
         iter1 = iter1->next;
     }
+
+    engine->textures = textures;
 }
 
 
@@ -223,6 +232,8 @@ void loop(Backend* engine)
 void printInfo(Backend* engine)
 {
     static unsigned long long frameCount = 0;
+    static unsigned int frameDelta = 0;
+    static float fpsLastTime = 0.0f;
     static unsigned int cacheFrameDelta;
     static float cacheFrameLatency;
     static bool first = true;
@@ -236,16 +247,16 @@ void printInfo(Backend* engine)
     }
 
     cam = engine->cam;
-    engine->frameDelta++;
+    frameDelta++;
     frameCount++;
 
-    if ((glfwGetTime() - engine->fpsLastTime) >= 1.0)
+    if ((glfwGetTime() - fpsLastTime) >= 1.0)
     {
-        cacheFrameDelta = engine->frameDelta;
+        cacheFrameDelta = frameDelta;
         cacheFrameLatency = 1000.0 / (double)(cacheFrameDelta);
 
-        engine->frameDelta = 0;
-        engine->fpsLastTime += 1.0f;
+        frameDelta = 0;
+        fpsLastTime += 1.0f;
     }
 
     if (! first)
