@@ -12,6 +12,7 @@
 #define TITLE "CG Assignment"
 
 #define LOG_CLEAR           "\r\e[2K"
+#define LOG_FRAME_COUNT     "Frame count         : %lld"
 #define LOG_FPS             "Framerate           : %d fps"
 #define LOG_FRAME_LATENCY   "Latency             : %f ms"
 #define LOG_CAM_LOCATION    "Camera position     : (%f, %f, %f)"
@@ -63,12 +64,13 @@ void initTextures(Backend*);
 void loop(Backend*);
 
 void printInfo(Backend* engine);
+void _printLog(FILE*, int*, char*, ...);
 void draw(Backend* engine);
 
 void toggleWireframe(void);
 
 void normalInputCallback(GLFWwindow*, int, int, int, int);
-void keyInputCallback(GLFWwindow*);
+void instantKeyInputCallback(GLFWwindow*);
 void mouseCallback(GLFWwindow*, double, double);
 void scrollCallback(GLFWwindow*, double, double);
 void framebufferSizeCallback(GLFWwindow*, int, int);

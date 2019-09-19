@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "box.h"
 #include "camera.h"
@@ -115,7 +116,7 @@ void initShader(Backend* engine)
 void initShapes(Backend* engine)
 {
     int i;
-    vec3 cubePositions[] = {
+    vec3 positions[] = {
         { 0.0f,  0.0f,  0.0f},
         { 2.0f,  5.0f, -15.0f},
         {-1.5f, -2.2f, -2.5f},
@@ -131,9 +132,9 @@ void initShapes(Backend* engine)
     engine->boxes = newList();
     engine->lamps = newList();
 
-    for (i = 0; i < sizeof(cubePositions) / sizeof(vec3); i++)
+    for (i = 0; i < sizeof(positions) / sizeof(vec3); i++)
     {
-        engine->boxes->insertLast(engine->boxes, newBox(cubePositions[i]), true);
+        engine->boxes->insertLast(engine->boxes, newBox(positions[i]), true);
     }
 }
 
@@ -186,7 +187,7 @@ void loop(Backend* engine)
     while (! glfwWindowShouldClose(engine->window))
     {
         printInfo(engine);
-        keyInputCallback(engine->window);
+        instantKeyInputCallback(engine->window);
 
         currentTime = glfwGetTime();
         engine->timeDelta = currentTime - lastTime;
@@ -206,37 +207,57 @@ void loop(Backend* engine)
 
 void printInfo(Backend* engine)
 {
-    static unsigned int freezeFrameDelta;
-    static float freezeFrameLatency;
+    static unsigned long long frameCount = 0;
+    static unsigned int cacheFrameDelta;
+    static float cacheFrameLatency;
+    static bool first = true;
+    static int rows = 0;
 
-    int rows = 0;
+    Camera* cam;
+
+    if (! engine)
+    {
+        return;
+    }
+
+    cam = engine->cam;
     engine->frameDelta++;
+    frameCount++;
 
     if ((glfwGetTime() - engine->fpsLastTime) >= 1.0)
     {
-        freezeFrameDelta = engine->frameDelta;
-        freezeFrameLatency = 1000.0 / (double)(freezeFrameDelta);
+        cacheFrameDelta = engine->frameDelta;
+        cacheFrameLatency = 1000.0 / (double)(cacheFrameDelta);
 
         engine->frameDelta = 0;
         engine->fpsLastTime += 1.0f;
     }
 
-    fprintf(stderr, LOG_CLEAR LOG_FPS "\n", freezeFrameDelta);
-    rows++;
+    if (! first)
+    {
+        fprintf(stderr, "\e[%dA", rows);
+        rows = 0;
+    }
 
-    fprintf(stderr, LOG_CLEAR LOG_FRAME_LATENCY "\n", freezeFrameLatency);
-    rows++;
+    _printLog(stderr, &rows, LOG_CLEAR LOG_FRAME_COUNT "\n", frameCount);
+    _printLog(stderr, &rows, LOG_CLEAR LOG_FPS "\n", cacheFrameDelta);
+    _printLog(stderr, &rows, LOG_CLEAR LOG_FRAME_LATENCY "\n", cacheFrameLatency);
+    _printLog(stderr, &rows, LOG_CLEAR LOG_CAM_LOCATION "\n", cam->position[0],
+                                                              cam->position[1],
+                                                              cam->position[2]);
+    _printLog(stderr, &rows, LOG_CLEAR LOG_CAM_FRONT "\n", cam->front[0],
+                                                           cam->front[1],
+                                                           cam->front[2]);
+    first = false;
+}
 
-    fprintf(stderr, LOG_CLEAR LOG_CAM_LOCATION "\n", engine->cam->position[0],
-                                                     engine->cam->position[1],
-                                                     engine->cam->position[2]);
-    rows++;
 
-    fprintf(stderr, LOG_CLEAR LOG_CAM_FRONT "\n", engine->cam->front[0],
-                                                  engine->cam->front[1],
-                                                  engine->cam->front[2]);
-    rows++;
-    fprintf(stderr, "\e[%dA", rows);
+void _printLog(FILE* f, int* count, char* fmt, ...)
+{
+    va_list(args);
+    va_start(args, fmt);
+    vfprintf(f, fmt, args);
+    (*count)++;
 }
 
 
@@ -311,7 +332,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 }
 
 
-void keyInputCallback(GLFWwindow* win)
+void instantKeyInputCallback(GLFWwindow* win)
 {
     Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
     Camera* cam = engine ? engine->cam : NULL;
