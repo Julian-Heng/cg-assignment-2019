@@ -103,6 +103,12 @@ void initShader(Backend* engine)
         newShader("shaders/shader.vs", "shaders/shader.fs"),
         true
     );
+
+    engine->shaders->insertLast(
+        engine->shaders,
+        newShader("shaders/lamp.vs", "shaders/lamp.fs"),
+        true
+    );
 }
 
 
