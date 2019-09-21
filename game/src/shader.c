@@ -35,6 +35,7 @@ Shader* newShader(char* vertexFilename, char* fragmentFilename)
         return NULL;
     }
 
+    memset(shader, 0, sizeof(Shader));
     linkMethods(shader);
 
     vertex = compileShader(vertexFilename, GL_VERTEX_SHADER);
@@ -107,8 +108,8 @@ static unsigned int compileShader(char* filename, int type)
 }
 
 
-static unsigned int
-linkProgram(unsigned int vertex, unsigned int fragment, char* filename)
+static unsigned int linkProgram(unsigned int vertex, unsigned int fragment,
+                                char* filename)
 {
     unsigned int ID = glCreateProgram();
 

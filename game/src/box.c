@@ -61,6 +61,7 @@ static float VERTICES[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
+
 static void linkMethods(Box*);
 static void setGlBuffers(Box*);
 
@@ -141,7 +142,8 @@ static void addTexture(Box* this, Texture* texture)
 
 static void setPosition(Box* this, vec3 position)
 {
-    glm_vec3_copy(position ? position : (vec3){0.0f, 0.0f, 0.0f}, this->position);
+    glm_vec3_copy(position ? position
+                           : (vec3){0.0f, 0.0f, 0.0f}, this->position);
 }
 
 
