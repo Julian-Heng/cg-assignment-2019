@@ -136,7 +136,7 @@ static void moveRight(Camera* this, float timeDelta)
 
 
 static void moveMouse(Camera* this, double xoffset,
-                           double yoffset, bool constraint)
+                      double yoffset, bool constraint)
 {
     this->yaw += xoffset * this->mouseSensitivity;
     this->pitch += yoffset * this->mouseSensitivity;
