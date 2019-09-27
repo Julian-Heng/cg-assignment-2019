@@ -172,21 +172,15 @@ void initTextures(Backend* engine)
     texture = newTexture("resources/container.jpg", GL_RGB, false);
     textures->insertLast(textures, texture, true);
 
-    iter1 = engine->boxes->head;
-
-    while (iter1)
+    FOR_EACH(engine->boxes, iter1)
     {
         box = (Box*)iter1->value;
 
-        iter2 = textures->head;
-        while (iter2)
+        FOR_EACH(textures, iter2)
         {
             texture = (Texture*)iter2->value;
             box->addTexture(box, texture);
-            iter2 = iter2->next;
         }
-
-        iter1 = iter1->next;
     }
 
     engine->textures = textures;
@@ -315,14 +309,11 @@ void draw(Backend* engine)
     shader->setMat4(shader, "projection", projection);
     shader->setMat4(shader, "view", view);
 
-    node = engine->boxes->head;
-
-    while (node)
+    FOR_EACH(engine->boxes, node)
     {
         box = (Box*)node->value;
         box->setShader(box, shader);
         box->draw(box);
-        node = node->next;
     }
 }
 
@@ -480,13 +471,10 @@ void terminate(Backend** engine)
         return;
     }
 
-    iter = _engine->boxes->head;
-
-    while (iter)
+    FOR_EACH(_engine->boxes, iter)
     {
         box = (Box*)iter->value;
         box->textures->deleteListShallow(&(box->textures));
-        iter = iter->next;
     }
 
     _engine->shaders->deleteList(&(_engine->shaders));

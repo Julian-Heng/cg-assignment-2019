@@ -149,16 +149,15 @@ static void setPosition(Box* this, vec3 position)
 
 static void draw(Box* this)
 {
-    ListNode* iter = this->textures->head;
+    ListNode* iter;
     int i = 0;
 
     mat4 model;
 
-    while (iter)
+    FOR_EACH(this->textures, iter)
     {
         glActiveTexture(GL_TEXTURE0 + i++);
         glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
-        iter = iter->next;
     }
 
     glBindVertexArray(this->VAO);
