@@ -19,10 +19,13 @@ typedef struct Box
     Shader* shader;
     List* textures;
     vec3 position;
+    vec3 scale;
 
     void (*setShader)(struct Box*, Shader*);
     void (*addTexture)(struct Box*, Texture*);
     void (*setPosition)(struct Box*, vec3);
+    void (*setScale)(struct Box*, vec3);
+
     void (*draw)(struct Box*);
 } Box;
 

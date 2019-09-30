@@ -24,6 +24,7 @@ typedef struct Shader
     void (*setInt)(struct Shader*, const char*, int);
     void (*setFloat)(struct Shader*, const char*, float);
     void (*setMat4)(struct Shader*, const char*, mat4);
+    void (*setVec3)(struct Shader*, const char*, vec3);
 } Shader;
 
 Shader* newShader(char*, char*);

@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cglm/mat4.h>
+#include <cglm/vec3.h>
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -17,6 +18,7 @@ static void setBool(Shader*, const char*, bool);
 static void setInt(Shader*, const char*, int);
 static void setFloat(Shader*, const char*, float);
 static void setMat4(Shader*, const char*, mat4);
+static void setVec3(Shader*, const char*, vec3);
 
 static unsigned int compileShader(char*, int);
 static unsigned int linkProgram(unsigned int, unsigned int, char*);
@@ -59,6 +61,7 @@ static void linkMethods(Shader* this)
     this->setInt = setInt;
     this->setFloat = setFloat;
     this->setMat4 = setMat4;
+    this->setVec3 = setVec3;
 }
 
 
@@ -89,6 +92,12 @@ static void setFloat(Shader* this, const char* name, float val)
 static void setMat4(Shader* this, const char* name, mat4 mat)
 {
     glUniformMatrix4fv(UNIFORM_LOC(this, name), 1, GL_FALSE, mat[0]);
+}
+
+
+static void setVec3(Shader* this, const char* name, vec3 vec)
+{
+    glUniform3fv(UNIFORM_LOC(this, name), 1, vec);
 }
 
 

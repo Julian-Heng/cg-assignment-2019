@@ -132,8 +132,10 @@ void initShader(Backend* engine)
 
 void initShapes(Backend* engine)
 {
+    Box* lamp;
+
     int i;
-    vec3 positions[] = {
+    vec3 boxPositions[] = {
         { 0.0f,  0.0f,  0.0f},
         { 2.0f,  5.0f, -15.0f},
         {-1.5f, -2.2f, -2.5f},
@@ -146,12 +148,23 @@ void initShapes(Backend* engine)
         {-1.3f,  1.0f, -1.5f}
     };
 
+    vec3 lampPositions[] = {
+        { 1.2f, 1.0f,  2.0f}
+    };
+
     List* boxes = newList();
     List* lamps = newList();
 
-    for (i = 0; i < sizeof(positions) / sizeof(vec3); i++)
+    for (i = 0; i < sizeof(boxPositions) / sizeof(vec3); i++)
     {
-        boxes->insertLast(boxes, newBox(positions[i]), true);
+        boxes->insertLast(boxes, newBox(boxPositions[i]), true);
+    }
+
+    for (i = 0; i < sizeof(lampPositions) / sizeof(vec3); i++)
+    {
+        lamp = newBox(lampPositions[i]);
+        lamp->setScale(lamp, (vec3){0.1f, 0.1f, 0.1f});
+        lamps->insertLast(lamps, lamp, true);
     }
 
     engine->boxes = boxes;
@@ -200,7 +213,7 @@ void loop(Backend* engine)
 
     shader->use(shader);
     shader->setInt(shader, "texture1", 0);
-    shader->setInt(shader, "texture2", 1);
+    //shader->setInt(shader, "texture2", 1);
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -283,9 +296,11 @@ void _printLog(FILE* f, int* count, char* fmt, ...)
 
 void draw(Backend* engine)
 {
-    Shader* shader;
-    Texture* texture;
+    Shader* normalShader;
+    Shader* lampShader;
+
     Box* box;
+    Camera* cam;
 
     int width, height;
 
@@ -294,25 +309,47 @@ void draw(Backend* engine)
 
     ListNode* node;
 
-    engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
-    engine->textures->peekFirst(engine->textures, (void**)&texture, NULL);
+    cam = engine->cam;
+
+    engine->shaders->peekAt(engine->shaders, 0, (void**)&normalShader, NULL);
+    engine->shaders->peekAt(engine->shaders, 1, (void**)&lampShader, NULL);
+
     glfwGetWindowSize(engine->window, &width, &height);
 
     glm_mat4_identity(projection);
     glm_mat4_identity(view);
 
-    shader->use(shader);
-    glm_perspective(glm_rad(engine->cam->zoom), ASPECT_RATIO(width, height),
+    normalShader->use(normalShader);
+    glm_perspective(glm_rad(cam->zoom), ASPECT_RATIO(width, height),
                     0.1f, 100.0f, projection);
-    engine->cam->getViewMatrix(engine->cam, view);
+    cam->getViewMatrix(cam, view);
 
-    shader->setMat4(shader, "projection", projection);
-    shader->setMat4(shader, "view", view);
+    normalShader->setMat4(normalShader, "projection", projection);
+    normalShader->setMat4(normalShader, "view", view);
+
+    normalShader->setVec3(normalShader, "objectColor", (vec3){1.0f, 0.5f, 0.31f});
+    normalShader->setVec3(normalShader, "lightColor", (vec3){1.0f, 1.0f, 1.0f});
+    normalShader->setVec3(normalShader, "viewPos", cam->position);
+
+    engine->lamps->peekFirst(engine->lamps, (void**)&box, NULL);
+    normalShader->setVec3(normalShader, "lightPos", box->position);
 
     FOR_EACH(engine->boxes, node)
     {
         box = (Box*)node->value;
-        box->setShader(box, shader);
+        box->setShader(box, normalShader);
+        box->draw(box);
+    }
+
+    lampShader->use(lampShader);
+
+    lampShader->setMat4(lampShader, "projection", projection);
+    lampShader->setMat4(lampShader, "view", view);
+
+    FOR_EACH(engine->lamps, node)
+    {
+        box = (Box*)node->value;
+        box->setShader(box, lampShader);
         box->draw(box);
     }
 }
