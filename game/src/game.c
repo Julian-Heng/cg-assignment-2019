@@ -182,8 +182,13 @@ void initTextures(Backend* engine)
 
     Texture* texture;
 
-    texture = newTexture("resources/container.jpg", GL_RGB, false);
-    textures->insertLast(textures, texture, true);
+    textures->insertLast(textures,
+                         newTexture("resources/container2.png", GL_RGBA, false),
+                         true);
+
+    textures->insertLast(textures,
+                         newTexture("resources/container2_specular.png", GL_RGBA, false),
+                         true);
 
     FOR_EACH(engine->boxes, iter1)
     {
@@ -212,8 +217,6 @@ void loop(Backend* engine)
     cam = engine->cam;
 
     shader->use(shader);
-    shader->setInt(shader, "texture1", 0);
-    //shader->setInt(shader, "texture2", 1);
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -224,7 +227,8 @@ void loop(Backend* engine)
         engine->timeDelta = currentTime - lastTime;
         lastTime = currentTime;
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         cam->poll(cam);
@@ -331,6 +335,18 @@ void draw(Backend* engine)
     normalShader->setVec3(normalShader, "objectColor", (vec3){1.0f, 0.5f, 0.31f});
     normalShader->setVec3(normalShader, "lightColor", (vec3){1.0f, 1.0f, 1.0f});
     normalShader->setVec3(normalShader, "viewPos", cam->position);
+
+    normalShader->setVec3(normalShader, "material.ambient", (vec3){1.0f, 0.5f, 0.31f});
+    normalShader->setVec3(normalShader, "material.diffuse", (vec3){1.0f, 0.5f, 0.31f});
+    normalShader->setVec3(normalShader, "material.specular", (vec3){0.5f, 0.5f, 0.5f});
+    normalShader->setFloat(normalShader, "material.shininess", 32.0f);
+
+    normalShader->setVec3(normalShader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
+    normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
+    normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+
+    normalShader->setInt(normalShader, "material.diffuse", 0);
+    normalShader->setInt(normalShader, "material.specular", 1);
 
     engine->lamps->peekFirst(engine->lamps, (void**)&box, NULL);
     normalShader->setVec3(normalShader, "lightPos", box->position);
