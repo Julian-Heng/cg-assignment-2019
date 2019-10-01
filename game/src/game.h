@@ -12,6 +12,7 @@
 #define TITLE "CG Assignment"
 
 #define LOG_CLEAR           "\r\e[2K"
+#define LOG_RESOLUTION      "Resolution          : %d x %d"
 #define LOG_FRAME_COUNT     "Frame count         : %lld"
 #define LOG_FPS             "Framerate           : %d fps"
 #define LOG_FRAME_LATENCY   "Latency             : %f ms"
@@ -39,6 +40,9 @@ typedef struct Backend
     GLFWwindow* window;
     unsigned int VAO;
     unsigned int VBO;
+
+    int width;
+    int height;
 
     List* shaders;
     List* textures;

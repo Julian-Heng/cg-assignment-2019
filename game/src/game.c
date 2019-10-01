@@ -272,6 +272,8 @@ void printInfo(Backend* engine)
         rows = 0;
     }
 
+    _printLog(stderr, &rows, LOG_CLEAR LOG_RESOLUTION "\n", engine->width,
+                                                            engine->height);
     _printLog(stderr, &rows, LOG_CLEAR LOG_FRAME_COUNT "\n", frameCount);
     _printLog(stderr, &rows, LOG_CLEAR LOG_FPS "\n", cacheFrameDelta);
     _printLog(stderr, &rows, LOG_CLEAR LOG_FRAME_LATENCY "\n", cacheFrameLatency);
@@ -302,8 +304,6 @@ void draw(Backend* engine)
     Box* box;
     Camera* cam;
 
-    int width, height;
-
     mat4 projection;
     mat4 view;
 
@@ -314,13 +314,14 @@ void draw(Backend* engine)
     engine->shaders->peekAt(engine->shaders, 0, (void**)&normalShader, NULL);
     engine->shaders->peekAt(engine->shaders, 1, (void**)&lampShader, NULL);
 
-    glfwGetWindowSize(engine->window, &width, &height);
+    glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
     glm_mat4_identity(projection);
     glm_mat4_identity(view);
 
     normalShader->use(normalShader);
-    glm_perspective(glm_rad(cam->zoom), ASPECT_RATIO(width, height),
+    glm_perspective(glm_rad(cam->zoom),
+                    ASPECT_RATIO(engine->width, engine->height),
                     0.1f, 100.0f, projection);
     cam->getViewMatrix(cam, view);
 
