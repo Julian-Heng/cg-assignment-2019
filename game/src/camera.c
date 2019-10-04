@@ -210,7 +210,9 @@ static void moveMouse(Camera* this, double xoffset,
         return;
     }
 
-    glm_rotate_atm(temp, this->position, glm_rad(this->yaw - lastYaw), (vec3){0.0f, -1.0f, 0.0f});
+    glm_rotate_atm(temp, this->position,
+                   glm_rad(this->yaw - lastYaw),
+                   (vec3){0.0f, -1.0f, 0.0f});
 
     FOR_EACH(this->attached, node)
     {
@@ -257,7 +259,17 @@ static void setJump(Camera* this, bool value)
 
 static void resetPosition(Camera* this)
 {
+    ListNode* node;
+    Box* attach;
+
     this->setPosition(this, (vec3){0.0f, 0.0f, 3.0f});
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->resetPosition(attach);
+        attach->resetRotation(attach);
+    }
 }
 
 

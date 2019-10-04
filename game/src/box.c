@@ -71,6 +71,11 @@ static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
 
+static void recordInitialPosition(Box*);
+static void recordInitialRotation(Box*);
+static void resetPosition(Box*);
+static void resetRotation(Box*);
+
 static void move(Box*, vec3);
 static void transformPosition(Box*, mat4);
 
@@ -95,6 +100,7 @@ Box* newBox(vec3 position)
     box->setPosition(box, position);
     box->setScale(box, NULL);
     box->setRotation(box, NULL);
+    box->recordInitialPosition(box);
 
     return box;
 }
@@ -107,6 +113,11 @@ static void linkMethods(Box* this)
     this->setPosition = setPosition;
     this->setScale = setScale;
     this->setRotation = setRotation;
+
+    this->recordInitialPosition = recordInitialPosition;
+    this->recordInitialRotation = recordInitialRotation;
+    this->resetPosition = resetPosition;
+    this->resetRotation = resetRotation;
 
     this->move = move;
     this->transformPosition = transformPosition;
@@ -176,6 +187,30 @@ static void setRotation(Box* this, vec3 rotation)
 {
     glm_vec3_copy(rotation ? rotation
                            : (vec3){0.0f, 0.0f, 0.0f}, this->rotation);
+}
+
+
+static void recordInitialPosition(Box* this)
+{
+    glm_vec3_copy(this->position, this->initialPosition);
+}
+
+
+static void recordInitialRotation(Box* this)
+{
+    glm_vec3_copy(this->rotation, this->initialRotation);
+}
+
+
+static void resetPosition(Box* this)
+{
+    this->setPosition(this, this->initialPosition);
+}
+
+
+static void resetRotation(Box* this)
+{
+    this->setRotation(this, this->initialRotation);
 }
 
 
