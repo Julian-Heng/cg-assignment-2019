@@ -1,6 +1,7 @@
 #include <cglm/mat4.h>
 #include <cglm/cam.h>
 #include <cglm/vec3.h>
+#include <cglm/affine.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -188,10 +189,37 @@ static void moveRight(Camera* this, float timeDelta)
 static void moveMouse(Camera* this, double xoffset,
                       double yoffset, bool constraint)
 {
+    static bool first = true;
+    static float lastYaw = 0.0f;
+    static float lastPitch = 0.0f;
+
+    ListNode* node;
+    Box* attach;
+
+    mat4 temp;
+
+    lastYaw = this->yaw;
+    lastPitch = this->pitch;
+
     this->yaw += xoffset * this->mouseSensitivity;
     this->pitch += yoffset * this->mouseSensitivity;
     this->pitch = constraint && this->pitch > 89.0f ? 89.0f : this->pitch;
     this->pitch = constraint && this->pitch < -89.0f ? -89.0f : this->pitch;
+
+    if (first)
+    {
+        first = false;
+        return;
+    }
+
+    glm_rotate_atm(temp, this->position, glm_rad(this->yaw - lastYaw), (vec3){0.0f, -1.0f, 0.0f});
+    glm_rotate_at(temp, this->position, glm_rad(this->pitch - lastPitch), (vec3){1.0f, 0.0f, 0.0f});
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->transformPosition(attach, temp);
+    }
 
     updateCameraVectors(this);
 }
@@ -311,7 +339,7 @@ static void jump(Camera* this)
         FOR_EACH(this->attached, node)
         {
             attach = (Box*)(node->value);
-            attach->resetPosition(attach);
+            attach->resetHeight(attach);
         }
     }
     else

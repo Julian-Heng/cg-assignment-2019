@@ -22,6 +22,7 @@ typedef struct Box
     vec3 scale;
     vec3 rotation;
 
+    vec3 initialPosition;
     float initialHeight;
 
     void (*setShader)(struct Box*, Shader*);
@@ -30,10 +31,14 @@ typedef struct Box
     void (*setScale)(struct Box*, vec3);
     void (*setRotation)(struct Box*, vec3);
 
+    void (*recordInitialPosition)(struct Box*);
     void (*recordInitialHeight)(struct Box*);
+
     void (*resetPosition)(struct Box*);
+    void (*resetHeight)(struct Box*);
 
     void (*move)(struct Box*, vec3);
+    void (*transformPosition)(struct Box*, mat4);
 
     void (*draw)(struct Box*);
 } Box;

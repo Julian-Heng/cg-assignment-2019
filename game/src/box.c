@@ -71,10 +71,14 @@ static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
 
+static void recordInitialPosition(Box*);
 static void recordInitialHeight(Box*);
+
 static void resetPosition(Box*);
+static void resetHeight(Box*);
 
 static void move(Box*, vec3);
+static void transformPosition(Box*, mat4);
 
 static void draw(Box*);
 
@@ -95,6 +99,7 @@ Box* newBox(vec3 position)
     box->textures = newList();
     setGlBuffers(box);
     box->setPosition(box, position);
+    box->recordInitialPosition(box);
     box->recordInitialHeight(box);
     box->setScale(box, NULL);
     box->setRotation(box, NULL);
@@ -111,10 +116,14 @@ static void linkMethods(Box* this)
     this->setScale = setScale;
     this->setRotation = setRotation;
 
+    this->recordInitialPosition = recordInitialPosition;
     this->recordInitialHeight = recordInitialHeight;
+
     this->resetPosition = resetPosition;
+    this->resetHeight = resetHeight;
 
     this->move = move;
+    this->transformPosition = transformPosition;
 
     this->draw = draw;
 }
@@ -184,6 +193,12 @@ static void setRotation(Box* this, vec3 rotation)
 }
 
 
+static void recordInitialPosition(Box* this)
+{
+    glm_vec3_copy(this->position, this->initialPosition);
+}
+
+
 static void recordInitialHeight(Box* this)
 {
     this->initialHeight = this->position[1];
@@ -192,20 +207,25 @@ static void recordInitialHeight(Box* this)
 
 static void resetPosition(Box* this)
 {
-    this->setPosition(
-        this,
-        (vec3){
-            this->position[0],
-            this->initialHeight,
-            this->position[2]
-        }
-    );
+    glm_vec3_copy(this->initialPosition, this->position);
+}
+
+
+static void resetHeight(Box* this)
+{
+    this->position[1] = this->initialHeight;
 }
 
 
 static void move(Box* this, vec3 delta)
 {
     glm_vec3_add(delta, this->position, this->position);
+}
+
+
+static void transformPosition(Box* this, mat4 transform)
+{
+    glm_mat4_mulv3(transform, this->position, 1.0f, this->position);
 }
 
 
