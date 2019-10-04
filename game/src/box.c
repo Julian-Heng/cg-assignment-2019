@@ -71,6 +71,11 @@ static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
 
+static void recordInitialHeight(Box*);
+static void resetPosition(Box*);
+
+static void move(Box*, vec3);
+
 static void draw(Box*);
 
 
@@ -90,6 +95,7 @@ Box* newBox(vec3 position)
     box->textures = newList();
     setGlBuffers(box);
     box->setPosition(box, position);
+    box->recordInitialHeight(box);
     box->setScale(box, NULL);
     box->setRotation(box, NULL);
 
@@ -104,6 +110,12 @@ static void linkMethods(Box* this)
     this->setPosition = setPosition;
     this->setScale = setScale;
     this->setRotation = setRotation;
+
+    this->recordInitialHeight = recordInitialHeight;
+    this->resetPosition = resetPosition;
+
+    this->move = move;
+
     this->draw = draw;
 }
 
@@ -169,6 +181,31 @@ static void setRotation(Box* this, vec3 rotation)
 {
     glm_vec3_copy(rotation ? rotation
                            : (vec3){0.0f, 0.0f, 0.0f}, this->rotation);
+}
+
+
+static void recordInitialHeight(Box* this)
+{
+    this->initialHeight = this->position[1];
+}
+
+
+static void resetPosition(Box* this)
+{
+    this->setPosition(
+        this,
+        (vec3){
+            this->position[0],
+            this->initialHeight,
+            this->position[2]
+        }
+    );
+}
+
+
+static void move(Box* this, vec3 delta)
+{
+    glm_vec3_add(delta, this->position, this->position);
 }
 
 

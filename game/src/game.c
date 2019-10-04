@@ -149,7 +149,8 @@ void initShapes(Backend* engine)
     };
 
     vec3 lampPositions[] = {
-        { 1.2f, 1.0f,  2.0f}
+        //{ 1.2f, 1.0f,  2.0f}
+        {0.0f, 0.0f, 0.0f}
     };
 
     List* boxes = newList();
@@ -165,6 +166,8 @@ void initShapes(Backend* engine)
         lamp = newBox(lampPositions[i]);
         lamp->setScale(lamp, (vec3){0.1f, 0.1f, 0.1f});
         lamps->insertLast(lamps, lamp, true);
+
+        engine->cam->addAttach(engine->cam, lamp);
     }
 
     engine->boxes = boxes;
