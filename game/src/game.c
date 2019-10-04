@@ -135,6 +135,7 @@ void initShader(Backend* engine)
 
 void initShapes(Backend* engine)
 {
+    Box* box;
     int i;
     vec3 boxPositions[] = {
         { 0.0f,  0.0f,  0.0f},
@@ -146,7 +147,8 @@ void initShapes(Backend* engine)
         { 1.3f, -2.0f, -2.5f},
         { 1.5f,  2.0f, -2.5f},
         { 1.5f,  0.2f, -1.5f},
-        {-1.3f,  1.0f, -1.5f}
+        {-1.3f,  1.0f, -1.5f},
+        { 0.5f, -0.5f,  1.5f}
     };
 
     List* boxes = newList();
@@ -155,6 +157,10 @@ void initShapes(Backend* engine)
     {
         boxes->insertLast(boxes, newBox(boxPositions[i]), true);
     }
+
+    boxes->peekLast(boxes, (void**)&box, NULL);
+    box->setScale(box, (vec3){0.5f, 0.5f, 0.5f});
+    engine->cam->attach(engine->cam, box);
 
     engine->boxes = boxes;
 }
@@ -170,13 +176,17 @@ void initTextures(Backend* engine)
 
     Texture* texture;
 
-    textures->insertLast(textures,
-                         newTexture("resources/container2.png", GL_RGBA, false),
-                         true);
+    textures->insertLast(
+        textures,
+        newTexture("resources/container2.png", GL_RGBA, false),
+        true
+    );
 
-    textures->insertLast(textures,
-                         newTexture("resources/container2_specular.png", GL_RGBA, false),
-                         true);
+    textures->insertLast(
+        textures,
+        newTexture("resources/container2_specular.png", GL_RGBA, false),
+        true
+    );
 
     FOR_EACH(engine->boxes, iter1)
     {

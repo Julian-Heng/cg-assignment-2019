@@ -71,6 +71,9 @@ static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
 
+static void move(Box*, vec3);
+static void transformPosition(Box*, mat4);
+
 static void draw(Box*);
 
 
@@ -104,6 +107,10 @@ static void linkMethods(Box* this)
     this->setPosition = setPosition;
     this->setScale = setScale;
     this->setRotation = setRotation;
+
+    this->move = move;
+    this->transformPosition = transformPosition;
+
     this->draw = draw;
 }
 
@@ -172,6 +179,18 @@ static void setRotation(Box* this, vec3 rotation)
 }
 
 
+static void move(Box* this, vec3 delta)
+{
+    glm_vec3_add(delta, this->position, this->position);
+}
+
+
+static void transformPosition(Box* this, mat4 transform)
+{
+    glm_mat4_mulv3(transform, this->position, 1.0f, this->position);
+}
+
+
 static void draw(Box* this)
 {
     ListNode* iter;
@@ -190,6 +209,11 @@ static void draw(Box* this)
 
     glm_translate(model, this->position);
     glm_scale(model, this->scale);
+
+    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+
     this->shader->setMat4(this->shader, "model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }

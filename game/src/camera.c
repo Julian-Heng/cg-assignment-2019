@@ -1,12 +1,15 @@
 #include <cglm/mat4.h>
 #include <cglm/cam.h>
 #include <cglm/vec3.h>
+#include <cglm/affine.h>
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "box.h"
+#include "list.h"
 #include "macros.h"
 
 #include "camera.h"
@@ -22,6 +25,8 @@ static void moveBackward(Camera*, float);
 static void moveRight(Camera*, float);
 static void moveMouse(Camera*, double, double, bool);
 static void scrollMouse(Camera*, float);
+
+static void attach(Camera*, Box*);
 
 static void setPosition(Camera*, vec3);
 static void setFront(Camera*, vec3);
@@ -65,6 +70,8 @@ Camera* newCamera()
     cam->mouseSensitivity = 0.05f;
     cam->zoom = 45.0f;
 
+    cam->attached = newList();
+
     updateCameraVectors(cam);
 
     return cam;
@@ -81,6 +88,8 @@ static void linkMethods(Camera* this)
     this->moveRight = moveRight;
     this->moveMouse = moveMouse;
     this->scrollMouse = scrollMouse;
+
+    this->attach = attach;
 
     this->setPosition = setPosition;
     this->setFront = setFront;
@@ -103,45 +112,112 @@ static void getViewMatrix(Camera* this, mat4 result)
 
 static void moveForward(Camera* this, float timeDelta)
 {
+    ListNode* node;
+    Box* attach;
+
     vec3 temp;
     glm_vec3_copy((vec3){this->front[0], 0.0f, this->front[2]}, temp);
     glm_vec3_normalize(temp);
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_add(temp, this->position, this->position);
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->move(attach, temp);
+    }
 }
 
 
 static void moveLeft(Camera* this, float timeDelta)
 {
+    ListNode* node;
+    Box* attach;
+
     vec3 temp;
     glm_vec3_scale(this->right, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
+
+    glm_vec3_flipsign(temp);
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->move(attach, temp);
+    }
 }
 
 
 static void moveBackward(Camera* this, float timeDelta)
 {
+    ListNode* node;
+    Box* attach;
+
     vec3 temp;
     glm_vec3_copy((vec3){this->front[0], 0.0f, this->front[2]}, temp);
     glm_vec3_normalize(temp);
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
+
+    glm_vec3_flipsign(temp);
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->move(attach, temp);
+    }
 }
 
 
 static void moveRight(Camera* this, float timeDelta)
 {
-    glm_vec3_muladds(this->right, this->speed * timeDelta, this->position);
+    ListNode* node;
+    Box* attach;
+
+    vec3 temp;
+    glm_vec3_scale(this->right, this->speed * timeDelta, temp);
+    glm_vec3_add(this->position, temp, this->position);
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->move(attach, temp);
+    }
 }
 
 
 static void moveMouse(Camera* this, double xoffset,
                       double yoffset, bool constraint)
 {
+    static bool first = true;
+    static float lastYaw = 0.0f;
+
+    ListNode* node;
+    Box* attach;
+
+    mat4 temp;
+
+    lastYaw = this->yaw;
+
     this->yaw += xoffset * this->mouseSensitivity;
     this->pitch += yoffset * this->mouseSensitivity;
     this->pitch = constraint && this->pitch > 89.0f ? 89.0f : this->pitch;
     this->pitch = constraint && this->pitch < -89.0f ? -89.0f : this->pitch;
+
+    if (first)
+    {
+        first = false;
+        return;
+    }
+
+    glm_rotate_atm(temp, this->position, glm_rad(this->yaw - lastYaw), (vec3){0.0f, -1.0f, 0.0f});
+
+    FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        attach->transformPosition(attach, temp);
+        attach->setRotation(attach, (vec3){0.0f, -(this->yaw + 90.0f), 0.0f});
+    }
 
     updateCameraVectors(this);
 }
@@ -152,6 +228,12 @@ static void scrollMouse(Camera* this, float yoffset)
     this->zoom -= RANGE_INC(this->zoom, 1.0f, 45.0f) ? yoffset : 0;
     this->zoom = MAX(this->zoom, 1.0f);
     this->zoom = MIN(this->zoom, 45.0f);
+}
+
+
+static void attach(Camera* this, Box* box)
+{
+    this->attached->insertLast(this->attached, box, true);
 }
 
 

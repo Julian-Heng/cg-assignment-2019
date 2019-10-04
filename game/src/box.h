@@ -2,6 +2,7 @@
 #define BOX_H
 
 #include <cglm/vec3.h>
+#include <cglm/mat4.h>
 
 #include "list.h"
 #include "texture.h"
@@ -27,6 +28,9 @@ typedef struct Box
     void (*setPosition)(struct Box*, vec3);
     void (*setScale)(struct Box*, vec3);
     void (*setRotation)(struct Box*, vec3);
+
+    void (*move)(struct Box*, vec3);
+    void (*transformPosition)(struct Box*, mat4);
 
     void (*draw)(struct Box*);
 } Box;
