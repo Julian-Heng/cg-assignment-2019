@@ -69,6 +69,7 @@ static void setShader(Box*, Shader*);
 static void addTexture(Box*, Texture*);
 static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
+static void setRotation(Box*, vec3);
 
 static void draw(Box*);
 
@@ -90,6 +91,7 @@ Box* newBox(vec3 position)
     setGlBuffers(box);
     box->setPosition(box, position);
     box->setScale(box, NULL);
+    box->setRotation(box, NULL);
 
     return box;
 }
@@ -101,6 +103,7 @@ static void linkMethods(Box* this)
     this->addTexture = addTexture;
     this->setPosition = setPosition;
     this->setScale = setScale;
+    this->setRotation = setRotation;
     this->draw = draw;
 }
 
@@ -159,6 +162,13 @@ static void setScale(Box* this, vec3 scale)
 {
     glm_vec3_copy(scale ? scale
                         : (vec3){1.0f, 1.0f, 1.0f}, this->scale);
+}
+
+
+static void setRotation(Box* this, vec3 rotation)
+{
+    glm_vec3_copy(rotation ? rotation
+                           : (vec3){0.0f, 0.0f, 0.0f}, this->rotation);
 }
 
 

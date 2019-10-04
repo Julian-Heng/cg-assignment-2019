@@ -211,11 +211,7 @@ void loop(Backend* engine)
     float currentTime;
 
     Shader* shader;
-    Camera* cam;
-
     engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
-    cam = engine->cam;
-
     shader->use(shader);
 
     while (! glfwWindowShouldClose(engine->window))
@@ -230,7 +226,6 @@ void loop(Backend* engine)
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        cam->poll(cam);
         draw(engine);
 
         glfwSwapBuffers(engine->window);
@@ -312,6 +307,8 @@ void draw(Backend* engine)
         box->setShader(box, lampShader);
         box->draw(box);
     }
+
+    cam->poll(cam);
 }
 
 
