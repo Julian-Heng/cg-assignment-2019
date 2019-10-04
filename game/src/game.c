@@ -284,6 +284,10 @@ void draw(Backend* engine)
     normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
     normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
 
+    normalShader->setFloat(normalShader, "light.constant", 1.0f);
+    normalShader->setFloat(normalShader, "light.linear", 0.09f);
+    normalShader->setFloat(normalShader, "light.quadratic", 0.032f);
+
     normalShader->setInt(normalShader, "material.diffuse", 0);
     normalShader->setInt(normalShader, "material.specular", 1);
 
