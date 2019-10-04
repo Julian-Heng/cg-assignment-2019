@@ -132,8 +132,6 @@ void initShader(Backend* engine)
 
 void initShapes(Backend* engine)
 {
-    Box* lamp;
-
     int i;
     vec3 boxPositions[] = {
         { 0.0f,  0.0f,  0.0f},
@@ -148,27 +146,14 @@ void initShapes(Backend* engine)
         {-1.3f,  1.0f, -1.5f}
     };
 
-    vec3 lampPositions[] = {
-        { 1.2f, 1.0f,  2.0f}
-    };
-
     List* boxes = newList();
-    List* lamps = newList();
 
     for (i = 0; i < sizeof(boxPositions) / sizeof(vec3); i++)
     {
         boxes->insertLast(boxes, newBox(boxPositions[i]), true);
     }
 
-    for (i = 0; i < sizeof(lampPositions) / sizeof(vec3); i++)
-    {
-        lamp = newBox(lampPositions[i]);
-        lamp->setScale(lamp, (vec3){0.1f, 0.1f, 0.1f});
-        lamps->insertLast(lamps, lamp, true);
-    }
-
     engine->boxes = boxes;
-    engine->lamps = lamps;
 }
 
 
@@ -237,7 +222,6 @@ void loop(Backend* engine)
 void draw(Backend* engine)
 {
     Shader* normalShader;
-    Shader* lampShader;
 
     Box* box;
     Camera* cam;
@@ -250,7 +234,6 @@ void draw(Backend* engine)
     cam = engine->cam;
 
     engine->shaders->peekAt(engine->shaders, 0, (void**)&normalShader, NULL);
-    engine->shaders->peekAt(engine->shaders, 1, (void**)&lampShader, NULL);
 
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
@@ -266,8 +249,6 @@ void draw(Backend* engine)
     normalShader->setMat4(normalShader, "projection", projection);
     normalShader->setMat4(normalShader, "view", view);
 
-    normalShader->setVec3(normalShader, "objectColor", (vec3){1.0f, 0.5f, 0.31f});
-    normalShader->setVec3(normalShader, "lightColor", (vec3){1.0f, 1.0f, 1.0f});
     normalShader->setVec3(normalShader, "viewPos", cam->position);
 
     normalShader->setVec3(normalShader, "material.ambient", (vec3){1.0f, 0.5f, 0.31f});
@@ -286,25 +267,15 @@ void draw(Backend* engine)
     normalShader->setInt(normalShader, "material.diffuse", 0);
     normalShader->setInt(normalShader, "material.specular", 1);
 
-    engine->lamps->peekFirst(engine->lamps, (void**)&box, NULL);
-    normalShader->setVec3(normalShader, "lightPos", box->position);
+    normalShader->setVec3(normalShader, "light.position", cam->position);
+    normalShader->setVec3(normalShader, "light.direction", cam->front);
+    normalShader->setFloat(normalShader, "light.cutOff", cos(glm_rad(17.5f)));
+    normalShader->setFloat(normalShader, "light.outerCutOff", cos(glm_rad(35.0f)));
 
     FOR_EACH(engine->boxes, node)
     {
         box = (Box*)node->value;
         box->setShader(box, normalShader);
-        box->draw(box);
-    }
-
-    lampShader->use(lampShader);
-
-    lampShader->setMat4(lampShader, "projection", projection);
-    lampShader->setMat4(lampShader, "view", view);
-
-    FOR_EACH(engine->lamps, node)
-    {
-        box = (Box*)node->value;
-        box->setShader(box, lampShader);
         box->draw(box);
     }
 
@@ -474,7 +445,6 @@ void terminate(Backend** engine)
     _engine->shaders->deleteList(&(_engine->shaders));
     _engine->textures->deleteList(&(_engine->textures));
     _engine->boxes->deleteList(&(_engine->boxes));
-    _engine->lamps->deleteList(&(_engine->lamps));
 
     free(_engine);
     _engine = NULL;

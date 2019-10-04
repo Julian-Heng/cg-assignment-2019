@@ -40,7 +40,6 @@ typedef struct Backend
     List* textures;
 
     List* boxes;
-    List* lamps;
 
     Camera* cam;
     float timeDelta;
