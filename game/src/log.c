@@ -45,16 +45,19 @@ void logInfo(FILE* f, Backend* engine)
     }
 
     _logInfo(f, &rows, LOG_CLEAR LOG_RESOLUTION "\n", engine->width,
-                                                            engine->height);
+                                                      engine->height);
     _logInfo(f, &rows, LOG_CLEAR LOG_FRAME_COUNT "\n", frameCount);
     _logInfo(f, &rows, LOG_CLEAR LOG_FPS "\n", cacheFrameDelta);
     _logInfo(f, &rows, LOG_CLEAR LOG_FRAME_LATENCY "\n", cacheFrameLatency);
     _logInfo(f, &rows, LOG_CLEAR LOG_CAM_LOCATION "\n", cam->position[0],
-                                                              cam->position[1],
-                                                              cam->position[2]);
+                                                        cam->position[1],
+                                                        cam->position[2]);
     _logInfo(f, &rows, LOG_CLEAR LOG_CAM_FRONT "\n", cam->front[0],
-                                                           cam->front[1],
-                                                           cam->front[2]);
+                                                     cam->front[1],
+                                                     cam->front[2]);
+    _logInfo(f, &rows, LOG_CLEAR LOG_CAM_YAW "\n", cam->yaw);
+    _logInfo(f, &rows, LOG_CLEAR LOG_CAM_PITCH"\n", cam->pitch);
+
     first = false;
 }
 
