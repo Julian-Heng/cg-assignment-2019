@@ -43,6 +43,8 @@ typedef struct Backend
 
     Camera* cam;
     float timeDelta;
+
+    bool usePerspective;
 } Backend;
 
 

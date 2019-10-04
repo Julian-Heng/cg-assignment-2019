@@ -4,6 +4,7 @@
 #include <cglm/affine.h>
 #include <cglm/cam.h>
 #include <cglm/vec3.h>
+#include <cglm/io.h>
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -66,6 +67,8 @@ Backend* init()
     }
 
     glfwSetWindowUserPointer(engine->window, engine);
+
+    engine->usePerspective = true;
 
     return engine;
 }
@@ -241,10 +244,23 @@ void draw(Backend* engine)
     glm_mat4_identity(view);
 
     normalShader->use(normalShader);
-    glm_perspective(glm_rad(cam->zoom),
-                    ASPECT_RATIO(engine->width, engine->height),
-                    0.1f, 100.0f, projection);
+
     cam->getViewMatrix(cam, view);
+
+    if (engine->usePerspective)
+    {
+        glm_perspective(glm_rad(cam->zoom),
+                        ASPECT_RATIO(engine->width, engine->height),
+                        0.1f, 100.0f, projection);
+    }
+    else
+    {
+        glm_ortho(-((float)engine->width / 400.0f),
+                   (float)engine->width / 400.0f,
+                  -((float)engine->height / 400.0f),
+                   (float)engine->height / 400.0f,
+                  -1000.0f, 1000.0f, projection);
+    }
 
     normalShader->setMat4(normalShader, "projection", projection);
     normalShader->setMat4(normalShader, "view", view);
@@ -296,7 +312,9 @@ void toggleWireframe()
 void normalInputCallback(GLFWwindow* win, int key, int scancode,
                          int action, int mods)
 {
-    if (action != GLFW_PRESS)
+    Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
+
+    if (action != GLFW_PRESS || ! engine)
     {
         return;
     }
@@ -309,6 +327,10 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 
         case GLFW_KEY_TAB:
             toggleWireframe();
+            break;
+
+        case GLFW_KEY_P:
+            engine->usePerspective = ! engine->usePerspective;
             break;
     }
 }

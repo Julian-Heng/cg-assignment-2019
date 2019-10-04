@@ -44,6 +44,8 @@ void logInfo(FILE* f, Backend* engine)
         rows = 0;
     }
 
+    _logInfo(f, &rows, LOG_CLEAR LOG_PROJECTION_TYPE "\n",
+        engine->usePerspective ? "Perspective" : "Orthographic");
     _logInfo(f, &rows, LOG_CLEAR LOG_RESOLUTION "\n", engine->width,
                                                       engine->height);
     _logInfo(f, &rows, LOG_CLEAR LOG_FRAME_COUNT "\n", frameCount);
