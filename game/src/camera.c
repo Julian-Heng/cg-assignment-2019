@@ -206,6 +206,8 @@ static void moveMouse(Camera* this, double xoffset,
     this->pitch = constraint && this->pitch > 89.0f ? 89.0f : this->pitch;
     this->pitch = constraint && this->pitch < -89.0f ? -89.0f : this->pitch;
 
+    updateCameraVectors(this);
+
     if (first)
     {
         first = false;
@@ -222,8 +224,6 @@ static void moveMouse(Camera* this, double xoffset,
         attach->transformPosition(attach, temp);
         attach->setRotation(attach, (vec3){0.0f, -(this->yaw + 90.0f), 0.0f});
     }
-
-    updateCameraVectors(this);
 }
 
 
