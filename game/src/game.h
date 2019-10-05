@@ -36,8 +36,8 @@ typedef struct Backend
     int width;
     int height;
 
-    List* shaders;
     List* textures;
+    List* shaders;
 
     List* boxes;
 
@@ -52,15 +52,13 @@ Backend* init(void);
 void initWindow(Backend*);
 void initGlad(Backend*);
 void initShader(Backend*);
-void initShapes(Backend*);
 void initTextures(Backend*);
+void initShapes(Backend*);
 
 void loop(Backend*);
-
-void draw(Backend* engine);
+void draw(Backend*);
 
 void toggleWireframe(void);
-
 void normalInputCallback(GLFWwindow*, int, int, int, int);
 void instantKeyInputCallback(GLFWwindow*);
 void mouseCallback(GLFWwindow*, double, double);

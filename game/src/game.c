@@ -62,8 +62,8 @@ Backend* init()
     {
         glEnable(GL_DEPTH_TEST);
         initShader(engine);
-        initShapes(engine);
         initTextures(engine);
+        initShapes(engine);
     }
 
     glfwSetWindowUserPointer(engine->window, engine);
@@ -133,10 +133,36 @@ void initShader(Backend* engine)
 }
 
 
+void initTextures(Backend* engine)
+{
+    List* textures = newList();
+
+    textures->insertLast(
+        textures,
+        newTexture("resources/container2.png", GL_RGBA, false),
+        true
+    );
+
+    textures->insertLast(
+        textures,
+        newTexture("resources/container2_specular.png", GL_RGBA, false),
+        true
+    );
+
+    engine->textures = textures;
+}
+
+
 void initShapes(Backend* engine)
 {
+    ListNode* iter1;
+    ListNode* iter2;
+
+    Texture* texture;
+
     Box* box;
     int i;
+
     vec3 boxPositions[] = {
         { 0.0f,  0.0f,  0.0f},
         { 2.0f,  5.0f, -15.0f},
@@ -162,44 +188,18 @@ void initShapes(Backend* engine)
     box->setScale(box, (vec3){0.5f, 0.5f, 0.5f});
     engine->cam->attach(engine->cam, box);
 
-    engine->boxes = boxes;
-}
-
-
-void initTextures(Backend* engine)
-{
-    List* textures = newList();
-
-    Box* box;
-    ListNode* iter1;
-    ListNode* iter2;
-
-    Texture* texture;
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/container2.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/container2_specular.png", GL_RGBA, false),
-        true
-    );
-
-    FOR_EACH(engine->boxes, iter1)
+    FOR_EACH(boxes, iter1)
     {
         box = (Box*)iter1->value;
 
-        FOR_EACH(textures, iter2)
+        FOR_EACH(engine->textures, iter2)
         {
             texture = (Texture*)iter2->value;
             box->addTexture(box, texture);
         }
     }
 
-    engine->textures = textures;
+    engine->boxes = boxes;
 }
 
 
@@ -207,10 +207,6 @@ void loop(Backend* engine)
 {
     float lastTime = glfwGetTime();
     float currentTime;
-
-    Shader* shader;
-    engine->shaders->peekFirst(engine->shaders, (void**)&shader, NULL);
-    shader->use(shader);
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -475,8 +471,8 @@ void terminate(Backend** engine)
         box->textures->deleteListShallow(&(box->textures));
     }
 
-    _engine->shaders->deleteList(&(_engine->shaders));
     _engine->textures->deleteList(&(_engine->textures));
+    _engine->shaders->deleteList(&(_engine->shaders));
     _engine->boxes->deleteList(&(_engine->boxes));
 
     _engine->cam->destroy(_engine->cam);
