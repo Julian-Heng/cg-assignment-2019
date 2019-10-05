@@ -244,10 +244,21 @@ static void draw(Box* this)
 
     this->shader->use(this->shader);
 
-    this->shader->setVec3(this->shader, "material.ambient", this->material->ambient);
-    this->shader->setInt(this->shader, "material.diffuse", this->material->diffuse);
-    this->shader->setInt(this->shader, "material.specular", this->material->specular);
-    this->shader->setFloat(this->shader, "material.shininess", this->material->shininess);
+    this->shader->setVec3(this->shader,
+                          "material.ambient",
+                          this->material->ambient);
+
+    this->shader->setInt(this->shader,
+                         "material.diffuse",
+                         this->material->diffuse);
+
+    this->shader->setInt(this->shader,
+                         "material.specular",
+                         this->material->specular);
+
+    this->shader->setFloat(this->shader,
+                           "material.shininess",
+                           this->material->shininess);
 
     FOR_EACH(this->textures, iter)
     {
