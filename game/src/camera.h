@@ -52,6 +52,7 @@ typedef struct Camera
     void (*setJump)(struct Camera*, bool);
 
     void (*poll)(struct Camera*);
+    void (*destroy)(struct Camera*);
 } Camera;
 
 

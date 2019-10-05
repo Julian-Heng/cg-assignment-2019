@@ -36,6 +36,7 @@ static void resetPosition(Camera*);
 static void resetFront(Camera*);
 
 static void poll(Camera*);
+static void destroy(Camera*);
 
 static void updateCameraVectors(Camera*);
 static void jump(Camera*);
@@ -99,6 +100,7 @@ static void linkMethods(Camera* this)
     this->resetFront = resetFront;
 
     this->poll = poll;
+    this->destroy = destroy;
 }
 
 
@@ -288,6 +290,12 @@ static void poll(Camera* this)
 }
 
 
+static void destroy(Camera* this)
+{
+    this->attached->deleteListShallow(&this->attached);
+}
+
+
 static void updateCameraVectors(Camera* this)
 {
     glm_vec3_normalize_to((vec3){
@@ -308,6 +316,12 @@ static void jump(Camera* this)
 
     if (! this->jumping)
     {
+        start = true;
+        startTime = 0.0f;
+        initialPosition = 0.0f;
+        this->position[1] = initialPosition;
+        this->setJump(this, false);
+
         return;
     }
 

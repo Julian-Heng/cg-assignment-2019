@@ -395,6 +395,7 @@ void instantKeyInputCallback(GLFWwindow* win)
 
     if (keys[CAM_RESET])
     {
+        cam->setJump(cam, false);
         cam->resetPosition(cam);
         cam->resetFront(cam);
     }
@@ -477,6 +478,8 @@ void terminate(Backend** engine)
     _engine->shaders->deleteList(&(_engine->shaders));
     _engine->textures->deleteList(&(_engine->textures));
     _engine->boxes->deleteList(&(_engine->boxes));
+
+    _engine->cam->destroy(_engine->cam);
 
     free(_engine);
     _engine = NULL;
