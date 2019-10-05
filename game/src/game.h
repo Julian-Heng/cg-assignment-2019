@@ -45,6 +45,7 @@ typedef struct Backend
     float timeDelta;
 
     bool usePerspective;
+    bool lightsOn;
 } Backend;
 
 

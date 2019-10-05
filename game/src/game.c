@@ -69,6 +69,7 @@ Backend* init()
     glfwSetWindowUserPointer(engine->window, engine);
 
     engine->usePerspective = true;
+    engine->lightsOn = false;
 
     return engine;
 }
@@ -240,7 +241,15 @@ void loop(Backend* engine)
         engine->timeDelta = currentTime - lastTime;
         lastTime = currentTime;
 
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        if (! engine->lightsOn)
+        {
+            glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        }
+        else
+        {
+            glClearColor(0.2f, 0.2f, 0.5f, 1.0f);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         draw(engine);
@@ -295,7 +304,21 @@ void draw(Backend* engine)
     normalShader->setMat4(normalShader, "view", view);
     normalShader->setVec3(normalShader, "viewPos", cam->position);
 
-    normalShader->setVec3(normalShader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
+    normalShader->setBool(normalShader, "lightsOn", engine->lightsOn);
+
+    if (! engine->lightsOn)
+    {
+        normalShader->setVec3(normalShader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
+        normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
+        normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+    }
+    else
+    {
+        normalShader->setVec3(normalShader, "light.ambient", (vec3){1.0f, 1.0f, 1.0f});
+        normalShader->setVec3(normalShader, "light.diffuse", (vec3){1.0f, 1.0f, 1.0f});
+        normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+    }
+
     normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
     normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
 
@@ -351,6 +374,10 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 
         case GLFW_KEY_P:
             engine->usePerspective = ! engine->usePerspective;
+            break;
+
+        case GLFW_KEY_O:
+            engine->lightsOn = ! engine->lightsOn;
             break;
     }
 }
