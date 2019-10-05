@@ -149,19 +149,22 @@ void initTextures(Backend* engine)
         true
     );
 
+    textures->insertLast(
+        textures,
+        newTexture("resources/grass.png", GL_RGBA, false),
+        true
+    );
+
     engine->textures = textures;
 }
 
 
 void initShapes(Backend* engine)
 {
-    ListNode* iter1;
-    ListNode* iter2;
-
     Texture* texture;
 
     Box* box;
-    int i;
+    int i, j;
 
     vec3 boxPositions[] = {
         { 0.0f,  0.0f,  0.0f},
@@ -181,21 +184,41 @@ void initShapes(Backend* engine)
 
     for (i = 0; i < sizeof(boxPositions) / sizeof(vec3); i++)
     {
-        boxes->insertLast(boxes, newBox(boxPositions[i]), true);
+        box = newBox(boxPositions[i]);
+
+        box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
+        box->material->setDiffuse(box->material, 0);
+        box->material->setSpecular(box->material, 1);
+        box->material->setShininess(box->material, 32.0f);
+
+        engine->textures->peekAt(engine->textures, 0, (void**)&texture, NULL);
+        box->addTexture(box, texture);
+        engine->textures->peekAt(engine->textures, 1, (void**)&texture, NULL);
+        box->addTexture(box, texture);
+
+        boxes->insertLast(boxes, box, true);
     }
 
     boxes->peekLast(boxes, (void**)&box, NULL);
     box->setScale(box, (vec3){0.5f, 0.5f, 0.5f});
     engine->cam->attach(engine->cam, box);
 
-    FOR_EACH(boxes, iter1)
-    {
-        box = (Box*)iter1->value;
+    engine->textures->peekAt(engine->textures, 2, (void**)&texture, NULL);
 
-        FOR_EACH(engine->textures, iter2)
+    for (i = -50; i < 50; i += 5)
+    {
+        for (j = -50; j < 50; j += 5)
         {
-            texture = (Texture*)iter2->value;
+            box = newBox((vec3){(float)i, -2.0f, (float)j});
+
+            box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
+            box->material->setDiffuse(box->material, 0);
+            box->material->setSpecular(box->material, 2);
+            box->material->setShininess(box->material, 32.0f);
+
+            box->setScale(box, (vec3){5.0f, 2.0f, 5.0f});
             box->addTexture(box, texture);
+            boxes->insertLast(boxes, box, true);
         }
     }
 
@@ -270,13 +293,7 @@ void draw(Backend* engine)
 
     normalShader->setMat4(normalShader, "projection", projection);
     normalShader->setMat4(normalShader, "view", view);
-
     normalShader->setVec3(normalShader, "viewPos", cam->position);
-
-    normalShader->setVec3(normalShader, "material.ambient", (vec3){1.0f, 0.5f, 0.31f});
-    normalShader->setVec3(normalShader, "material.diffuse", (vec3){1.0f, 0.5f, 0.31f});
-    normalShader->setVec3(normalShader, "material.specular", (vec3){0.5f, 0.5f, 0.5f});
-    normalShader->setFloat(normalShader, "material.shininess", 32.0f);
 
     normalShader->setVec3(normalShader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
     normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
@@ -285,9 +302,6 @@ void draw(Backend* engine)
     normalShader->setFloat(normalShader, "light.constant", 1.0f);
     normalShader->setFloat(normalShader, "light.linear", 0.09f);
     normalShader->setFloat(normalShader, "light.quadratic", 0.032f);
-
-    normalShader->setInt(normalShader, "material.diffuse", 0);
-    normalShader->setInt(normalShader, "material.specular", 1);
 
     normalShader->setVec3(normalShader, "light.position", cam->position);
     normalShader->setVec3(normalShader, "light.direction", cam->front);

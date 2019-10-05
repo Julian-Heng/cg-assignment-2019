@@ -6,6 +6,7 @@
 
 #include "list.h"
 #include "texture.h"
+#include "material.h"
 
 #include "shader.h"
 
@@ -22,6 +23,8 @@ typedef struct Box
     vec3 position;
     vec3 scale;
     vec3 rotation;
+
+    Material* material;
 
     vec3 initialPosition;
     vec3 initialRotation;

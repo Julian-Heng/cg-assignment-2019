@@ -11,6 +11,7 @@
 
 #include "list.h"
 #include "macros.h"
+#include "material.h"
 #include "shader.h"
 #include "texture.h"
 
@@ -101,6 +102,14 @@ Box* newBox(vec3 position)
     box->setScale(box, NULL);
     box->setRotation(box, NULL);
     box->recordInitialPosition(box);
+    box->material = newMaterial();
+
+    if (! box->material)
+    {
+        box->textures->deleteListShallow(&(box->textures));
+        free(box);
+        return NULL;
+    }
 
     return box;
 }
@@ -232,6 +241,13 @@ static void draw(Box* this)
     int i = 0;
 
     mat4 model;
+
+    this->shader->use(this->shader);
+
+    this->shader->setVec3(this->shader, "material.ambient", this->material->ambient);
+    this->shader->setInt(this->shader, "material.diffuse", this->material->diffuse);
+    this->shader->setInt(this->shader, "material.specular", this->material->specular);
+    this->shader->setFloat(this->shader, "material.shininess", this->material->shininess);
 
     FOR_EACH(this->textures, iter)
     {
