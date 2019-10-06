@@ -38,10 +38,6 @@ else()
     set(LIBS )
 endif(UNIX AND NOT APPLE)
 
-macro(makeLink src dest target)
-  add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dest}  DEPENDS  ${dest} COMMENT "mklink ${src} -> ${dest}")
-endmacro()
-
 set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE} -lm")
 
 add_library(GLAD "src/glad.c")
