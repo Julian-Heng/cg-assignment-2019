@@ -21,7 +21,7 @@
 #include "game.h"
 
 
-int main()
+int main(void)
 {
     bool ret = false;
     Backend* engine = init();
@@ -204,27 +204,27 @@ void initShapes(Backend* engine)
 
     engine->ground = boxes;
 
-    // Making a tree model
+    // Tree
+    // Default Material for tree
+    Material* defaultMaterial = newMaterial();
+    defaultMaterial->setAmbient(defaultMaterial, (vec3){1.0f, 0.5f, 0.31f});
+    defaultMaterial->setDiffuse(defaultMaterial, 0);
+    defaultMaterial->setSpecular(defaultMaterial, 1);
+    defaultMaterial->setShininess(defaultMaterial, 32.0f);
+
     engine->textures->peekAt(engine->textures, 3, (void**)&texture, NULL);
 
     root = newBox((vec3){0.0f, -1.5f, 0.0f});
 
-    root->material->setAmbient(root->material, (vec3){1.0f, 0.5f, 0.31f});
-    root->material->setDiffuse(root->material, 0);
-    root->material->setSpecular(root->material, 1);
-    root->material->setShininess(root->material, 32.0f);
+    memcpy(root->material, defaultMaterial, sizeof(Material));
     root->addTexture(root, texture);
 
     for (i = 0; i < 4; i++)
     {
         box = newBox((vec3){0.0f, (float)(i + 1) - 1.5f, 0.0f});
 
-        box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
-        box->material->setDiffuse(box->material, 0);
-        box->material->setSpecular(box->material, 1);
-        box->material->setShininess(box->material, 32.0f);
+        memcpy(box->material, defaultMaterial, sizeof(Material));
         box->addTexture(box, texture);
-
         root->attach(root, box);
     }
 
@@ -232,10 +232,7 @@ void initShapes(Backend* engine)
     box = newBox((vec3){0.0f, 3.0f, 0.0f});
 
     box->setScale(box, (vec3){3.0f, 2.0f, 3.0f});
-    box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
-    box->material->setDiffuse(box->material, 0);
-    box->material->setSpecular(box->material, 1);
-    box->material->setShininess(box->material, 32.0f);
+    memcpy(box->material, defaultMaterial, sizeof(Material));
     box->addTexture(box, texture);
 
     root->attach(root, box);
