@@ -156,6 +156,18 @@ void initTextures(Backend* engine)
         true
     );
 
+    textures->insertLast(
+        textures,
+        newTexture("resources/tree_1.png", GL_RGBA, false),
+        true
+    );
+
+    textures->insertLast(
+        textures,
+        newTexture("resources/tree_2.png", GL_RGBA, false),
+        true
+    );
+
     engine->textures = textures;
 }
 
@@ -164,51 +176,18 @@ void initShapes(Backend* engine)
 {
     Texture* texture;
 
+    Box* root;
     Box* box;
     int i, j;
 
-    vec3 boxPositions[] = {
-        { 0.0f,  0.0f,  0.0f},
-        { 2.0f,  5.0f, -15.0f},
-        {-1.5f, -2.2f, -2.5f},
-        {-3.8f, -2.0f, -12.3f},
-        { 2.4f, -0.4f, -3.5f},
-        {-1.7f,  3.0f, -7.5f},
-        { 1.3f, -2.0f, -2.5f},
-        { 1.5f,  2.0f, -2.5f},
-        { 1.5f,  0.2f, -1.5f},
-        {-1.3f,  1.0f, -1.5f},
-        { 0.5f, -0.5f,  1.5f}
-    };
-
     List* boxes = newList();
 
-    for (i = 0; i < sizeof(boxPositions) / sizeof(vec3); i++)
-    {
-        box = newBox(boxPositions[i]);
-
-        box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
-        box->material->setDiffuse(box->material, 0);
-        box->material->setSpecular(box->material, 1);
-        box->material->setShininess(box->material, 32.0f);
-
-        engine->textures->peekAt(engine->textures, 0, (void**)&texture, NULL);
-        box->addTexture(box, texture);
-        engine->textures->peekAt(engine->textures, 1, (void**)&texture, NULL);
-        box->addTexture(box, texture);
-
-        boxes->insertLast(boxes, box, true);
-    }
-
-    boxes->peekLast(boxes, (void**)&box, NULL);
-    box->setScale(box, (vec3){0.5f, 0.5f, 0.5f});
-    engine->cam->attach(engine->cam, box);
-
+    // Ground
     engine->textures->peekAt(engine->textures, 2, (void**)&texture, NULL);
 
-    for (i = -50; i < 50; i += 5)
+    for (i = -50; i < 50; i += 10)
     {
-        for (j = -50; j < 50; j += 5)
+        for (j = -50; j < 50; j += 10)
         {
             box = newBox((vec3){(float)i, -2.0f, (float)j});
 
@@ -217,13 +196,50 @@ void initShapes(Backend* engine)
             box->material->setSpecular(box->material, 2);
             box->material->setShininess(box->material, 32.0f);
 
-            box->setScale(box, (vec3){5.0f, 2.0f, 5.0f});
+            box->setScale(box, (vec3){10.0f, 0.01f, 10.0f});
             box->addTexture(box, texture);
             boxes->insertLast(boxes, box, true);
         }
     }
 
-    engine->boxes = boxes;
+    engine->ground = boxes;
+
+    // Making a tree model
+    engine->textures->peekAt(engine->textures, 3, (void**)&texture, NULL);
+
+    root = newBox((vec3){0.0f, -1.5f, 0.0f});
+
+    root->material->setAmbient(root->material, (vec3){1.0f, 0.5f, 0.31f});
+    root->material->setDiffuse(root->material, 0);
+    root->material->setSpecular(root->material, 1);
+    root->material->setShininess(root->material, 32.0f);
+    root->addTexture(root, texture);
+
+    for (i = 0; i < 4; i++)
+    {
+        box = newBox((vec3){0.0f, (float)(i + 1) - 1.5f, 0.0f});
+
+        box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
+        box->material->setDiffuse(box->material, 0);
+        box->material->setSpecular(box->material, 1);
+        box->material->setShininess(box->material, 32.0f);
+        box->addTexture(box, texture);
+
+        root->attach(root, box);
+    }
+
+    engine->textures->peekAt(engine->textures, 4, (void**)&texture, NULL);
+    box = newBox((vec3){0.0f, 3.0f, 0.0f});
+
+    box->setScale(box, (vec3){3.0f, 2.0f, 3.0f});
+    box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
+    box->material->setDiffuse(box->material, 0);
+    box->material->setSpecular(box->material, 1);
+    box->material->setShininess(box->material, 32.0f);
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+    engine->tree = root;
 }
 
 
@@ -264,13 +280,12 @@ void draw(Backend* engine)
 {
     Shader* normalShader;
 
+    ListNode* node;
     Box* box;
     Camera* cam;
 
     mat4 projection;
     mat4 view;
-
-    ListNode* node;
 
     cam = engine->cam;
 
@@ -331,12 +346,23 @@ void draw(Backend* engine)
     normalShader->setFloat(normalShader, "light.cutOff", cos(glm_rad(17.5f)));
     normalShader->setFloat(normalShader, "light.outerCutOff", cos(glm_rad(35.0f)));
 
-    FOR_EACH(engine->boxes, node)
+    FOR_EACH(engine->ground, node)
     {
         box = (Box*)node->value;
         box->setShader(box, normalShader);
         box->draw(box);
     }
+
+    engine->tree->setShader(engine->tree, normalShader);
+    for (int i = -50; i < 50; i += 10)
+    {
+        engine->tree->setPosition(engine->tree, (vec3){(float)i, -1.5f, 0.0f});
+        engine->tree->draw(engine->tree);
+
+        engine->tree->setPosition(engine->tree, (vec3){0.0f, -1.5f, (float)i});
+        engine->tree->draw(engine->tree);
+    }
+    engine->tree->resetPosition(engine->tree);
 
     cam->poll(cam);
 }
@@ -496,8 +522,10 @@ void framebufferSizeCallback(GLFWwindow* win, int width, int height)
 void terminate(Backend** engine)
 {
     Backend* _engine = *engine;
+
     Box* box;
     ListNode* iter;
+
     glDeleteVertexArrays(1, &(_engine->VAO));
     glDeleteBuffers(1, &(_engine->VBO));
 
@@ -506,15 +534,15 @@ void terminate(Backend** engine)
         return;
     }
 
-    FOR_EACH(_engine->boxes, iter)
+    FOR_EACH(_engine->ground, iter)
     {
         box = (Box*)iter->value;
-        box->textures->deleteListShallow(&(box->textures));
+        box->destroy(box);
     }
 
     _engine->textures->deleteList(&(_engine->textures));
     _engine->shaders->deleteList(&(_engine->shaders));
-    _engine->boxes->deleteList(&(_engine->boxes));
+    _engine->tree->destroy(_engine->tree);
 
     _engine->cam->destroy(_engine->cam);
 

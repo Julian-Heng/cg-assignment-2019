@@ -29,9 +29,14 @@ typedef struct Box
     vec3 initialPosition;
     vec3 initialRotation;
 
+    List* attached;
+
+    void (*attach)(struct Box*, struct Box*);
+
     void (*setShader)(struct Box*, Shader*);
     void (*addTexture)(struct Box*, Texture*);
     void (*setPosition)(struct Box*, vec3);
+    void (*setPositionDelta)(struct Box*, vec3);
     void (*setScale)(struct Box*, vec3);
     void (*setRotation)(struct Box*, vec3);
 
@@ -44,6 +49,7 @@ typedef struct Box
     void (*transformPosition)(struct Box*, mat4);
 
     void (*draw)(struct Box*);
+    void (*destroy)(struct Box*);
 } Box;
 
 Box* newBox(vec3);

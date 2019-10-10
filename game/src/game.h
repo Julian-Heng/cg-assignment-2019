@@ -39,7 +39,8 @@ typedef struct Backend
     List* textures;
     List* shaders;
 
-    List* boxes;
+    List* ground;
+    Box* tree;
 
     Camera* cam;
     float timeDelta;

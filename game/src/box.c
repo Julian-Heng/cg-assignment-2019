@@ -66,9 +66,12 @@ static float VERTICES[] = {
 static void linkMethods(Box*);
 static void setGlBuffers(Box*);
 
+static void attach(Box*, Box*);
+
 static void setShader(Box*, Shader*);
 static void addTexture(Box*, Texture*);
 static void setPosition(Box*, vec3);
+static void setPositionDelta(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
 
@@ -81,6 +84,7 @@ static void move(Box*, vec3);
 static void transformPosition(Box*, mat4);
 
 static void draw(Box*);
+static void destroy(Box*);
 
 
 Box* newBox(vec3 position)
@@ -97,6 +101,8 @@ Box* newBox(vec3 position)
     linkMethods(box);
 
     box->textures = newList();
+    box->attached = newList();
+
     setGlBuffers(box);
     box->setPosition(box, position);
     box->setScale(box, NULL);
@@ -111,15 +117,18 @@ Box* newBox(vec3 position)
         return NULL;
     }
 
+
     return box;
 }
 
 
 static void linkMethods(Box* this)
 {
+    this->attach = attach;
     this->setShader = setShader;
     this->addTexture = addTexture;
     this->setPosition = setPosition;
+    this->setPositionDelta = setPositionDelta;
     this->setScale = setScale;
     this->setRotation = setRotation;
 
@@ -132,6 +141,13 @@ static void linkMethods(Box* this)
     this->transformPosition = transformPosition;
 
     this->draw = draw;
+    this->destroy = destroy;
+}
+
+
+static void attach(Box* this, Box* attach)
+{
+    this->attached->insertLast(this->attached, attach, true);
 }
 
 
@@ -180,8 +196,26 @@ static void addTexture(Box* this, Texture* texture)
 
 static void setPosition(Box* this, vec3 position)
 {
+    ListNode* iter;
+    vec3 delta;
+
+    glm_vec3_sub(position, this->position, delta);
+
     glm_vec3_copy(position ? position
                            : (vec3){0.0f, 0.0f, 0.0f}, this->position);
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->setPositionDelta((Box*)(iter->value), delta);
+}
+
+
+static void setPositionDelta(Box* this, vec3 position)
+{
+    ListNode* iter;
+    glm_vec3_add(this->position, position, this->position);
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->setPositionDelta((Box*)(iter->value), position);
 }
 
 
@@ -201,25 +235,41 @@ static void setRotation(Box* this, vec3 rotation)
 
 static void recordInitialPosition(Box* this)
 {
+    ListNode* iter;
     glm_vec3_copy(this->position, this->initialPosition);
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->recordInitialPosition((Box*)(iter->value));
 }
 
 
 static void recordInitialRotation(Box* this)
 {
+    ListNode* iter;
     glm_vec3_copy(this->rotation, this->initialRotation);
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->recordInitialRotation((Box*)(iter->value));
 }
 
 
 static void resetPosition(Box* this)
 {
+    ListNode* iter;
     this->setPosition(this, this->initialPosition);
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->resetPosition((Box*)(iter->value));
 }
 
 
 static void resetRotation(Box* this)
 {
+    ListNode* iter;
     this->setRotation(this, this->initialRotation);
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->resetRotation((Box*)(iter->value));
 }
 
 
@@ -238,6 +288,7 @@ static void transformPosition(Box* this, mat4 transform)
 static void draw(Box* this)
 {
     ListNode* iter;
+    Box* box;
     int i = 0;
 
     mat4 model;
@@ -278,4 +329,22 @@ static void draw(Box* this)
 
     this->shader->setMat4(this->shader, "model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    FOR_EACH(this->attached, iter)
+    {
+        box = (Box*)(iter->value);
+        box->setShader(box, this->shader);
+        box->draw(box);
+    }
+}
+
+
+static void destroy(Box* this)
+{
+    ListNode* iter;
+
+    FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->destroy((Box*)(iter->value));
+    this->attached->deleteList(&this->attached);
+    this->textures->deleteListShallow(&this->textures);
 }
