@@ -41,6 +41,8 @@ typedef struct Backend
 
     List* ground;
     Box* tree;
+    Box* wolf;
+    Box* sheep;
 
     Camera* cam;
     float timeDelta;

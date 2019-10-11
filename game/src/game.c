@@ -168,6 +168,18 @@ void initTextures(Backend* engine)
         true
     );
 
+    textures->insertLast(
+        textures,
+        newTexture("resources/grey.png", GL_RGBA, false),
+        true
+    );
+
+    textures->insertLast(
+        textures,
+        newTexture("resources/wolf_face.png", GL_RGBA, false),
+        true
+    );
+
     engine->textures = textures;
 }
 
@@ -237,6 +249,72 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
     engine->tree = root;
+
+    // Wolf
+    engine->textures->peekAt(engine->textures, 5, (void**)&texture, NULL);
+
+    // Body
+    root = newBox((vec3){0.0f, 0.0f, 0.0f});
+    root->setScale(root, (vec3){0.5f, 0.5f, 1.0});
+    memcpy(root->material, defaultMaterial, sizeof(Material));
+    root->addTexture(root, texture);
+
+    // Head
+    box = newBox((vec3){0.0f, 0.0f, 0.6f});
+    box->setScale(box, (vec3){0.35f, 0.35f, 0.35f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    // Legs
+    box = newBox((vec3){-0.2f, -0.45f, -0.4f});
+    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    box = newBox((vec3){-0.2f, -0.45f, 0.4f});
+    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    box = newBox((vec3){0.2f, -0.45f, -0.4f});
+    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    box = newBox((vec3){0.2f, -0.45f, 0.4f});
+    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    // Tail
+    box = newBox((vec3){0.0f, 0.2f, -0.7f});
+    box->setScale(box, (vec3){0.1f, 0.1f, 0.4f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    // Head texture
+    engine->textures->peekAt(engine->textures, 6, (void**)&texture, NULL);
+
+    box = newBox((vec3){0.0f, 0.0f, 0.601f});
+    box->setScale(box, (vec3){0.3499f, 0.3499f, 0.3499f});
+    memcpy(box->material, defaultMaterial, sizeof(Material));
+    box->addTexture(box, texture);
+
+    root->attach(root, box);
+
+    engine->wolf = root;
 }
 
 
@@ -305,10 +383,10 @@ void draw(Backend* engine)
     }
     else
     {
-        glm_ortho(-((float)engine->width / 400.0f),
-                   (float)engine->width / 400.0f,
-                  -((float)engine->height / 400.0f),
-                   (float)engine->height / 400.0f,
+        glm_ortho(-((float)engine->width / 200.0f),
+                   (float)engine->width / 200.0f,
+                  -((float)engine->height / 200.0f),
+                   (float)engine->height / 200.0f,
                   -1000.0f, 1000.0f, projection);
     }
 
@@ -360,6 +438,9 @@ void draw(Backend* engine)
         engine->tree->draw(engine->tree);
     }
     engine->tree->resetPosition(engine->tree);
+
+    engine->wolf->setShader(engine->wolf, normalShader);
+    engine->wolf->draw(engine->wolf);
 
     cam->poll(cam);
 }

@@ -117,7 +117,6 @@ Box* newBox(vec3 position)
         return NULL;
     }
 
-
     return box;
 }
 
@@ -335,6 +334,14 @@ static void draw(Box* this)
         box = (Box*)(iter->value);
         box->setShader(box, this->shader);
         box->draw(box);
+    }
+
+    i = 0;
+    FOR_EACH(this->textures, iter)
+    {
+        glActiveTexture(GL_TEXTURE0 + i++);
+        //glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
