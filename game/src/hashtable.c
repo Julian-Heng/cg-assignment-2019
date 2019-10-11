@@ -173,7 +173,7 @@ static void delete(HashTable* this, const char* key)
     int i = 1;
 
     // This produces memory errors :(
-    // Table will never shrink
+    // Table will never downsize
     /*
     if (((this->count * 100) / this->size) < 10)
     {
@@ -207,7 +207,7 @@ static void deleteShallow(HashTable* this, const char* key)
     int i = 1;
 
     // This produces memory errors :(
-    // Table will never shrink
+    // Table will never downsize
     /*
     if (((this->count * 100) / this->size) < 10)
     {
@@ -373,10 +373,6 @@ static int isPrime(const int x)
 
 static int nextPrime(int x)
 {
-    while (! isPrime(x))
-    {
-        x++;
-    }
-
-    return x;
+    while (! isPrime(x++));
+    return x - 1;
 }
