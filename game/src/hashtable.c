@@ -8,7 +8,7 @@
 
 #include "hashtable.h"
 
-static HashEntry DELETED = {NULL, NULL};
+static HashEntry DELETED = {NULL, NULL, false};
 
 static HashEntry* newHashEntry(const char*, void*, bool);
 static HashTable* newHashTableSized(const int);
