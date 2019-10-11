@@ -9,24 +9,10 @@
     }
 
 
-#define RANGE_INC(a, b, c) \
-    ((a) >= (b) && (c) >= (a))
-
-
-#define MAX(a, b) \
-    ((a) >= (b) ? (a) : (b))
-
-
-#define MIN(a, b) \
-    ((a) >= (b) ? (b) : (a))
-
-
-#define ASPECT_RATIO(w, h) \
-    ((float)(w) / (float)(h))
-
-
-#define KEY_PRESSED(window, key) \
-    glfwGetKey((window), (key)) == GLFW_PRESS
-
+#define RANGE_INC(a, b, c) ((a) >= (b) && (c) >= (a))
+#define MAX(a, b) ((a) >= (b) ? (a) : (b))
+#define MIN(a, b) ((a) >= (b) ? (b) : (a))
+#define ASPECT_RATIO(w, h) ((float)(w) / (float)(h))
+#define KEY_PRESSED(window, key) glfwGetKey((window), (key)) == GLFW_PRESS
 
 #endif
