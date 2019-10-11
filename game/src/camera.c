@@ -140,7 +140,7 @@ static void moveLeft(Camera* this, float timeDelta)
     glm_vec3_scale(this->right, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
 
-    glm_vec3_flipsign(temp);
+    glm_vec3_negate(temp);
 
     FOR_EACH(this->attached, node)
     {
@@ -161,7 +161,7 @@ static void moveBackward(Camera* this, float timeDelta)
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
 
-    glm_vec3_flipsign(temp);
+    glm_vec3_negate(temp);
 
     FOR_EACH(this->attached, node)
     {
