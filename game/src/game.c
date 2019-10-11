@@ -12,6 +12,7 @@
 
 #include "box.h"
 #include "camera.h"
+#include "hashtable.h"
 #include "list.h"
 #include "log.h"
 #include "macros.h"
@@ -136,55 +137,29 @@ void initShader(Backend* engine)
 
 void initTextures(Backend* engine)
 {
-    List* textures = newList();
+    HashTable* textures = newHashTable();
+    char* filenames[] = {
+        "grass",
+        "tree_1",
+        "tree_2",
+        "grey",
+        "wolf_face",
+        "black",
+        "sheep_skin",
+        "sheep_face"
+    };
 
-    textures->insertLast(
-        textures,
-        newTexture("resources/grass.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/tree_1.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/tree_2.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/grey.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/wolf_face.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/black.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/sheep_skin.png", GL_RGBA, false),
-        true
-    );
-
-    textures->insertLast(
-        textures,
-        newTexture("resources/sheep_face.png", GL_RGBA, false),
-        true
-    );
+    for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
+    {
+        char filename[BUFSIZ];
+        snprintf(filename, BUFSIZ, "resources/%s.png", filenames[i]);
+        textures->insert(
+            textures,
+            filenames[i],
+            newTexture(filename, GL_RGBA, false),
+            true
+        );
+    }
 
     engine->textures = textures;
 }
@@ -201,7 +176,7 @@ void initShapes(Backend* engine)
     List* boxes = newList();
 
     // Ground
-    engine->textures->peekAt(engine->textures, 0, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "grass");
 
     for (i = -50; i < 50; i += 10)
     {
@@ -230,7 +205,7 @@ void initShapes(Backend* engine)
     defaultMaterial->setSpecular(defaultMaterial, 1);
     defaultMaterial->setShininess(defaultMaterial, 32.0f);
 
-    engine->textures->peekAt(engine->textures, 1, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "tree_1");
 
     root = newBox((vec3){0.0f, -1.5f, 0.0f});
 
@@ -246,7 +221,7 @@ void initShapes(Backend* engine)
         root->attach(root, box);
     }
 
-    engine->textures->peekAt(engine->textures, 2, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "tree_2");
     box = newBox((vec3){0.0f, 3.0f, 0.0f});
 
     box->setScale(box, (vec3){3.0f, 2.0f, 3.0f});
@@ -257,7 +232,7 @@ void initShapes(Backend* engine)
     engine->tree = root;
 
     // Wolf
-    engine->textures->peekAt(engine->textures, 3, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "grey");
 
     // Body
     root = newBox((vec3){0.0f, 0.0f, 0.0f});
@@ -311,7 +286,7 @@ void initShapes(Backend* engine)
     root->attach(root, box);
 
     // Head texture
-    engine->textures->peekAt(engine->textures, 4, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "wolf_face");
 
     box = newBox((vec3){0.0f, 0.0f, 0.601f});
     box->setScale(box, (vec3){0.3499f, 0.3499f, 0.3499f});
@@ -324,7 +299,7 @@ void initShapes(Backend* engine)
 
     // Sheep
     // Body
-    engine->textures->peekAt(engine->textures, 5, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "black");
 
     root = newBox((vec3){0.0f, 0.0f, 0.0f});
     root->setScale(root, (vec3){1.25f, 1.25f, 2.0f});
@@ -340,7 +315,7 @@ void initShapes(Backend* engine)
     root->attach(root, box);
 
     // Legs
-    engine->textures->peekAt(engine->textures, 6, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "sheep_skin");
     box = newBox((vec3){-0.35f, -1.0f, -0.6f});
     box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -348,7 +323,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 5, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "black");
     box = newBox((vec3){-0.35f, -0.75f, -0.6f});
     box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -356,7 +331,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 6, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "sheep_skin");
     box = newBox((vec3){0.35f, -1.0f, -0.6f});
     box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -364,7 +339,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 5, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "black");
     box = newBox((vec3){0.35f, -0.75f, -0.6f});
     box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -372,7 +347,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 6, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "sheep_skin");
     box = newBox((vec3){-0.35f, -1.0f, 0.6f});
     box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -380,7 +355,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 5, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "black");
     box = newBox((vec3){-0.35f, -0.75f, 0.6f});
     box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -388,7 +363,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 6, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "sheep_skin");
     box = newBox((vec3){0.35f, -1.0f, 0.6f});
     box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -396,7 +371,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->textures->peekAt(engine->textures, 5, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "black");
     box = newBox((vec3){0.35f, -0.75f, 0.6f});
     box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
     memcpy(box->material, defaultMaterial, sizeof(Material));
@@ -405,7 +380,7 @@ void initShapes(Backend* engine)
     root->attach(root, box);
 
     // Head texture
-    engine->textures->peekAt(engine->textures, 7, (void**)&texture, NULL);
+    texture = engine->textures->search(engine->textures, "sheep_face");
 
     box = newBox((vec3){0.0f, 0.4f, 1.251f});
     box->setScale(box, (vec3){0.699f, 0.699f, 0.699f});
@@ -721,7 +696,7 @@ void terminate(Backend** engine)
         box->destroy(box);
     }
 
-    _engine->textures->deleteList(&(_engine->textures));
+    _engine->textures->deleteHashTable(&(_engine->textures));
     _engine->shaders->deleteList(&(_engine->shaders));
     _engine->tree->destroy(_engine->tree);
 

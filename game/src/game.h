@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 
-#include "list.h"
 #include "camera.h"
+#include "hashtable.h"
+#include "list.h"
 #include "shader.h"
 
 #define WIDTH 1440
@@ -36,7 +37,8 @@ typedef struct Backend
     int width;
     int height;
 
-    List* textures;
+    //List* textures;
+    HashTable* textures;
     List* shaders;
 
     List* ground;
