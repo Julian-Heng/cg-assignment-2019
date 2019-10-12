@@ -145,7 +145,8 @@ void initTextures(Backend* engine)
     HashTable* textures = newHashTable();
     char* filenames[] = {
         "grass", "tree_1", "tree_2", "grey",
-        "wolf_face", "black", "sheep_skin", "sheep_face"
+        "wolf_face", "black", "sheep_skin", "sheep_face",
+        "table"
     };
 
     for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
@@ -180,6 +181,9 @@ void initShapes(Backend* engine)
     initTree(engine, defaultMaterial);
     initWolf(engine, defaultMaterial);
     initSheep(engine, defaultMaterial);
+    initTable(engine, defaultMaterial);
+
+    SAFE_FREE(defaultMaterial);
 }
 
 
@@ -414,6 +418,57 @@ void initSheep(Backend* engine, Material* defaultMaterial)
 }
 
 
+void initTable(Backend* engine, Material* defaultMaterial)
+{
+    Box* root;
+    Box* model;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "table");
+
+    Material* legMaterial = newMaterial();
+    legMaterial->setAmbient(legMaterial, (vec3){0.19225f, 0.19225f, 0.19225f});
+    legMaterial->setDiffuse(legMaterial, 0);
+    legMaterial->setSpecular(legMaterial, 0);
+    legMaterial->setShininess(legMaterial, 128.0f);
+
+    root = newBox((vec3){0.0f, 0.0f, 0.0f});
+    root->setScale(root, (vec3){2.0f, 0.1f, 2.0f});
+    memcpy(root->material, defaultMaterial, sizeof(Material));
+    root->addTexture(root, texture);
+
+    texture = (Texture*)engine->textures->search(engine->textures, "black");
+    model = newBox((vec3){-0.8f, -0.675f, -0.8f});
+    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
+    memcpy(model->material, legMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    texture = (Texture*)engine->textures->search(engine->textures, "black");
+    model = newBox((vec3){0.8f, -0.675f, -0.8f});
+    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
+    memcpy(model->material, legMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    texture = (Texture*)engine->textures->search(engine->textures, "black");
+    model = newBox((vec3){-0.8f, -0.675f, 0.8f});
+    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
+    memcpy(model->material, legMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    texture = (Texture*)engine->textures->search(engine->textures, "black");
+    model = newBox((vec3){0.8f, -0.675f, 0.8f});
+    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
+    memcpy(model->material, legMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    engine->models->insert(engine->models, "table", root, true);
+
+    SAFE_FREE(legMaterial);
+}
+
+
 void loop(Backend* engine)
 {
     float lastTime = glfwGetTime();
@@ -540,6 +595,10 @@ void draw(Backend* engine)
     model->setShader(model, normalShader);
     model->draw(model);
 
+    model = engine->models->search(engine->models, "table");
+    model->setShader(model, normalShader);
+    model->draw(model);
+
     cam->poll(cam);
 }
 
@@ -566,21 +625,11 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 
     switch (key)
     {
-        case GLFW_KEY_ESCAPE: case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(win, true);
-            break;
-
-        case GLFW_KEY_TAB:
-            toggleWireframe();
-            break;
-
-        case GLFW_KEY_P:
-            engine->options[GAME_USE_PERSPECTIVE] ^= 1 ;
-            break;
-
-        case GLFW_KEY_O:
-            engine->options[GAME_LIGHTS_ON] ^= 1;
-            break;
+        case GLFW_KEY_ESCAPE:
+        case GLFW_KEY_Q:    glfwSetWindowShouldClose(win, true); break;
+        case GLFW_KEY_TAB:  toggleWireframe(); break;
+        case GLFW_KEY_P:    engine->options[GAME_USE_PERSPECTIVE] ^= 1 ; break;
+        case GLFW_KEY_O:    engine->options[GAME_LIGHTS_ON] ^= 1; break;
     }
 }
 

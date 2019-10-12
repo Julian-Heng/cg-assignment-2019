@@ -340,7 +340,6 @@ static void draw(Box* this)
     LIST_FOR_EACH(this->textures, iter)
     {
         glActiveTexture(GL_TEXTURE0 + i++);
-        //glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
