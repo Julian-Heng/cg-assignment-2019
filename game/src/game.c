@@ -118,20 +118,23 @@ void initGlad(Backend* engine)
 void initShader(Backend* engine)
 {
     HashTable* shaders = newHashTable();
+    char* filenames[] = {"shader", "lamp"};
 
-    shaders->insert(
-        shaders,
-        "shader",
-        newShader("shaders/shader.vs", "shaders/shader.fs"),
-        true
-    );
+    for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
+    {
+        char vertexFilename[BUFSIZ];
+        char fragmentFilename[BUFSIZ];
 
-    shaders->insert(
-        shaders,
-        "lamp",
-        newShader("shaders/lamp.vs", "shaders/lamp.fs"),
-        true
-    );
+        snprintf(vertexFilename, BUFSIZ, "shaders/%s.vs", filenames[i]);
+        snprintf(fragmentFilename, BUFSIZ, "shaders/%s.fs", filenames[i]);
+
+        shaders->insert(
+            shaders,
+            filenames[i],
+            newShader(vertexFilename, fragmentFilename),
+            true
+        );
+    }
 
     engine->shaders = shaders;
 }
@@ -141,14 +144,8 @@ void initTextures(Backend* engine)
 {
     HashTable* textures = newHashTable();
     char* filenames[] = {
-        "grass",
-        "tree_1",
-        "tree_2",
-        "grey",
-        "wolf_face",
-        "black",
-        "sheep_skin",
-        "sheep_face"
+        "grass", "tree_1", "tree_2", "grey",
+        "wolf_face", "black", "sheep_skin", "sheep_face"
     };
 
     for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
@@ -172,7 +169,9 @@ void initShapes(Backend* engine)
     Texture* texture;
 
     Box* root;
-    Box* box;
+    Box* model;
+    Box* model2;
+
     int i, j;
 
     engine->models = newHashTable();
@@ -193,19 +192,19 @@ void initShapes(Backend* engine)
     {
         for (j = -50; j < 50; j += 10)
         {
-            box = newBox((vec3){(float)i, -2.0f, (float)j});
-            memcpy(box->material, defaultMaterial, sizeof(Material));
-            box->setScale(box, (vec3){10.0f, 0.01f, 10.0f});
-            box->addTexture(box, texture);
+            model = newBox((vec3){(float)i, -2.0f, (float)j});
+            memcpy(model->material, defaultMaterial, sizeof(Material));
+            model->setScale(model, (vec3){10.0f, 0.01f, 10.0f});
+            model->addTexture(model, texture);
 
             if (first)
             {
-                root = box;
+                root = model;
                 first = false;
             }
             else
             {
-                root->attach(root, box);
+                root->attach(root, model);
             }
         }
     }
@@ -222,21 +221,21 @@ void initShapes(Backend* engine)
 
     for (i = 0; i < 4; i++)
     {
-        box = newBox((vec3){0.0f, (float)(i + 1) - 1.5f, 0.0f});
+        model = newBox((vec3){0.0f, (float)(i + 1) - 1.5f, 0.0f});
 
-        memcpy(box->material, defaultMaterial, sizeof(Material));
-        box->addTexture(box, texture);
-        root->attach(root, box);
+        memcpy(model->material, defaultMaterial, sizeof(Material));
+        model->addTexture(model, texture);
+        root->attach(root, model);
     }
 
     texture = engine->textures->search(engine->textures, "tree_2");
-    box = newBox((vec3){0.0f, 3.0f, 0.0f});
+    model = newBox((vec3){0.0f, 3.0f, 0.0f});
 
-    box->setScale(box, (vec3){3.0f, 2.0f, 3.0f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model->setScale(model, (vec3){3.0f, 2.0f, 3.0f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
     engine->models->insert(engine->models, "tree", root, true);
 
     // Wolf
@@ -249,59 +248,59 @@ void initShapes(Backend* engine)
     root->addTexture(root, texture);
 
     // Head
-    box = newBox((vec3){0.0f, 0.0f, 0.6f});
-    box->setScale(box, (vec3){0.35f, 0.35f, 0.35f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.0f, 0.0f, 0.6f});
+    model->setScale(model, (vec3){0.35f, 0.35f, 0.35f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
     // Legs
-    box = newBox((vec3){-0.2f, -0.45f, -0.4f});
-    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){-0.2f, -0.45f, -0.4f});
+    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
-    box = newBox((vec3){-0.2f, -0.45f, 0.4f});
-    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){-0.2f, -0.45f, 0.4f});
+    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
-    box = newBox((vec3){0.2f, -0.45f, -0.4f});
-    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.2f, -0.45f, -0.4f});
+    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
-    box = newBox((vec3){0.2f, -0.45f, 0.4f});
-    box->setScale(box, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.2f, -0.45f, 0.4f});
+    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
     // Tail
-    box = newBox((vec3){0.0f, 0.2f, -0.7f});
-    box->setScale(box, (vec3){0.1f, 0.1f, 0.4f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.0f, 0.2f, -0.7f});
+    model->setScale(model, (vec3){0.1f, 0.1f, 0.4f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
     // Head texture
     texture = engine->textures->search(engine->textures, "wolf_face");
 
-    box = newBox((vec3){0.0f, 0.0f, 0.601f});
-    box->setScale(box, (vec3){0.3499f, 0.3499f, 0.3499f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.0f, 0.0f, 0.601f});
+    model->setScale(model, (vec3){0.3499f, 0.3499f, 0.3499f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
     engine->models->insert(engine->models, "wolf", root, true);
 
@@ -315,87 +314,83 @@ void initShapes(Backend* engine)
     root->addTexture(root, texture);
 
     // Head
-    box = newBox((vec3){0.0f, 0.4f, 1.25f});
-    box->setScale(box, (vec3){0.7f, 0.7f, 0.7f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.0f, 0.4f, 1.25f});
+    model->setScale(model, (vec3){0.7f, 0.7f, 0.7f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
     // Legs
-    texture = engine->textures->search(engine->textures, "sheep_skin");
-    box = newBox((vec3){-0.35f, -1.0f, -0.6f});
-    box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
-
-    root->attach(root, box);
-
     texture = engine->textures->search(engine->textures, "black");
-    box = newBox((vec3){-0.35f, -0.75f, -0.6f});
-    box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
-
-    root->attach(root, box);
+    model = newBox((vec3){-0.35f, -0.75f, -0.6f});
+    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
     texture = engine->textures->search(engine->textures, "sheep_skin");
-    box = newBox((vec3){0.35f, -1.0f, -0.6f});
-    box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model2 = newBox((vec3){-0.35f, -1.0f, -0.6f});
+    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
+    memcpy(model2->material, defaultMaterial, sizeof(Material));
+    model2->addTexture(model2, texture);
 
-    root->attach(root, box);
+    model->attach(model, model2);
+    root->attach(root, model);
 
     texture = engine->textures->search(engine->textures, "black");
-    box = newBox((vec3){0.35f, -0.75f, -0.6f});
-    box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
-
-    root->attach(root, box);
+    model = newBox((vec3){0.35f, -0.75f, -0.6f});
+    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
     texture = engine->textures->search(engine->textures, "sheep_skin");
-    box = newBox((vec3){-0.35f, -1.0f, 0.6f});
-    box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model2 = newBox((vec3){0.35f, -1.0f, -0.6f});
+    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
+    memcpy(model2->material, defaultMaterial, sizeof(Material));
+    model2->addTexture(model2, texture);
 
-    root->attach(root, box);
+    model->attach(model, model2);
+    root->attach(root, model);
 
     texture = engine->textures->search(engine->textures, "black");
-    box = newBox((vec3){-0.35f, -0.75f, 0.6f});
-    box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
-
-    root->attach(root, box);
+    model = newBox((vec3){-0.35f, -0.75f, 0.6f});
+    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
     texture = engine->textures->search(engine->textures, "sheep_skin");
-    box = newBox((vec3){0.35f, -1.0f, 0.6f});
-    box->setScale(box, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model2 = newBox((vec3){-0.35f, -1.0f, 0.6f});
+    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
+    memcpy(model2->material, defaultMaterial, sizeof(Material));
+    model2->addTexture(model2, texture);
 
-    root->attach(root, box);
+    model->attach(model, model2);
+    root->attach(root, model);
 
     texture = engine->textures->search(engine->textures, "black");
-    box = newBox((vec3){0.35f, -0.75f, 0.6f});
-    box->setScale(box, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.35f, -0.75f, 0.6f});
+    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    texture = engine->textures->search(engine->textures, "sheep_skin");
+    model2 = newBox((vec3){0.35f, -1.0f, 0.6f});
+    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
+    memcpy(model2->material, defaultMaterial, sizeof(Material));
+    model2->addTexture(model2, texture);
+
+    model->attach(model, model2);
+    root->attach(root, model);
 
     // Head texture
     texture = engine->textures->search(engine->textures, "sheep_face");
 
-    box = newBox((vec3){0.0f, 0.4f, 1.251f});
-    box->setScale(box, (vec3){0.699f, 0.699f, 0.699f});
-    memcpy(box->material, defaultMaterial, sizeof(Material));
-    box->addTexture(box, texture);
+    model = newBox((vec3){0.0f, 0.4f, 1.251f});
+    model->setScale(model, (vec3){0.699f, 0.699f, 0.699f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
 
-    root->attach(root, box);
+    root->attach(root, model);
 
     engine->models->insert(engine->models, "sheep", root, true);
 }
@@ -438,7 +433,7 @@ void draw(Backend* engine)
 {
     Shader* normalShader;
 
-    Box* box;
+    Box* model;
     Camera* cam;
 
     mat4 projection;
@@ -503,29 +498,29 @@ void draw(Backend* engine)
     normalShader->setFloat(normalShader, "light.cutOff", cos(glm_rad(17.5f)));
     normalShader->setFloat(normalShader, "light.outerCutOff", cos(glm_rad(35.0f)));
 
-    box = engine->models->search(engine->models, "ground");
-    box->setShader(box, normalShader);
-    box->draw(box);
+    model = engine->models->search(engine->models, "ground");
+    model->setShader(model, normalShader);
+    model->draw(model);
 
-    box = engine->models->search(engine->models, "tree");
-    box->setShader(box, normalShader);
+    model = engine->models->search(engine->models, "tree");
+    model->setShader(model, normalShader);
     for (int i = -50; i < 50; i += 10)
     {
-        box->setPosition(box, (vec3){(float)i, -1.5f, 0.0f});
-        box->draw(box);
+        model->setPosition(model, (vec3){(float)i, -1.5f, 0.0f});
+        model->draw(model);
 
-        box->setPosition(box, (vec3){0.0f, -1.5f, (float)i});
-        box->draw(box);
+        model->setPosition(model, (vec3){0.0f, -1.5f, (float)i});
+        model->draw(model);
     }
-    box->resetPosition(box);
+    model->resetPosition(model);
 
-    box = engine->models->search(engine->models, "wolf");
-    box->setShader(box, normalShader);
-    box->draw(box);
+    model = engine->models->search(engine->models, "wolf");
+    model->setShader(model, normalShader);
+    model->draw(model);
 
-    box = engine->models->search(engine->models, "sheep");
-    box->setShader(box, normalShader);
-    box->draw(box);
+    model = engine->models->search(engine->models, "sheep");
+    model->setShader(model, normalShader);
+    model->draw(model);
 
     cam->poll(cam);
 }

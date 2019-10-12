@@ -43,18 +43,17 @@ typedef struct Backend
     unsigned int VAO;
     unsigned int VBO;
 
+    bool options[GAME_OPTION_COUNT];
+
+    Camera* cam;
+    float timeDelta;
+
     int width;
     int height;
 
     HashTable* textures;
     HashTable* shaders;
-
     HashTable* models;
-
-    Camera* cam;
-    float timeDelta;
-
-    bool options[GAME_OPTION_COUNT];
 } Backend;
 
 

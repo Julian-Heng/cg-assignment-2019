@@ -277,7 +277,7 @@ static void resetPosition(Camera* this)
 
 static void resetFront(Camera* this)
 {
-    this->setFront(this, (vec3){0.0f, 0.0f, 3.0f});
+    this->setFront(this, (vec3){0.0f, 0.0f, -1.0f});
     this->yaw = -90.0f;
     this->pitch = 0.0f;
     updateCameraVectors(this);
