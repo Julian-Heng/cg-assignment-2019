@@ -179,11 +179,7 @@ static char* fileRead(char* filename)
         file = (char*)malloc((count + 1) * sizeof(char));
         memset(file, 0, count + 1);
 
-        while ((ch = fgetc(fp)) != EOF && ! ferror(fp))
-        {
-            file[++i] = ch;
-        }
-
+        while ((file[++i] = fgetc(fp)) != EOF && ! ferror(fp));
         fclose(fp);
     }
 

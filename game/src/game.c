@@ -379,30 +379,18 @@ void initTable(Backend* engine, Material* defaultMaterial)
     memcpy(root->material, defaultMaterial, sizeof(Material));
     root->addTexture(root, texture);
 
-    texture = (Texture*)engine->textures->search(engine->textures, "black");
-    model = newBox((vec3){-0.8f, -0.675f, -0.8f});
-    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
-    memcpy(model->material, legMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
-
-    model = newBox((vec3){0.8f, -0.675f, -0.8f});
-    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
-    memcpy(model->material, legMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
-
-    model = newBox((vec3){-0.8f, -0.675f, 0.8f});
-    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
-    memcpy(model->material, legMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
-
-    model = newBox((vec3){0.8f, -0.675f, 0.8f});
-    model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
-    memcpy(model->material, legMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            texture = (Texture*)engine->textures->search(engine->textures, "black");
+            model = newBox((vec3){-0.8f * (float)i, -0.675f, -0.8f * (float)j});
+            model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
+            memcpy(model->material, legMaterial, sizeof(Material));
+            model->addTexture(model, texture);
+            root->attach(root, model);
+        }
+    }
 
     engine->models->insert(engine->models, "table", root, true);
 
