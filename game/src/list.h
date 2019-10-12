@@ -6,7 +6,7 @@
 #define ERR_NODE_MALLOC "Error: unable to allocate memory for node\n"
 #define ERR_LIST_MALLOC "Error: unable to allocate memory for list\n"
 
-#define FOR_EACH(l, i) for ((i) = (l)->head; (i); (i) = (i)->next)
+#define LIST_FOR_EACH(l, i) for ((i) = (l)->head; (i); (i) = (i)->next)
 
 typedef struct ListNode
 {

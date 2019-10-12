@@ -203,7 +203,7 @@ static void setPosition(Box* this, vec3 position)
     glm_vec3_copy(position ? position
                            : (vec3){0.0f, 0.0f, 0.0f}, this->position);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->setPositionDelta((Box*)(iter->value), delta);
 }
 
@@ -213,7 +213,7 @@ static void setPositionDelta(Box* this, vec3 position)
     ListNode* iter;
     glm_vec3_add(this->position, position, this->position);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->setPositionDelta((Box*)(iter->value), position);
 }
 
@@ -237,7 +237,7 @@ static void recordInitialPosition(Box* this)
     ListNode* iter;
     glm_vec3_copy(this->position, this->initialPosition);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->recordInitialPosition((Box*)(iter->value));
 }
 
@@ -247,7 +247,7 @@ static void recordInitialRotation(Box* this)
     ListNode* iter;
     glm_vec3_copy(this->rotation, this->initialRotation);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->recordInitialRotation((Box*)(iter->value));
 }
 
@@ -257,7 +257,7 @@ static void resetPosition(Box* this)
     ListNode* iter;
     this->setPosition(this, this->initialPosition);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->resetPosition((Box*)(iter->value));
 }
 
@@ -267,7 +267,7 @@ static void resetRotation(Box* this)
     ListNode* iter;
     this->setRotation(this, this->initialRotation);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->resetRotation((Box*)(iter->value));
 }
 
@@ -310,7 +310,7 @@ static void draw(Box* this)
                            "material.shininess",
                            this->material->shininess);
 
-    FOR_EACH(this->textures, iter)
+    LIST_FOR_EACH(this->textures, iter)
     {
         glActiveTexture(GL_TEXTURE0 + i++);
         glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
@@ -329,7 +329,7 @@ static void draw(Box* this)
     this->shader->setMat4(this->shader, "model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
     {
         box = (Box*)(iter->value);
         box->setShader(box, this->shader);
@@ -337,7 +337,7 @@ static void draw(Box* this)
     }
 
     i = 0;
-    FOR_EACH(this->textures, iter)
+    LIST_FOR_EACH(this->textures, iter)
     {
         glActiveTexture(GL_TEXTURE0 + i++);
         //glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
@@ -350,7 +350,7 @@ static void destroy(Box* this)
 {
     ListNode* iter;
 
-    FOR_EACH(this->attached, iter)
+    LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->destroy((Box*)(iter->value));
     this->attached->deleteList(&this->attached);
     this->textures->deleteListShallow(&this->textures);

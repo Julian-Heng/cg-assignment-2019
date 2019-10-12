@@ -14,6 +14,7 @@ static HashEntry* newHashEntry(const char*, void*, bool);
 static HashTable* newHashTableSized(const int);
 static void linkMethods(HashTable*);
 
+static bool valid(HashTable*, HashEntry*);
 static void insert(HashTable*, const char*, void*, bool);
 static void* search(HashTable*, const char*);
 static void delete(HashTable*, const char*);
@@ -90,6 +91,7 @@ static HashTable* newHashTableSized(const int baseSize)
 
 static void linkMethods(HashTable* this)
 {
+    this->valid = valid;
     this->insert = insert;
     this->search = search;
     this->delete = delete;
@@ -97,6 +99,12 @@ static void linkMethods(HashTable* this)
 
     this->deleteHashTable = deleteHashTable;
     this->deleteHashTableShallow = deleteHashTableShallow;
+}
+
+
+static bool valid(HashTable* this, HashEntry* check)
+{
+    return check != NULL && check != &DELETED;
 }
 
 
@@ -238,7 +246,7 @@ static int hash(const char* string, const int bucket, const int attempt)
 {
     const int a = _hash(string, HASHTABLE_PRIME_1, bucket);
     const int b = _hash(string, HASHTABLE_PRIME_2, bucket);
-    return (a + attempt * (b == 0 ? 1 : b)) % bucket;
+    return (a + attempt * (! b ? 1 : b)) % bucket;
 }
 
 
@@ -306,13 +314,9 @@ static void resize(HashTable* table, const int baseSize)
     HashEntry** tempItems;
     int temp;
 
-    for (int i = 0; i < table->size; i++)
+    HASHTABLE_FOR_EACH(table, item)
     {
-        item = table->items[i];
-        if (item != NULL && item != &DELETED)
-        {
-            newTable->insert(newTable, item->key, item->value, item->isMalloc);
-        }
+        newTable->insert(newTable, item->key, item->value, item->isMalloc);
     }
 
     table->baseSize = newTable->baseSize;

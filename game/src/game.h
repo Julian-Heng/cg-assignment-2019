@@ -40,10 +40,13 @@ typedef struct Backend
     HashTable* textures;
     HashTable* shaders;
 
-    List* ground;
+    //List* ground;
+    HashTable* models;
+    /*
     Box* tree;
     Box* wolf;
     Box* sheep;
+    */
 
     Camera* cam;
     float timeDelta;

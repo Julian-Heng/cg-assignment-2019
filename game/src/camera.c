@@ -123,7 +123,7 @@ static void moveForward(Camera* this, float timeDelta)
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_add(temp, this->position, this->position);
 
-    FOR_EACH(this->attached, node)
+    LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
         attach->move(attach, temp);
@@ -142,7 +142,7 @@ static void moveLeft(Camera* this, float timeDelta)
 
     glm_vec3_negate(temp);
 
-    FOR_EACH(this->attached, node)
+    LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
         attach->move(attach, temp);
@@ -163,7 +163,7 @@ static void moveBackward(Camera* this, float timeDelta)
 
     glm_vec3_negate(temp);
 
-    FOR_EACH(this->attached, node)
+    LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
         attach->move(attach, temp);
@@ -180,7 +180,7 @@ static void moveRight(Camera* this, float timeDelta)
     glm_vec3_scale(this->right, this->speed * timeDelta, temp);
     glm_vec3_add(this->position, temp, this->position);
 
-    FOR_EACH(this->attached, node)
+    LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
         attach->move(attach, temp);
@@ -218,7 +218,7 @@ static void moveMouse(Camera* this, double xoffset,
                    glm_rad(this->yaw - lastYaw),
                    (vec3){0.0f, -1.0f, 0.0f});
 
-    FOR_EACH(this->attached, node)
+    LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
         attach->transformPosition(attach, temp);
@@ -266,7 +266,7 @@ static void resetPosition(Camera* this)
 
     this->setPosition(this, (vec3){0.0f, 0.0f, 3.0f});
 
-    FOR_EACH(this->attached, node)
+    LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
         attach->resetPosition(attach);

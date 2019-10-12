@@ -175,38 +175,44 @@ void initShapes(Backend* engine)
     Box* box;
     int i, j;
 
-    List* boxes = newList();
+    engine->models = newHashTable();
 
-    // Ground
-    texture = engine->textures->search(engine->textures, "grass");
-
-    for (i = -50; i < 50; i += 10)
-    {
-        for (j = -50; j < 50; j += 10)
-        {
-            box = newBox((vec3){(float)i, -2.0f, (float)j});
-
-            box->material->setAmbient(box->material, (vec3){1.0f, 0.5f, 0.31f});
-            box->material->setDiffuse(box->material, 0);
-            box->material->setSpecular(box->material, 2);
-            box->material->setShininess(box->material, 32.0f);
-
-            box->setScale(box, (vec3){10.0f, 0.01f, 10.0f});
-            box->addTexture(box, texture);
-            boxes->insertLast(boxes, box, true);
-        }
-    }
-
-    engine->ground = boxes;
-
-    // Tree
-    // Default Material for tree
+    // Default Material
     Material* defaultMaterial = newMaterial();
     defaultMaterial->setAmbient(defaultMaterial, (vec3){1.0f, 0.5f, 0.31f});
     defaultMaterial->setDiffuse(defaultMaterial, 0);
     defaultMaterial->setSpecular(defaultMaterial, 1);
     defaultMaterial->setShininess(defaultMaterial, 32.0f);
 
+    // Ground
+    texture = engine->textures->search(engine->textures, "grass");
+
+    bool first = true;
+
+    for (i = -50; i < 50; i += 10)
+    {
+        for (j = -50; j < 50; j += 10)
+        {
+            box = newBox((vec3){(float)i, -2.0f, (float)j});
+            memcpy(box->material, defaultMaterial, sizeof(Material));
+            box->setScale(box, (vec3){10.0f, 0.01f, 10.0f});
+            box->addTexture(box, texture);
+
+            if (first)
+            {
+                root = box;
+                first = false;
+            }
+            else
+            {
+                root->attach(root, box);
+            }
+        }
+    }
+
+    engine->models->insert(engine->models, "ground", root, true);
+
+    // Tree
     texture = engine->textures->search(engine->textures, "tree_1");
 
     root = newBox((vec3){0.0f, -1.5f, 0.0f});
@@ -231,7 +237,7 @@ void initShapes(Backend* engine)
     box->addTexture(box, texture);
 
     root->attach(root, box);
-    engine->tree = root;
+    engine->models->insert(engine->models, "tree", root, true);
 
     // Wolf
     texture = engine->textures->search(engine->textures, "grey");
@@ -297,7 +303,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->wolf = root;
+    engine->models->insert(engine->models, "wolf", root, true);
 
     // Sheep
     // Body
@@ -391,7 +397,7 @@ void initShapes(Backend* engine)
 
     root->attach(root, box);
 
-    engine->sheep = root;
+    engine->models->insert(engine->models, "sheep", root, true);
 }
 
 
@@ -432,7 +438,6 @@ void draw(Backend* engine)
 {
     Shader* normalShader;
 
-    ListNode* node;
     Box* box;
     Camera* cam;
 
@@ -498,29 +503,29 @@ void draw(Backend* engine)
     normalShader->setFloat(normalShader, "light.cutOff", cos(glm_rad(17.5f)));
     normalShader->setFloat(normalShader, "light.outerCutOff", cos(glm_rad(35.0f)));
 
-    FOR_EACH(engine->ground, node)
-    {
-        box = (Box*)node->value;
-        box->setShader(box, normalShader);
-        box->draw(box);
-    }
+    box = engine->models->search(engine->models, "ground");
+    box->setShader(box, normalShader);
+    box->draw(box);
 
-    engine->tree->setShader(engine->tree, normalShader);
+    box = engine->models->search(engine->models, "tree");
+    box->setShader(box, normalShader);
     for (int i = -50; i < 50; i += 10)
     {
-        engine->tree->setPosition(engine->tree, (vec3){(float)i, -1.5f, 0.0f});
-        engine->tree->draw(engine->tree);
+        box->setPosition(box, (vec3){(float)i, -1.5f, 0.0f});
+        box->draw(box);
 
-        engine->tree->setPosition(engine->tree, (vec3){0.0f, -1.5f, (float)i});
-        engine->tree->draw(engine->tree);
+        box->setPosition(box, (vec3){0.0f, -1.5f, (float)i});
+        box->draw(box);
     }
-    engine->tree->resetPosition(engine->tree);
+    box->resetPosition(box);
 
-    engine->wolf->setShader(engine->wolf, normalShader);
-    engine->wolf->draw(engine->wolf);
+    box = engine->models->search(engine->models, "wolf");
+    box->setShader(box, normalShader);
+    box->draw(box);
 
-    engine->sheep->setShader(engine->sheep, normalShader);
-    engine->sheep->draw(engine->sheep);
+    box = engine->models->search(engine->models, "sheep");
+    box->setShader(box, normalShader);
+    box->draw(box);
 
     cam->poll(cam);
 }
@@ -682,7 +687,7 @@ void terminate(Backend** engine)
     Backend* _engine = *engine;
 
     Box* box;
-    ListNode* iter;
+    HashEntry* iter;
 
     glDeleteVertexArrays(1, &(_engine->VAO));
     glDeleteBuffers(1, &(_engine->VBO));
@@ -692,15 +697,15 @@ void terminate(Backend** engine)
         return;
     }
 
-    FOR_EACH(_engine->ground, iter)
+    HASHTABLE_FOR_EACH(_engine->models, iter)
     {
         box = (Box*)iter->value;
         box->destroy(box);
+        _engine->models->delete(_engine->models, iter->key);
     }
 
     _engine->textures->deleteHashTable(&(_engine->textures));
     _engine->shaders->deleteHashTable(&(_engine->shaders));
-    _engine->tree->destroy(_engine->tree);
 
     _engine->cam->destroy(_engine->cam);
 
