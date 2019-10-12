@@ -225,8 +225,8 @@ void initTree(Backend* engine, Material* defaultMaterial)
     Box* model;
     Texture* texture = (Texture*)engine->textures->search(engine->textures, "tree_1");
 
+    // Trunk
     root = newBox((vec3){0.0f, -1.5f, 0.0f});
-
     memcpy(root->material, defaultMaterial, sizeof(Material));
     root->addTexture(root, texture);
 
@@ -239,9 +239,9 @@ void initTree(Backend* engine, Material* defaultMaterial)
         root->attach(root, model);
     }
 
+    // Leaves
     texture = engine->textures->search(engine->textures, "tree_2");
     model = newBox((vec3){0.0f, 3.0f, 0.0f});
-
     model->setScale(model, (vec3){3.0f, 2.0f, 3.0f});
     memcpy(model->material, defaultMaterial, sizeof(Material));
     model->addTexture(model, texture);
@@ -268,37 +268,20 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     model->setScale(model, (vec3){0.35f, 0.35f, 0.35f});
     memcpy(model->material, defaultMaterial, sizeof(Material));
     model->addTexture(model, texture);
-
     root->attach(root, model);
 
     // Legs
-    model = newBox((vec3){-0.2f, -0.45f, -0.4f});
-    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    root->attach(root, model);
-
-    model = newBox((vec3){-0.2f, -0.45f, 0.4f});
-    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    root->attach(root, model);
-
-    model = newBox((vec3){0.2f, -0.45f, -0.4f});
-    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    root->attach(root, model);
-
-    model = newBox((vec3){0.2f, -0.45f, 0.4f});
-    model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    root->attach(root, model);
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            model = newBox((vec3){-0.2f * (float)i, -0.45f, -0.4f * (float)j});
+            model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
+            memcpy(model->material, defaultMaterial, sizeof(Material));
+            model->addTexture(model, texture);
+            root->attach(root, model);
+        }
+    }
 
     // Tail
     model = newBox((vec3){0.0f, 0.2f, -0.7f});
@@ -344,65 +327,26 @@ void initSheep(Backend* engine, Material* defaultMaterial)
     root->attach(root, model);
 
     // Legs
-    texture = engine->textures->search(engine->textures, "black");
-    model = newBox((vec3){-0.35f, -0.75f, -0.6f});
-    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            texture = engine->textures->search(engine->textures, "black");
+            model = newBox((vec3){-0.35f * (float)i, -0.75f, -0.6f * (float)j});
+            model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
+            memcpy(model->material, defaultMaterial, sizeof(Material));
+            model->addTexture(model, texture);
 
-    texture = engine->textures->search(engine->textures, "sheep_skin");
-    model2 = newBox((vec3){-0.35f, -1.0f, -0.6f});
-    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(model2->material, defaultMaterial, sizeof(Material));
-    model2->addTexture(model2, texture);
+            texture = engine->textures->search(engine->textures, "sheep_skin");
+            model2 = newBox((vec3){-0.35f * (float)i, -1.0f, -0.6f * (float)j});
+            model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
+            memcpy(model2->material, defaultMaterial, sizeof(Material));
+            model2->addTexture(model2, texture);
 
-    model->attach(model, model2);
-    root->attach(root, model);
-
-    texture = engine->textures->search(engine->textures, "black");
-    model = newBox((vec3){0.35f, -0.75f, -0.6f});
-    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    texture = engine->textures->search(engine->textures, "sheep_skin");
-    model2 = newBox((vec3){0.35f, -1.0f, -0.6f});
-    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(model2->material, defaultMaterial, sizeof(Material));
-    model2->addTexture(model2, texture);
-
-    model->attach(model, model2);
-    root->attach(root, model);
-
-    texture = engine->textures->search(engine->textures, "black");
-    model = newBox((vec3){-0.35f, -0.75f, 0.6f});
-    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    texture = engine->textures->search(engine->textures, "sheep_skin");
-    model2 = newBox((vec3){-0.35f, -1.0f, 0.6f});
-    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(model2->material, defaultMaterial, sizeof(Material));
-    model2->addTexture(model2, texture);
-
-    model->attach(model, model2);
-    root->attach(root, model);
-
-    texture = engine->textures->search(engine->textures, "black");
-    model = newBox((vec3){0.35f, -0.75f, 0.6f});
-    model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-
-    texture = engine->textures->search(engine->textures, "sheep_skin");
-    model2 = newBox((vec3){0.35f, -1.0f, 0.6f});
-    model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
-    memcpy(model2->material, defaultMaterial, sizeof(Material));
-    model2->addTexture(model2, texture);
-
-    model->attach(model, model2);
-    root->attach(root, model);
+            model->attach(model, model2);
+            root->attach(root, model);
+        }
+    }
 
     // Head texture
     texture = engine->textures->search(engine->textures, "sheep_face");
@@ -442,21 +386,18 @@ void initTable(Backend* engine, Material* defaultMaterial)
     model->addTexture(model, texture);
     root->attach(root, model);
 
-    texture = (Texture*)engine->textures->search(engine->textures, "black");
     model = newBox((vec3){0.8f, -0.675f, -0.8f});
     model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
     memcpy(model->material, legMaterial, sizeof(Material));
     model->addTexture(model, texture);
     root->attach(root, model);
 
-    texture = (Texture*)engine->textures->search(engine->textures, "black");
     model = newBox((vec3){-0.8f, -0.675f, 0.8f});
     model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
     memcpy(model->material, legMaterial, sizeof(Material));
     model->addTexture(model, texture);
     root->attach(root, model);
 
-    texture = (Texture*)engine->textures->search(engine->textures, "black");
     model = newBox((vec3){0.8f, -0.675f, 0.8f});
     model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
     memcpy(model->material, legMaterial, sizeof(Material));
@@ -504,7 +445,7 @@ void loop(Backend* engine)
 
 void draw(Backend* engine)
 {
-    Shader* normalShader;
+    Shader* shader;
 
     Box* model;
     Camera* cam;
@@ -513,18 +454,55 @@ void draw(Backend* engine)
     mat4 view;
 
     cam = engine->cam;
-
-    normalShader = engine->shaders->search(engine->shaders, "shader");
+    glm_mat4_identity(projection);
+    glm_mat4_identity(view);
+    shader = engine->shaders->search(engine->shaders, "shader");
 
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
-    glm_mat4_identity(projection);
-    glm_mat4_identity(view);
-
-    normalShader->use(normalShader);
-
     cam->getViewMatrix(cam, view);
+    setupProjection(engine, cam, projection);
+    setupShader(engine, shader, cam, projection, view);
 
+    // Draw ground
+    model = engine->models->search(engine->models, "ground");
+    model->setShader(model, shader);
+    model->draw(model);
+
+    // Draw trees
+    model = engine->models->search(engine->models, "tree");
+    model->setShader(model, shader);
+    for (int i = -50; i < 50; i += 10)
+    {
+        model->setPosition(model, (vec3){(float)i, -1.5f, 0.0f});
+        model->draw(model);
+
+        model->setPosition(model, (vec3){0.0f, -1.5f, (float)i});
+        model->draw(model);
+    }
+    model->resetPosition(model);
+
+    // Draw wolf
+    model = engine->models->search(engine->models, "wolf");
+    model->setShader(model, shader);
+    model->draw(model);
+
+    // Draw sheep
+    model = engine->models->search(engine->models, "sheep");
+    model->setShader(model, shader);
+    model->draw(model);
+
+    // Draw table
+    model = engine->models->search(engine->models, "table");
+    model->setShader(model, shader);
+    model->draw(model);
+
+    cam->poll(cam);
+}
+
+
+void setupProjection(Backend* engine, Camera* cam, mat4 projection)
+{
     if (engine->options[GAME_USE_PERSPECTIVE])
     {
         glm_perspective(glm_rad(cam->zoom),
@@ -539,67 +517,42 @@ void draw(Backend* engine)
                    (float)engine->height / 200.0f,
                   -1000.0f, 1000.0f, projection);
     }
+}
 
-    normalShader->setMat4(normalShader, "projection", projection);
-    normalShader->setMat4(normalShader, "view", view);
-    normalShader->setVec3(normalShader, "viewPos", cam->position);
 
-    normalShader->setBool(normalShader, "lightsOn", engine->options[GAME_LIGHTS_ON]);
+void setupShader(Backend* engine, Shader* shader, Camera* cam,
+                 mat4 projection, mat4 view)
+{
+    shader->use(shader);
+    shader->setMat4(shader, "projection", projection);
+    shader->setMat4(shader, "view", view);
+    shader->setVec3(shader, "viewPos", cam->position);
+    shader->setBool(shader, "lightsOn", engine->options[GAME_LIGHTS_ON]);
 
     if (! engine->options[GAME_LIGHTS_ON])
     {
-        normalShader->setVec3(normalShader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
-        normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
-        normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
+        shader->setVec3(shader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
+        shader->setVec3(shader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
     }
     else
     {
-        normalShader->setVec3(normalShader, "light.ambient", (vec3){1.0f, 1.0f, 1.0f});
-        normalShader->setVec3(normalShader, "light.diffuse", (vec3){1.0f, 1.0f, 1.0f});
-        normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.ambient", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.diffuse", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
     }
 
-    normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
-    normalShader->setVec3(normalShader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+    shader->setVec3(shader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
+    shader->setVec3(shader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
 
-    normalShader->setFloat(normalShader, "light.constant", 1.0f);
-    normalShader->setFloat(normalShader, "light.linear", 0.09f);
-    normalShader->setFloat(normalShader, "light.quadratic", 0.032f);
+    shader->setFloat(shader, "light.constant", 1.0f);
+    shader->setFloat(shader, "light.linear", 0.09f);
+    shader->setFloat(shader, "light.quadratic", 0.032f);
 
-    normalShader->setVec3(normalShader, "light.position", cam->position);
-    normalShader->setVec3(normalShader, "light.direction", cam->front);
-    normalShader->setFloat(normalShader, "light.cutOff", cos(glm_rad(17.5f)));
-    normalShader->setFloat(normalShader, "light.outerCutOff", cos(glm_rad(35.0f)));
-
-    model = engine->models->search(engine->models, "ground");
-    model->setShader(model, normalShader);
-    model->draw(model);
-
-    model = engine->models->search(engine->models, "tree");
-    model->setShader(model, normalShader);
-    for (int i = -50; i < 50; i += 10)
-    {
-        model->setPosition(model, (vec3){(float)i, -1.5f, 0.0f});
-        model->draw(model);
-
-        model->setPosition(model, (vec3){0.0f, -1.5f, (float)i});
-        model->draw(model);
-    }
-    model->resetPosition(model);
-
-    model = engine->models->search(engine->models, "wolf");
-    model->setShader(model, normalShader);
-    model->draw(model);
-
-    model = engine->models->search(engine->models, "sheep");
-    model->setShader(model, normalShader);
-    model->draw(model);
-
-    model = engine->models->search(engine->models, "table");
-    model->setShader(model, normalShader);
-    model->draw(model);
-
-    cam->poll(cam);
+    shader->setVec3(shader, "light.position", cam->position);
+    shader->setVec3(shader, "light.direction", cam->front);
+    shader->setFloat(shader, "light.cutOff", cos(glm_rad(17.5f)));
+    shader->setFloat(shader, "light.outerCutOff", cos(glm_rad(35.0f)));
 }
 
 

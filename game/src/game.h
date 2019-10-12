@@ -73,6 +73,8 @@ void initTable(Backend*, Material*);
 void loop(Backend*);
 void draw(Backend*);
 
+void setupProjection(Backend*, Camera*, mat4);
+void setupShader(Backend*, Shader*, Camera*, mat4, mat4);
 void toggleWireframe(void);
 void normalInputCallback(GLFWwindow*, int, int, int, int);
 void instantKeyInputCallback(GLFWwindow*);
