@@ -17,7 +17,8 @@
 #define ERR_GLAD "Error: failed to initialise GLAD\n"
 
 
-typedef enum {
+typedef enum
+{
     CAM_MOVE_FORWARD,
     CAM_MOVE_LEFT,
     CAM_MOVE_BACKWARD,
@@ -26,6 +27,14 @@ typedef enum {
 
     CAM_RESET
 } KeyAction;
+
+
+typedef enum
+{
+    GAME_USE_PERSPECTIVE,
+    GAME_LIGHTS_ON,
+    GAME_OPTION_COUNT
+} GameOptions;
 
 
 typedef struct Backend
@@ -40,19 +49,12 @@ typedef struct Backend
     HashTable* textures;
     HashTable* shaders;
 
-    //List* ground;
     HashTable* models;
-    /*
-    Box* tree;
-    Box* wolf;
-    Box* sheep;
-    */
 
     Camera* cam;
     float timeDelta;
 
-    bool usePerspective;
-    bool lightsOn;
+    bool options[GAME_OPTION_COUNT];
 } Backend;
 
 

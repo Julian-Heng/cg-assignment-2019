@@ -45,7 +45,7 @@ void logInfo(FILE* f, Backend* engine)
     }
 
     _logInfo(f, &rows, LOG_CLEAR LOG_PROJECTION_TYPE "\n",
-        engine->usePerspective ? "Perspective" : "Orthographic");
+        engine->options[GAME_USE_PERSPECTIVE] ? "Perspective" : "Orthographic");
     _logInfo(f, &rows, LOG_CLEAR LOG_RESOLUTION "\n", engine->width,
                                                       engine->height);
     _logInfo(f, &rows, LOG_CLEAR LOG_FRAME_COUNT "\n", frameCount);

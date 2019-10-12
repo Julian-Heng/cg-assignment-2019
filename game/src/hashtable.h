@@ -13,8 +13,11 @@
 #define resizeUp(ht)    resize((ht), (ht)->size << 1)
 #define resizeDown(ht)  resize((ht), (ht)->size >> 1)
 
+/* !!! DANGEROUS !!! */
 #define HASHTABLE_FOR_EACH(ht, iter) \
-    for (int i = ((iter) = (ht)->items[0], 0); i < (ht)->size; i += ((iter) = (ht)->items[i + 1], 1)) \
+    for (int i = ((iter) = (ht)->items[0], 0); \
+         i < (ht)->size; \
+         i += ((iter) = (ht)->items[i + 1], 1)) \
         if ((ht)->valid((ht), (iter)))
 
 

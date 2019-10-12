@@ -69,8 +69,8 @@ Backend* init()
 
     glfwSetWindowUserPointer(engine->window, engine);
 
-    engine->usePerspective = true;
-    engine->lightsOn = false;
+    engine->options[GAME_USE_PERSPECTIVE] = true;
+    engine->options[GAME_LIGHTS_ON] = false;
 
     return engine;
 }
@@ -415,7 +415,7 @@ void loop(Backend* engine)
         engine->timeDelta = currentTime - lastTime;
         lastTime = currentTime;
 
-        if (! engine->lightsOn)
+        if (! engine->options[GAME_LIGHTS_ON])
         {
             glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         }
@@ -457,7 +457,7 @@ void draw(Backend* engine)
 
     cam->getViewMatrix(cam, view);
 
-    if (engine->usePerspective)
+    if (engine->options[GAME_USE_PERSPECTIVE])
     {
         glm_perspective(glm_rad(cam->zoom),
                         ASPECT_RATIO(engine->width, engine->height),
@@ -476,9 +476,9 @@ void draw(Backend* engine)
     normalShader->setMat4(normalShader, "view", view);
     normalShader->setVec3(normalShader, "viewPos", cam->position);
 
-    normalShader->setBool(normalShader, "lightsOn", engine->lightsOn);
+    normalShader->setBool(normalShader, "lightsOn", engine->options[GAME_LIGHTS_ON]);
 
-    if (! engine->lightsOn)
+    if (! engine->options[GAME_LIGHTS_ON])
     {
         normalShader->setVec3(normalShader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
         normalShader->setVec3(normalShader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
@@ -562,11 +562,11 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             break;
 
         case GLFW_KEY_P:
-            engine->usePerspective = ! engine->usePerspective;
+            engine->options[GAME_USE_PERSPECTIVE] ^= 1 ;
             break;
 
         case GLFW_KEY_O:
-            engine->lightsOn = ! engine->lightsOn;
+            engine->options[GAME_LIGHTS_ON] ^= 1;
             break;
     }
 }
