@@ -64,6 +64,11 @@ void initShader(Backend*);
 void initTextures(Backend*);
 void initShapes(Backend*);
 
+void initGround(Backend*, Material*);
+void initTree(Backend*, Material*);
+void initWolf(Backend*, Material*);
+void initSheep(Backend*, Material*);
+
 void loop(Backend*);
 void draw(Backend*);
 

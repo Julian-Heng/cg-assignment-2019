@@ -166,31 +166,33 @@ void initTextures(Backend* engine)
 
 void initShapes(Backend* engine)
 {
-    Texture* texture;
-
-    Box* root;
-    Box* model;
-    Box* model2;
-
-    int i, j;
-
+    Material* defaultMaterial;
     engine->models = newHashTable();
 
     // Default Material
-    Material* defaultMaterial = newMaterial();
+    defaultMaterial = newMaterial();
     defaultMaterial->setAmbient(defaultMaterial, (vec3){1.0f, 0.5f, 0.31f});
     defaultMaterial->setDiffuse(defaultMaterial, 0);
     defaultMaterial->setSpecular(defaultMaterial, 1);
     defaultMaterial->setShininess(defaultMaterial, 32.0f);
 
-    // Ground
-    texture = engine->textures->search(engine->textures, "grass");
+    initGround(engine, defaultMaterial);
+    initTree(engine, defaultMaterial);
+    initWolf(engine, defaultMaterial);
+    initSheep(engine, defaultMaterial);
+}
+
+
+void initGround(Backend* engine, Material* defaultMaterial)
+{
+    Box* root;
+    Box* model;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "grass");
 
     bool first = true;
-
-    for (i = -50; i < 50; i += 10)
+    for (int i = -50; i < 50; i += 10)
     {
-        for (j = -50; j < 50; j += 10)
+        for (int j = -50; j < 50; j += 10)
         {
             model = newBox((vec3){(float)i, -2.0f, (float)j});
             memcpy(model->material, defaultMaterial, sizeof(Material));
@@ -210,16 +212,21 @@ void initShapes(Backend* engine)
     }
 
     engine->models->insert(engine->models, "ground", root, true);
+}
 
-    // Tree
-    texture = engine->textures->search(engine->textures, "tree_1");
+
+void initTree(Backend* engine, Material* defaultMaterial)
+{
+    Box* root;
+    Box* model;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "tree_1");
 
     root = newBox((vec3){0.0f, -1.5f, 0.0f});
 
     memcpy(root->material, defaultMaterial, sizeof(Material));
     root->addTexture(root, texture);
 
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         model = newBox((vec3){0.0f, (float)(i + 1) - 1.5f, 0.0f});
 
@@ -237,9 +244,14 @@ void initShapes(Backend* engine)
 
     root->attach(root, model);
     engine->models->insert(engine->models, "tree", root, true);
+}
 
-    // Wolf
-    texture = engine->textures->search(engine->textures, "grey");
+
+void initWolf(Backend* engine, Material* defaultMaterial)
+{
+    Box* root;
+    Box* model;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "grey");
 
     // Body
     root = newBox((vec3){0.0f, 0.0f, 0.0f});
@@ -303,11 +315,17 @@ void initShapes(Backend* engine)
     root->attach(root, model);
 
     engine->models->insert(engine->models, "wolf", root, true);
+}
 
-    // Sheep
+
+void initSheep(Backend* engine, Material* defaultMaterial)
+{
+    Box* root;
+    Box* model;
+    Box* model2;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "black");
+
     // Body
-    texture = engine->textures->search(engine->textures, "black");
-
     root = newBox((vec3){0.0f, 0.0f, 0.0f});
     root->setScale(root, (vec3){1.25f, 1.25f, 2.0f});
     memcpy(root->material, defaultMaterial, sizeof(Material));
