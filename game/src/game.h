@@ -37,9 +37,8 @@ typedef struct Backend
     int width;
     int height;
 
-    //List* textures;
     HashTable* textures;
-    List* shaders;
+    HashTable* shaders;
 
     List* ground;
     Box* tree;

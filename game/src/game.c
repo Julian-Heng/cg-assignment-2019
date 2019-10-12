@@ -117,16 +117,18 @@ void initGlad(Backend* engine)
 
 void initShader(Backend* engine)
 {
-    List* shaders = newList();
+    HashTable* shaders = newHashTable();
 
-    shaders->insertLast(
+    shaders->insert(
         shaders,
+        "shader",
         newShader("shaders/shader.vs", "shaders/shader.fs"),
         true
     );
 
-    shaders->insertLast(
+    shaders->insert(
         shaders,
+        "lamp",
         newShader("shaders/lamp.vs", "shaders/lamp.fs"),
         true
     );
@@ -439,7 +441,7 @@ void draw(Backend* engine)
 
     cam = engine->cam;
 
-    engine->shaders->peekAt(engine->shaders, 0, (void**)&normalShader, NULL);
+    normalShader = engine->shaders->search(engine->shaders, "shader");
 
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
@@ -697,7 +699,7 @@ void terminate(Backend** engine)
     }
 
     _engine->textures->deleteHashTable(&(_engine->textures));
-    _engine->shaders->deleteList(&(_engine->shaders));
+    _engine->shaders->deleteHashTable(&(_engine->shaders));
     _engine->tree->destroy(_engine->tree);
 
     _engine->cam->destroy(_engine->cam);
