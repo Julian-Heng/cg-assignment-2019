@@ -49,7 +49,7 @@ Backend* init()
 
     memset(engine, 0, sizeof(Backend));
 
-    if (! (engine->cam = newCamera()))
+    if (! (engine->cam = newCamera((vec3){-20.0f, 0.0f, -20.0f})))
     {
         free(engine);
         engine = NULL;
@@ -72,6 +72,7 @@ Backend* init()
     engine->options[GAME_USE_PERSPECTIVE] = true;
     engine->options[GAME_LIGHTS_ON] = false;
     engine->options[GAME_HAS_TORCH] = false;
+    engine->options[GAME_PICKUP_WOLF] = false;
 
     engine->lightLevel = 1.0f;
 
@@ -415,6 +416,9 @@ void initTable(Backend* engine, Material* defaultMaterial, Material* shinyMateri
         }
     }
 
+    // Move to position
+    root->setPosition(root, (vec3){-25.0f, -0.7f, 25.0f});
+
     engine->models->insert(engine->models, "table", root, true);
 }
 
@@ -447,6 +451,9 @@ void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMateri
     model->addTexture(model, texture);
     root->attach(root, model);
 
+    // Move to position
+    root->setPosition(root, (vec3){-25.0f, -0.2f, 25.0f});
+
     engine->models->insert(engine->models, "torch", root, true);
 }
 
@@ -477,6 +484,9 @@ void initSign(Backend* engine, Material* defaultMaterial)
     memcpy(model->material, defaultMaterial, sizeof(Material));
     model->addTexture(model, texture);
     root->attach(root, model);
+
+    // Move to position
+    root->setPosition(root, (vec3){-20.0f, -1.25f, -25.0f});
 
     engine->models->insert(engine->models, "sign", root, true);
 }
@@ -560,19 +570,29 @@ void draw(Backend* engine)
     model->draw(model);
 
     // Draw sheep
-    model = engine->models->search(engine->models, "sheep");
-    model->setShader(model, shader);
-    model->draw(model);
+    if (engine->options[GAME_PICKUP_WOLF])
+    {
+        model = engine->models->search(engine->models, "sheep");
+        model->setShader(model, shader);
+        model->draw(model);
+    }
 
     // Draw table
     model = engine->models->search(engine->models, "table");
     model->setShader(model, shader);
     model->draw(model);
 
-    // Draw torch
-    model = engine->models->search(engine->models, "torch");
-    model->setShader(model, shader);
-    model->draw(model);
+    if (! engine->options[GAME_HAS_TORCH])
+    {
+        // Draw torch
+        model = engine->models->search(engine->models, "torch");
+
+        // "Animate" torch
+        model->move(model, (vec3){0.0f, sin(1.5f * glfwGetTime()) / 180.0f, 0.0f});
+
+        model->setShader(model, shader);
+        model->draw(model);
+    }
 
     // Draw sign
     model = engine->models->search(engine->models, "sign");
@@ -657,6 +677,8 @@ void toggleWireframe()
 void normalInputCallback(GLFWwindow* win, int key, int scancode,
                          int action, int mods)
 {
+    vec3 temp;
+    Box* model;
     Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
 
     if (action != GLFW_PRESS || ! engine)
@@ -675,6 +697,26 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
                             break;
         case GLFW_KEY_L:    engine->lightLevel = MIN(engine->lightLevel + 0.1f, 2.0f);
                             break;
+
+        case GLFW_KEY_F:
+            model = engine->models->search(engine->models, "torch");
+
+            if (engine->options[GAME_HAS_TORCH])
+            {
+                // Set new position for the torch
+                glm_vec3_normalize_to(engine->cam->front, temp);
+                glm_vec3_scale(temp, 2.0f, temp);
+                glm_vec3_add(engine->cam->position, temp, temp);
+
+                model->setPosition(model, temp);
+                engine->options[GAME_HAS_TORCH] = false;
+            }
+            else if (glm_vec3_distance(engine->cam->position, model->position) < 3.0f)
+            {
+                engine->options[GAME_HAS_TORCH] = true;
+            }
+
+            break;
     }
 }
 
@@ -726,8 +768,15 @@ void instantKeyInputCallback(GLFWwindow* win)
         cam->setJump(cam, true);
     }
 
-    if (keys[CAM_RESET])
+    if (keys[GAME_RESET])
     {
+        engine->options[GAME_USE_PERSPECTIVE] = true;
+        engine->options[GAME_LIGHTS_ON] = false;
+        engine->options[GAME_HAS_TORCH] = false;
+        engine->options[GAME_PICKUP_WOLF] = false;
+
+        engine->lightLevel = 1.0f;
+
         cam->setJump(cam, false);
         cam->resetPosition(cam);
         cam->resetFront(cam);

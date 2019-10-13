@@ -25,7 +25,7 @@ typedef enum
     CAM_MOVE_RIGHT,
     CAM_JUMP,
 
-    CAM_RESET
+    GAME_RESET
 } KeyAction;
 
 
@@ -34,6 +34,9 @@ typedef enum
     GAME_USE_PERSPECTIVE,
     GAME_LIGHTS_ON,
     GAME_HAS_TORCH,
+
+    GAME_PICKUP_WOLF,
+
     GAME_OPTION_COUNT
 } GameOptions;
 
