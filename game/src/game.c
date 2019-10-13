@@ -71,6 +71,9 @@ Backend* init()
 
     engine->options[GAME_USE_PERSPECTIVE] = true;
     engine->options[GAME_LIGHTS_ON] = false;
+    engine->options[GAME_HAS_TORCH] = false;
+
+    engine->lightLevel = 1.0f;
 
     return engine;
 }
@@ -602,13 +605,21 @@ void setupProjection(Backend* engine, Camera* cam, mat4 projection)
 void setupShader(Backend* engine, Shader* shader, Camera* cam,
                  mat4 projection, mat4 view)
 {
+    float lightLevel = engine->lightLevel;
+
     shader->use(shader);
     shader->setMat4(shader, "projection", projection);
     shader->setMat4(shader, "view", view);
     shader->setVec3(shader, "viewPos", cam->position);
     shader->setBool(shader, "lightsOn", engine->options[GAME_LIGHTS_ON]);
 
-    if (! engine->options[GAME_LIGHTS_ON])
+    if (engine->options[GAME_LIGHTS_ON])
+    {
+        shader->setVec3(shader, "light.ambient", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.diffuse", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+    }
+    else if (engine->options[GAME_HAS_TORCH])
     {
         shader->setVec3(shader, "light.ambient", (vec3){0.2f, 0.2f, 0.2f});
         shader->setVec3(shader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
@@ -616,13 +627,11 @@ void setupShader(Backend* engine, Shader* shader, Camera* cam,
     }
     else
     {
-        shader->setVec3(shader, "light.ambient", (vec3){1.0f, 1.0f, 1.0f});
-        shader->setVec3(shader, "light.diffuse", (vec3){1.0f, 1.0f, 1.0f});
-        shader->setVec3(shader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
+        shader->setVec3(shader, "light.ambient", (vec3){0.1f, 0.1f, 0.1f});
+        shader->setVec3(shader, "light.diffuse", (vec3){0.0f, 0.0f, 0.0f});
+        shader->setVec3(shader, "light.specular", (vec3){0.1f, 0.1f, 0.1f});
     }
 
-    shader->setVec3(shader, "light.diffuse", (vec3){0.5f, 0.5f, 0.5f});
-    shader->setVec3(shader, "light.specular", (vec3){1.0f, 1.0f, 1.0f});
 
     shader->setFloat(shader, "light.constant", 1.0f);
     shader->setFloat(shader, "light.linear", 0.09f);
@@ -630,8 +639,8 @@ void setupShader(Backend* engine, Shader* shader, Camera* cam,
 
     shader->setVec3(shader, "light.position", cam->position);
     shader->setVec3(shader, "light.direction", cam->front);
-    shader->setFloat(shader, "light.cutOff", cos(glm_rad(17.5f)));
-    shader->setFloat(shader, "light.outerCutOff", cos(glm_rad(35.0f)));
+    shader->setFloat(shader, "light.cutOff", cos(glm_rad(lightLevel * 17.5f)));
+    shader->setFloat(shader, "light.outerCutOff", cos(glm_rad(lightLevel * 26.25f)));
 }
 
 
@@ -662,6 +671,10 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
         case GLFW_KEY_TAB:  toggleWireframe(); break;
         case GLFW_KEY_P:    engine->options[GAME_USE_PERSPECTIVE] ^= 1 ; break;
         case GLFW_KEY_O:    engine->options[GAME_LIGHTS_ON] ^= 1; break;
+        case GLFW_KEY_K:    engine->lightLevel = MAX(engine->lightLevel - 0.1f, 0.0f);
+                            break;
+        case GLFW_KEY_L:    engine->lightLevel = MIN(engine->lightLevel + 0.1f, 2.0f);
+                            break;
     }
 }
 

@@ -48,6 +48,7 @@ void logInfo(FILE* f, Backend* engine)
         engine->options[GAME_USE_PERSPECTIVE] ? "Perspective" : "Orthographic");
     _logInfo(f, &rows, LOG_CLEAR LOG_RESOLUTION "\n", engine->width,
                                                       engine->height);
+    _logInfo(f, &rows, LOG_CLEAR LOG_LIGHT_LEVEL "\n", engine->lightLevel);
     _logInfo(f, &rows, LOG_CLEAR LOG_FRAME_COUNT "\n", frameCount);
     _logInfo(f, &rows, LOG_CLEAR LOG_FPS "\n", cacheFrameDelta);
     _logInfo(f, &rows, LOG_CLEAR LOG_FRAME_LATENCY "\n", cacheFrameLatency);
@@ -58,7 +59,7 @@ void logInfo(FILE* f, Backend* engine)
                                                      cam->front[1],
                                                      cam->front[2]);
     _logInfo(f, &rows, LOG_CLEAR LOG_CAM_YAW "\n", cam->yaw);
-    _logInfo(f, &rows, LOG_CLEAR LOG_CAM_PITCH"\n", cam->pitch);
+    _logInfo(f, &rows, LOG_CLEAR LOG_CAM_PITCH "\n", cam->pitch);
 
     first = false;
 }

@@ -33,6 +33,7 @@ typedef enum
 {
     GAME_USE_PERSPECTIVE,
     GAME_LIGHTS_ON,
+    GAME_HAS_TORCH,
     GAME_OPTION_COUNT
 } GameOptions;
 
@@ -50,6 +51,8 @@ typedef struct Backend
 
     int width;
     int height;
+
+    float lightLevel;
 
     HashTable* textures;
     HashTable* shaders;
