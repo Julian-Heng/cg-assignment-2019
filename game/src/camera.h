@@ -16,6 +16,7 @@
 
 typedef struct Camera
 {
+    vec3 initialPosition;
     vec3 position;
     vec3 front;
     vec3 up;
@@ -44,6 +45,7 @@ typedef struct Camera
 
     void (*attach)(struct Camera*, Box*);
 
+    void (*recordInitialPosition)(struct Camera*);
     void (*resetPosition)(struct Camera*);
     void (*resetFront)(struct Camera*);
 
@@ -56,6 +58,6 @@ typedef struct Camera
 } Camera;
 
 
-Camera* newCamera(void);
+Camera* newCamera(vec3);
 
 #endif

@@ -32,6 +32,7 @@ static void setPosition(Camera*, vec3);
 static void setFront(Camera*, vec3);
 static void setJump(Camera*, bool);
 
+static void recordInitialPosition(Camera*);
 static void resetPosition(Camera*);
 static void resetFront(Camera*);
 
@@ -45,7 +46,7 @@ static float calcJump(float t);
 static float _calcJump(float t);
 
 
-Camera* newCamera()
+Camera* newCamera(vec3 position)
 {
     Camera* cam;
 
@@ -58,7 +59,7 @@ Camera* newCamera()
     memset(cam, 0, sizeof(Camera));
     linkMethods(cam);
 
-    glm_vec3_copy((vec3){0.0f, 0.0f, 3.0f}, cam->position);
+    glm_vec3_copy(position, cam->position);
     glm_vec3_copy((vec3){0.0f, 0.0f, -1.0f}, cam->front);
     glm_vec3_copy((vec3){0.0f, 1.0f, 0.0f}, cam->up);
     glm_vec3_zero(cam->right);
@@ -67,12 +68,13 @@ Camera* newCamera()
     cam->yaw = -90.0f;
     cam->pitch = 0.0f;
 
-    cam->speed = 3.0f;
+    cam->speed = 6.0f;
     cam->mouseSensitivity = 0.05f;
     cam->zoom = 45.0f;
 
     cam->attached = newList();
 
+    cam->recordInitialPosition(cam);
     updateCameraVectors(cam);
 
     return cam;
@@ -96,6 +98,7 @@ static void linkMethods(Camera* this)
     this->setFront = setFront;
     this->setJump = setJump;
 
+    this->recordInitialPosition = recordInitialPosition;
     this->resetPosition = resetPosition;
     this->resetFront = resetFront;
 
@@ -259,12 +262,18 @@ static void setJump(Camera* this, bool value)
 }
 
 
+static void recordInitialPosition(Camera* this)
+{
+    glm_vec3_copy(this->position, this->initialPosition);
+}
+
+
 static void resetPosition(Camera* this)
 {
     ListNode* node;
     Box* attach;
 
-    this->setPosition(this, (vec3){0.0f, 0.0f, 3.0f});
+    this->setPosition(this, this->initialPosition);
 
     LIST_FOR_EACH(this->attached, node)
     {
