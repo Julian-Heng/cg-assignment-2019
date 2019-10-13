@@ -582,9 +582,9 @@ void draw(Backend* engine)
     model->setShader(model, shader);
     model->draw(model);
 
+    // Draw torch
     if (! engine->options[GAME_HAS_TORCH])
     {
-        // Draw torch
         model = engine->models->search(engine->models, "torch");
 
         // "Animate" torch
@@ -693,10 +693,22 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
         case GLFW_KEY_TAB:  toggleWireframe(); break;
         case GLFW_KEY_P:    engine->options[GAME_USE_PERSPECTIVE] ^= 1 ; break;
         case GLFW_KEY_O:    engine->options[GAME_LIGHTS_ON] ^= 1; break;
-        case GLFW_KEY_K:    engine->lightLevel = MAX(engine->lightLevel - 0.1f, 0.0f);
-                            break;
-        case GLFW_KEY_L:    engine->lightLevel = MIN(engine->lightLevel + 0.1f, 2.0f);
-                            break;
+
+        case GLFW_KEY_K:
+            if (engine->options[GAME_HAS_TORCH])
+            {
+                engine->lightLevel = MAX(engine->lightLevel - 0.1f, 0.0f);
+            }
+
+            break;
+
+        case GLFW_KEY_L:
+            if (engine->options[GAME_HAS_TORCH])
+            {
+                engine->lightLevel = MIN(engine->lightLevel + 0.1f, 2.0f);
+            }
+
+            break;
 
         case GLFW_KEY_F:
             model = engine->models->search(engine->models, "torch");
