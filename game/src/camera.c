@@ -27,6 +27,7 @@ static void moveMouse(Camera*, double, double, bool);
 static void scrollMouse(Camera*, float);
 
 static void attach(Camera*, Box*);
+static void detach(Camera*);
 
 static void setPosition(Camera*, vec3);
 static void setFront(Camera*, vec3);
@@ -93,6 +94,7 @@ static void linkMethods(Camera* this)
     this->scrollMouse = scrollMouse;
 
     this->attach = attach;
+    this->detach = detach;
 
     this->setPosition = setPosition;
     this->setFront = setFront;
@@ -195,14 +197,13 @@ static void moveMouse(Camera* this, double xoffset,
                       double yoffset, bool constraint)
 {
     static bool first = true;
-    static float lastYaw = 0.0f;
+    //static float lastYaw = 0.0f;
 
-    ListNode* node;
-    Box* attach;
+    //ListNode* node;
+    //Box* attach;
+    //mat4 temp;
 
-    mat4 temp;
-
-    lastYaw = this->yaw;
+    //lastYaw = this->yaw;
 
     this->yaw += xoffset * this->mouseSensitivity;
     this->pitch += yoffset * this->mouseSensitivity;
@@ -217,16 +218,22 @@ static void moveMouse(Camera* this, double xoffset,
         return;
     }
 
-    glm_rotate_atm(temp, this->position,
-                   glm_rad(this->yaw - lastYaw),
-                   (vec3){0.0f, -1.0f, 0.0f});
+    /*
+     * This code below would've allowed objects attached to the camera
+     * to rotate around the camera, but it messes up the model when
+     * detaching, so we have to omit it entirely
+     */
 
-    LIST_FOR_EACH(this->attached, node)
-    {
-        attach = (Box*)(node->value);
-        attach->transformPosition(attach, temp);
-        attach->setRotation(attach, (vec3){0.0f, -(this->yaw + 90.0f), 0.0f});
-    }
+    //glm_rotate_atm(temp, this->position,
+    //               glm_rad(this->yaw - lastYaw),
+    //               (vec3){0.0f, -1.0f, 0.0f});
+
+    //LIST_FOR_EACH(this->attached, node)
+    //{
+    //    attach = (Box*)(node->value);
+    //    attach->transformPosition(attach, temp);
+    //    attach->setRotation(attach, (vec3){0.0f, -(this->yaw + 90.0f), 0.0f});
+    //}
 }
 
 
@@ -241,6 +248,13 @@ static void scrollMouse(Camera* this, float yoffset)
 static void attach(Camera* this, Box* box)
 {
     this->attached->insertLast(this->attached, box, true);
+}
+
+
+static void detach(Camera* this)
+{
+    this->attached->deleteListShallow(&(this->attached));
+    this->attached = newList();
 }
 
 

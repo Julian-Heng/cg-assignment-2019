@@ -44,6 +44,7 @@ typedef struct Camera
     void (*scrollMouse)(struct Camera*, float);
 
     void (*attach)(struct Camera*, Box*);
+    void (*detach)(struct Camera*);
 
     void (*recordInitialPosition)(struct Camera*);
     void (*resetPosition)(struct Camera*);

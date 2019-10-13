@@ -313,7 +313,6 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     model->setScale(model, (vec3){0.1f, 0.1f, 0.4f});
     memcpy(model->material, defaultMaterial, sizeof(Material));
     model->addTexture(model, texture);
-
     root->attach(root, model);
 
     // Head texture
@@ -323,13 +322,13 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     model->setScale(model, (vec3){0.3499f, 0.3499f, 0.3499f});
     memcpy(model->material, defaultMaterial, sizeof(Material));
     model->addTexture(model, texture);
-
     root->attach(root, model);
+
+    // Move to position
+    root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
 
     engine->models->insert(engine->models, "wolf", root, true);
 
-    root->setRotateLast(root, true);
-    engine->cam->attach(engine->cam, root);
 }
 
 
@@ -716,7 +715,8 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             if (engine->options[GAME_HAS_TORCH])
             {
                 // Set new position for the torch
-                glm_vec3_normalize_to(engine->cam->front, temp);
+                glm_vec3_copy(engine->cam->front, temp);
+                glm_vec3_normalize_to((vec3){temp[0], 0.0f, temp[2]}, temp);
                 glm_vec3_scale(temp, 2.0f, temp);
                 glm_vec3_add(engine->cam->position, temp, temp);
 
@@ -726,6 +726,34 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             else if (glm_vec3_distance(engine->cam->position, model->position) < 3.0f)
             {
                 engine->options[GAME_HAS_TORCH] = true;
+            }
+
+            break;
+
+
+        case GLFW_KEY_E:
+            model = engine->models->search(engine->models, "wolf");
+
+            if (engine->options[GAME_PICKUP_WOLF])
+            {
+                engine->cam->detach(engine->cam);
+
+                // Set new position for the wolf
+                glm_vec3_copy(engine->cam->front, temp);
+                glm_vec3_normalize_to((vec3){temp[0], 0.0f, temp[2]}, temp);
+                glm_vec3_scale(temp, 2.0f, temp);
+                glm_vec3_add(engine->cam->position, temp, temp);
+                temp[1] = -1.35f;
+
+                model->setPosition(model, temp);
+                model->setRotateLast(model, false);
+                engine->options[GAME_PICKUP_WOLF] = false;
+            }
+            else if (glm_vec3_distance(engine->cam->position, model->position) < 3.0f)
+            {
+                model->setRotateLast(model, true);
+                engine->cam->attach(engine->cam, model);
+                engine->options[GAME_PICKUP_WOLF] = true;
             }
 
             break;
