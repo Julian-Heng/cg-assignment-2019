@@ -31,6 +31,8 @@ typedef struct Box
 
     List* attached;
 
+    bool rotateLast;
+
     void (*attach)(struct Box*, struct Box*);
 
     void (*setShader)(struct Box*, Shader*);
@@ -39,6 +41,7 @@ typedef struct Box
     void (*setPositionDelta)(struct Box*, vec3);
     void (*setScale)(struct Box*, vec3);
     void (*setRotation)(struct Box*, vec3);
+    void (*setRotateLast)(struct Box*, bool);
 
     void (*recordInitialPosition)(struct Box*);
     void (*recordInitialRotation)(struct Box*);

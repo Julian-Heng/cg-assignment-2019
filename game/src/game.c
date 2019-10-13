@@ -144,9 +144,19 @@ void initTextures(Backend* engine)
 {
     HashTable* textures = newHashTable();
     char* filenames[] = {
-        "grass", "tree_1", "tree_2", "grey",
-        "wolf_face", "black", "sheep_skin", "sheep_face",
-        "table"
+        "black",
+        "grass",
+        "grey",
+        "red",
+        "sheep_face",
+        "sheep_skin",
+        "sign_1",
+        "sign_2",
+        "table",
+        "tree_1",
+        "tree_2",
+        "white",
+        "wolf_face"
     };
 
     for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
@@ -168,6 +178,7 @@ void initTextures(Backend* engine)
 void initShapes(Backend* engine)
 {
     Material* defaultMaterial;
+    Material* shinyMaterial;
     engine->models = newHashTable();
 
     // Default Material
@@ -177,13 +188,23 @@ void initShapes(Backend* engine)
     defaultMaterial->setSpecular(defaultMaterial, 1);
     defaultMaterial->setShininess(defaultMaterial, 32.0f);
 
+    // Shiny Material
+    shinyMaterial = newMaterial();
+    shinyMaterial->setAmbient(shinyMaterial, (vec3){0.19225f, 0.19225f, 0.19225f});
+    shinyMaterial->setDiffuse(shinyMaterial, 0);
+    shinyMaterial->setSpecular(shinyMaterial, 0);
+    shinyMaterial->setShininess(shinyMaterial, 128.0f);
+
     initGround(engine, defaultMaterial);
     initTree(engine, defaultMaterial);
     initWolf(engine, defaultMaterial);
     initSheep(engine, defaultMaterial);
-    initTable(engine, defaultMaterial);
+    initTable(engine, defaultMaterial, shinyMaterial);
+    initTorch(engine, defaultMaterial, shinyMaterial);
+    initSign(engine, defaultMaterial);
 
     SAFE_FREE(defaultMaterial);
+    SAFE_FREE(shinyMaterial);
 }
 
 
@@ -302,6 +323,9 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     root->attach(root, model);
 
     engine->models->insert(engine->models, "wolf", root, true);
+
+    root->setRotateLast(root, true);
+    engine->cam->attach(engine->cam, root);
 }
 
 
@@ -362,23 +386,19 @@ void initSheep(Backend* engine, Material* defaultMaterial)
 }
 
 
-void initTable(Backend* engine, Material* defaultMaterial)
+void initTable(Backend* engine, Material* defaultMaterial, Material* shinyMaterial)
 {
     Box* root;
     Box* model;
     Texture* texture = (Texture*)engine->textures->search(engine->textures, "table");
 
-    Material* legMaterial = newMaterial();
-    legMaterial->setAmbient(legMaterial, (vec3){0.19225f, 0.19225f, 0.19225f});
-    legMaterial->setDiffuse(legMaterial, 0);
-    legMaterial->setSpecular(legMaterial, 0);
-    legMaterial->setShininess(legMaterial, 128.0f);
-
+    // Table top
     root = newBox((vec3){0.0f, 0.0f, 0.0f});
     root->setScale(root, (vec3){2.0f, 0.1f, 2.0f});
     memcpy(root->material, defaultMaterial, sizeof(Material));
     root->addTexture(root, texture);
 
+    // Table legs
     for (int i = -1; i < 2; i += 2)
     {
         for (int j = -1; j < 2; j += 2)
@@ -386,15 +406,76 @@ void initTable(Backend* engine, Material* defaultMaterial)
             texture = (Texture*)engine->textures->search(engine->textures, "black");
             model = newBox((vec3){-0.8f * (float)i, -0.675f, -0.8f * (float)j});
             model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
-            memcpy(model->material, legMaterial, sizeof(Material));
+            memcpy(model->material, shinyMaterial, sizeof(Material));
             model->addTexture(model, texture);
             root->attach(root, model);
         }
     }
 
     engine->models->insert(engine->models, "table", root, true);
+}
 
-    SAFE_FREE(legMaterial);
+
+void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMaterial)
+{
+    Box* root;
+    Box* model;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "black");
+
+    // Torch "body"
+    root = newBox((vec3){0.0f, 0.0f, 0.0f});
+    root->setScale(root, (vec3){0.1f, 0.5f, 0.1f});
+    memcpy(root->material, shinyMaterial, sizeof(Material));
+    root->addTexture(root, texture);
+
+    // Torch Light
+    texture = (Texture*)engine->textures->search(engine->textures, "white");
+    model = newBox((vec3){0.0f, 0.2f, 0.0f});
+    model->setScale(model, (vec3){0.11f, 0.11f, 0.11f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    // Torch button
+    texture = (Texture*)engine->textures->search(engine->textures, "red");
+    model = newBox((vec3){0.0f, 0.0f, 0.05f});
+    model->setScale(model, (vec3){0.025f, 0.05f, 0.025f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    engine->models->insert(engine->models, "torch", root, true);
+}
+
+
+void initSign(Backend* engine, Material* defaultMaterial)
+{
+    Box* root;
+    Box* model;
+    Texture* texture = (Texture*)engine->textures->search(engine->textures, "sign_1");
+
+    // Sign post
+    root = newBox((vec3){0.0f, 0.0f, 0.0f});
+    root->setScale(root, (vec3){0.1f, 1.5f, 0.1f});
+    memcpy(root->material, defaultMaterial, sizeof(Material));
+    root->addTexture(root, texture);
+
+    // Sign back
+    model = newBox((vec3){0.0f, 0.5f, 0.05f});
+    model->setScale(model, (vec3){1.0f, 1.0f, 0.1f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    // Sign message
+    texture = (Texture*)engine->textures->search(engine->textures, "sign_2");
+    model = newBox((vec3){0.0f, 0.5f, 0.051f});
+    model->setScale(model, (vec3){0.999f, 0.999f, 0.1f});
+    memcpy(model->material, defaultMaterial, sizeof(Material));
+    model->addTexture(model, texture);
+    root->attach(root, model);
+
+    engine->models->insert(engine->models, "sign", root, true);
 }
 
 
@@ -482,6 +563,16 @@ void draw(Backend* engine)
 
     // Draw table
     model = engine->models->search(engine->models, "table");
+    model->setShader(model, shader);
+    model->draw(model);
+
+    // Draw torch
+    model = engine->models->search(engine->models, "torch");
+    model->setShader(model, shader);
+    model->draw(model);
+
+    // Draw sign
+    model = engine->models->search(engine->models, "sign");
     model->setShader(model, shader);
     model->draw(model);
 
