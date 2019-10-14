@@ -20,6 +20,7 @@ typedef struct Box
 
     Shader* shader;
     List* textures;
+    vec3 modelPosition;
     vec3 position;
     vec3 scale;
     vec3 rotation;
@@ -37,8 +38,8 @@ typedef struct Box
 
     void (*setShader)(struct Box*, Shader*);
     void (*addTexture)(struct Box*, Texture*);
+    void (*setModelPosition)(struct Box*, vec3);
     void (*setPosition)(struct Box*, vec3);
-    void (*setPositionDelta)(struct Box*, vec3);
     void (*setScale)(struct Box*, vec3);
     void (*setRotation)(struct Box*, vec3);
     void (*setRotateLast)(struct Box*, bool);

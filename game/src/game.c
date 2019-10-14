@@ -555,10 +555,10 @@ void draw(Backend* engine)
     model->setShader(model, shader);
     for (int i = -50; i < 50; i += 10)
     {
-        model->setPosition(model, (vec3){(float)i, -1.5f, 0.0f});
+        model->setPosition(model, (vec3){(float)i, 0.0f, 0.0f});
         model->draw(model);
 
-        model->setPosition(model, (vec3){0.0f, -1.5f, (float)i});
+        model->setPosition(model, (vec3){0.0f, 0.0f, (float)i});
         model->draw(model);
     }
     model->resetPosition(model);
@@ -588,6 +588,7 @@ void draw(Backend* engine)
 
         // "Animate" torch
         model->move(model, (vec3){0.0f, sin(1.5f * glfwGetTime()) / 180.0f, 0.0f});
+        model->setRotation(model, (vec3){0.0f, glfwGetTime() * 20.0f, 0.0f});
 
         model->setShader(model, shader);
         model->draw(model);

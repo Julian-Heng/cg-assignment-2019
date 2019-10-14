@@ -4,6 +4,7 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 #include <cglm/affine.h>
+#include <cglm/io.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -70,8 +71,8 @@ static void attach(Box*, Box*);
 
 static void setShader(Box*, Shader*);
 static void addTexture(Box*, Texture*);
+static void setModelPosition(Box*, vec3);
 static void setPosition(Box*, vec3);
-static void setPositionDelta(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
 static void setRotateLast(Box*, bool);
@@ -88,7 +89,7 @@ static void draw(Box*);
 static void destroy(Box*);
 
 
-Box* newBox(vec3 position)
+Box* newBox(vec3 modelPosition)
 {
     Box* box;
 
@@ -105,7 +106,7 @@ Box* newBox(vec3 position)
     box->attached = newList();
 
     setGlBuffers(box);
-    box->setPosition(box, position);
+    box->setModelPosition(box, modelPosition);
     box->setScale(box, NULL);
     box->setRotation(box, NULL);
     box->setRotateLast(box, false);
@@ -128,8 +129,8 @@ static void linkMethods(Box* this)
     this->attach = attach;
     this->setShader = setShader;
     this->addTexture = addTexture;
+    this->setModelPosition = setModelPosition;
     this->setPosition = setPosition;
-    this->setPositionDelta = setPositionDelta;
     this->setScale = setScale;
     this->setRotation = setRotation;
     this->setRotateLast = setRotateLast;
@@ -196,6 +197,21 @@ static void addTexture(Box* this, Texture* texture)
 }
 
 
+static void setModelPosition(Box* this, vec3 modelPosition)
+{
+    ListNode* iter;
+    vec3 delta;
+
+    glm_vec3_sub(modelPosition, this->modelPosition, delta);
+
+    glm_vec3_copy(modelPosition ? modelPosition
+                           : (vec3){0.0f, 0.0f, 0.0f}, this->modelPosition);
+
+    LIST_FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->move((Box*)(iter->value), delta);
+}
+
+
 static void setPosition(Box* this, vec3 position)
 {
     ListNode* iter;
@@ -207,17 +223,7 @@ static void setPosition(Box* this, vec3 position)
                            : (vec3){0.0f, 0.0f, 0.0f}, this->position);
 
     LIST_FOR_EACH(this->attached, iter)
-        ((Box*)(iter->value))->setPositionDelta((Box*)(iter->value), delta);
-}
-
-
-static void setPositionDelta(Box* this, vec3 position)
-{
-    ListNode* iter;
-    glm_vec3_add(this->position, position, this->position);
-
-    LIST_FOR_EACH(this->attached, iter)
-        ((Box*)(iter->value))->setPositionDelta((Box*)(iter->value), position);
+        ((Box*)(iter->value))->move((Box*)(iter->value), delta);
 }
 
 
@@ -347,23 +353,26 @@ static void draw(Box* this)
 
     if (this->rotateLast)
     {
-        glm_translate(model, this->position);
+        glm_translate(model, this->modelPosition);
 
         glm_rotate_x(model, glm_rad(this->rotation[0]), model);
         glm_rotate_y(model, glm_rad(this->rotation[1]), model);
         glm_rotate_z(model, glm_rad(this->rotation[2]), model);
 
-        glm_scale(model, this->scale);
+        glm_translate(model, this->position);
     }
     else
     {
+        glm_translate(model, this->position);
+
         glm_rotate_x(model, glm_rad(this->rotation[0]), model);
         glm_rotate_y(model, glm_rad(this->rotation[1]), model);
         glm_rotate_z(model, glm_rad(this->rotation[2]), model);
 
-        glm_translate(model, this->position);
-        glm_scale(model, this->scale);
+        glm_translate(model, this->modelPosition);
     }
+
+    glm_scale(model, this->scale);
 
     this->shader->setMat4(this->shader, "model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
