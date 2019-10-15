@@ -634,7 +634,7 @@ void setupProjection(Backend* engine, Camera* cam, mat4 projection)
 void setupShader(Backend* engine, Shader* shader, Camera* cam,
                  mat4 projection, mat4 view)
 {
-    float lightLevel = engine->lightLevel;
+    float light = engine->lightLevel;
 
     shader->use(shader);
     shader->setMat4(shader, "projection", projection);
@@ -667,8 +667,8 @@ void setupShader(Backend* engine, Shader* shader, Camera* cam,
 
     shader->setVec3(shader, "light.position", cam->position);
     shader->setVec3(shader, "light.direction", cam->front);
-    shader->setFloat(shader, "light.cutOff", cos(glm_rad(lightLevel * 17.5f)));
-    shader->setFloat(shader, "light.outerCutOff", cos(glm_rad(lightLevel * 26.25f)));
+    shader->setFloat(shader, "light.cutOff", cos(glm_rad(light * 17.5f)));
+    shader->setFloat(shader, "light.outerCutOff", cos(glm_rad(light * 26.25f)));
 }
 
 
