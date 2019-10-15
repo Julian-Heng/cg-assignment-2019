@@ -216,7 +216,8 @@ void initGround(Backend* engine, Material* defaultMaterial)
 {
     Box* root = NULL;
     Box* model = NULL;
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "grass");
+    HashTable* textures = engine->textures;
+    Texture* texture = (Texture*)textures->search(textures, "grass");
 
     for (int i = -50; i < 50; i += 10)
     {
@@ -246,8 +247,9 @@ void initTree(Backend* engine, Material* defaultMaterial)
 {
     Box* root;
     Box* model;
+    HashTable* textures = engine->textures;
 
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "tree_1");
+    Texture* texture = (Texture*)textures->search(textures, "tree_1");
 
     // Trunk
     root = newBox((vec3){0.0f, -1.5f, 0.0f});
@@ -264,7 +266,7 @@ void initTree(Backend* engine, Material* defaultMaterial)
     }
 
     // Leaves
-    texture = (Texture*)engine->textures->search(engine->textures, "tree_2");
+    texture = (Texture*)textures->search(textures, "tree_2");
     model = newBox((vec3){0.0f, 3.0f, 0.0f});
     model->setScale(model, (vec3){3.0f, 2.0f, 3.0f});
     memcpy(model->material, defaultMaterial, sizeof(Material));
@@ -279,9 +281,10 @@ void initWolf(Backend* engine, Material* defaultMaterial)
 {
     Box* root = NULL;
     Box* model = NULL;
+    HashTable* textures = engine->textures;
 
-    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "grey");
-    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "wolf_face");
+    Texture* texture1 = (Texture*)textures->search(textures, "grey");
+    Texture* texture2 = (Texture*)textures->search(textures, "wolf_face");
 
     vec3 specifications[][2] = {
         {{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f, 1.0f}},    // Body
@@ -337,10 +340,11 @@ void initSheep(Backend* engine, Material* defaultMaterial)
 {
     Box* root = NULL;
     Box* model = NULL;
+    HashTable* textures = engine->textures;
 
-    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "black");
-    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "sheep_skin");
-    Texture* texture3 = (Texture*)engine->textures->search(engine->textures, "sheep_face");
+    Texture* texture1 = (Texture*)textures->search(textures, "black");
+    Texture* texture2 = (Texture*)textures->search(textures, "sheep_skin");
+    Texture* texture3 = (Texture*)textures->search(textures, "sheep_face");
 
     vec3 specifications[][2] = {
         {{0.0f, 0.0f, 0.0f}, {1.25f, 1.25f, 2.0f}}, // Body
@@ -392,7 +396,8 @@ void initTable(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 {
     Box* root;
     Box* model;
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "table");
+    HashTable* textures = engine->textures;
+    Texture* texture = (Texture*)textures->search(textures, "table");
 
     // Table top
     root = newBox((vec3){0.0f, 0.0f, 0.0f});
@@ -405,7 +410,7 @@ void initTable(Backend* engine, Material* defaultMaterial, Material* shinyMateri
     {
         for (int j = -1; j < 2; j += 2)
         {
-            texture = (Texture*)engine->textures->search(engine->textures, "black");
+            texture = (Texture*)textures->search(textures, "black");
             model = newBox((vec3){-0.8f * (float)i, -0.675f, -0.8f * (float)j});
             model->setScale(model, (vec3){0.1f, 1.25f, 0.1f});
             memcpy(model->material, shinyMaterial, sizeof(Material));
@@ -427,9 +432,11 @@ void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 {
     Box* root = NULL;
     Box* model = NULL;
-    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "black");
-    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "white");
-    Texture* texture3 = (Texture*)engine->textures->search(engine->textures, "red");
+    HashTable* textures = engine->textures;
+
+    Texture* texture1 = (Texture*)textures->search(textures, "black");
+    Texture* texture2 = (Texture*)textures->search(textures, "white");
+    Texture* texture3 = (Texture*)textures->search(textures, "red");
 
     vec3 specifications[][2] = {
         {{0.0f, 0.0f, 0.0f}, {0.1f, 0.5f, 0.1f}},
@@ -454,8 +461,10 @@ void initSign(Backend* engine, Material* defaultMaterial)
 {
     Box* root = NULL;
     Box* model = NULL;
-    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "sign_1");
-    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "sign_2");
+    HashTable* textures = engine->textures;
+
+    Texture* texture1 = (Texture*)textures->search(textures, "sign_1");
+    Texture* texture2 = (Texture*)textures->search(textures, "sign_2");
 
     vec3 specifications[][2] = {
         {{0.0f, 0.0f, 0.0f}, {0.1f, 1.5f, 0.1f}},
