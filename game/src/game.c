@@ -214,11 +214,10 @@ void initShapes(Backend* engine)
 
 void initGround(Backend* engine, Material* defaultMaterial)
 {
-    Box* root;
-    Box* model;
+    Box* root = NULL;
+    Box* model = NULL;
     Texture* texture = (Texture*)engine->textures->search(engine->textures, "grass");
 
-    bool first = true;
     for (int i = -50; i < 50; i += 10)
     {
         for (int j = -50; j < 50; j += 10)
@@ -228,14 +227,13 @@ void initGround(Backend* engine, Material* defaultMaterial)
             model->setScale(model, (vec3){10.0f, 0.01f, 10.0f});
             model->addTexture(model, texture);
 
-            if (first)
+            if (root)
             {
-                root = model;
-                first = false;
+                root->attach(root, model);
             }
             else
             {
-                root->attach(root, model);
+                root = model;
             }
         }
     }
@@ -248,6 +246,7 @@ void initTree(Backend* engine, Material* defaultMaterial)
 {
     Box* root;
     Box* model;
+
     Texture* texture = (Texture*)engine->textures->search(engine->textures, "tree_1");
 
     // Trunk
@@ -265,7 +264,7 @@ void initTree(Backend* engine, Material* defaultMaterial)
     }
 
     // Leaves
-    texture = engine->textures->search(engine->textures, "tree_2");
+    texture = (Texture*)engine->textures->search(engine->textures, "tree_2");
     model = newBox((vec3){0.0f, 3.0f, 0.0f});
     model->setScale(model, (vec3){3.0f, 2.0f, 3.0f});
     memcpy(model->material, defaultMaterial, sizeof(Material));
@@ -278,112 +277,110 @@ void initTree(Backend* engine, Material* defaultMaterial)
 
 void initWolf(Backend* engine, Material* defaultMaterial)
 {
-    Box* root;
-    Box* model;
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "grey");
+    Box* root = NULL;
+    Box* model = NULL;
 
-    // Body
-    root = newBox((vec3){0.0f, 0.0f, 0.0f});
-    root->setScale(root, (vec3){0.5f, 0.5f, 1.0});
-    memcpy(root->material, defaultMaterial, sizeof(Material));
-    root->addTexture(root, texture);
+    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "grey");
+    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "wolf_face");
 
-    // Head
-    model = newBox((vec3){0.0f, 0.0f, 0.6f});
-    model->setScale(model, (vec3){0.35f, 0.35f, 0.35f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
+    vec3 specifications[][2] = {
+        {{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f, 1.0f}},    // Body
+        {{0.0f, 0.0f, 0.6f}, {0.35f, 0.35f, 0.35f}}, // Head
 
-    // Legs
-    for (int i = -1; i < 2; i += 2)
-    {
-        for (int j = -1; j < 2; j += 2)
-        {
-            model = newBox((vec3){-0.2f * (float)i, -0.45f, -0.4f * (float)j});
-            model->setScale(model, (vec3){0.1f, 0.4f, 0.1f});
-            memcpy(model->material, defaultMaterial, sizeof(Material));
-            model->addTexture(model, texture);
-            root->attach(root, model);
-        }
-    }
+        {{-0.2f, -0.45f, -0.4f}, {0.1f, 0.4f, 0.1f}}, // Legs
+        {{0.2f, -0.45f, -0.4f}, {0.1f, 0.4f, 0.1f}},  // Legs
+        {{-0.2f, -0.45f, 0.4f}, {0.1f, 0.4f, 0.1f}},  // Legs
+        {{0.2f, -0.45f, 0.4f}, {0.1f, 0.4f, 0.1f}},   // Legs
 
-    // Tail
-    model = newBox((vec3){0.0f, 0.2f, -0.7f});
-    model->setScale(model, (vec3){0.1f, 0.1f, 0.4f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
+        {{0.0f, 0.2f, -0.7f}, {0.1f, 0.1f, 0.4f}},          // Tail
+        {{0.0f, 0.0f, 0.601f}, {0.3499f, 0.3499f, 0.3499f}} // Head
+    };
 
-    // Head texture
-    texture = engine->textures->search(engine->textures, "wolf_face");
+    Texture* textureMap[] = {
+        texture1, // Body
+        texture1, // Head
 
-    model = newBox((vec3){0.0f, 0.0f, 0.601f});
-    model->setScale(model, (vec3){0.3499f, 0.3499f, 0.3499f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
+        texture1, // Legs
+        texture1, // Legs
+        texture1, // Legs
+        texture1, // Legs
+
+        texture1, // Tail
+        texture2  // Head
+    };
+
+    Material* materialMap[] = {
+        defaultMaterial, // Body
+        defaultMaterial, // Head
+
+        defaultMaterial, // Legs
+        defaultMaterial, // Legs
+        defaultMaterial, // Legs
+        defaultMaterial, // Legs
+
+        defaultMaterial, // Tail
+        defaultMaterial  // Head
+    };
+
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
 
     // Move to position
     root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
 
     engine->models->insert(engine->models, "wolf", root, true);
-
 }
 
 
 void initSheep(Backend* engine, Material* defaultMaterial)
 {
-    Box* root;
-    Box* model;
-    Box* model2;
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "black");
+    Box* root = NULL;
+    Box* model = NULL;
 
-    // Body
-    root = newBox((vec3){0.0f, 0.0f, 0.0f});
-    root->setScale(root, (vec3){1.25f, 1.25f, 2.0f});
-    memcpy(root->material, defaultMaterial, sizeof(Material));
-    root->addTexture(root, texture);
+    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "black");
+    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "sheep_skin");
+    Texture* texture3 = (Texture*)engine->textures->search(engine->textures, "sheep_face");
 
-    // Head
-    model = newBox((vec3){0.0f, 0.4f, 1.25f});
-    model->setScale(model, (vec3){0.7f, 0.7f, 0.7f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
+    vec3 specifications[][2] = {
+        {{0.0f, 0.0f, 0.0f}, {1.25f, 1.25f, 2.0f}}, // Body
+        {{0.0f, 0.4f, 1.25f}, {0.7f, 0.7f, 0.7f}},  // Head
 
-    root->attach(root, model);
+        {{-0.35f, -0.75f, -0.6f}, {0.3f, 0.4f, 0.3f}},   // Legs
+        {{-0.35f, -1.0f, -0.6f},  {0.25f, 0.8f, 0.25f}}, // Legs
+        {{0.35f, -0.75f, -0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
+        {{0.35f, -1.0f, -0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
+        {{-0.35f, -0.75f, 0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
+        {{-0.35f, -1.0f, 0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
+        {{0.35f, -0.75f, 0.6f},   {0.3f, 0.4f, 0.3f}},   // Legs
+        {{0.35f, -1.0f, 0.6f},    {0.25f, 0.8f, 0.25f}}, // Legs
 
-    // Legs
-    for (int i = -1; i < 2; i += 2)
-    {
-        for (int j = -1; j < 2; j += 2)
-        {
-            texture = engine->textures->search(engine->textures, "black");
-            model = newBox((vec3){-0.35f * (float)i, -0.75f, -0.6f * (float)j});
-            model->setScale(model, (vec3){0.3f, 0.4f, 0.3f});
-            memcpy(model->material, defaultMaterial, sizeof(Material));
-            model->addTexture(model, texture);
+        {{0.0f, 0.4f, 1.251f}, {0.699f, 0.699f, 0.699f}}, // Head
+    };
 
-            texture = engine->textures->search(engine->textures, "sheep_skin");
-            model2 = newBox((vec3){-0.35f * (float)i, -1.0f, -0.6f * (float)j});
-            model2->setScale(model2, (vec3){0.25f, 0.8f, 0.25f});
-            memcpy(model2->material, defaultMaterial, sizeof(Material));
-            model2->addTexture(model2, texture);
+    Texture* textureMap[] = {
+        texture1, // Body
+        texture1, // Head
 
-            model->attach(model, model2);
-            root->attach(root, model);
-        }
-    }
+        texture1, texture2, // Legs
+        texture1, texture2, // Legs
+        texture1, texture2, // Legs
+        texture1, texture2, // Legs
 
-    // Head texture
-    texture = engine->textures->search(engine->textures, "sheep_face");
+        texture3  // Head
+    };
 
-    model = newBox((vec3){0.0f, 0.4f, 1.251f});
-    model->setScale(model, (vec3){0.699f, 0.699f, 0.699f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
+    Material* materialMap[] = {
+        defaultMaterial,
+        defaultMaterial,
 
-    root->attach(root, model);
+        defaultMaterial, defaultMaterial,
+        defaultMaterial, defaultMaterial,
+        defaultMaterial, defaultMaterial,
+        defaultMaterial, defaultMaterial,
+
+        defaultMaterial
+    };
+
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
 
     engine->models->insert(engine->models, "sheep", root, true);
 }
@@ -537,7 +534,7 @@ void draw(Backend* engine)
     cam = engine->cam;
     glm_mat4_identity(projection);
     glm_mat4_identity(view);
-    shader = engine->shaders->search(engine->shaders, "shader");
+    shader = (Shader*)engine->shaders->search(engine->shaders, "shader");
 
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
@@ -546,12 +543,12 @@ void draw(Backend* engine)
     setupShader(engine, shader, cam, projection, view);
 
     // Draw ground
-    model = engine->models->search(engine->models, "ground");
+    model = (Box*)engine->models->search(engine->models, "ground");
     model->setShader(model, shader);
     model->draw(model);
 
     // Draw trees
-    model = engine->models->search(engine->models, "tree");
+    model = (Box*)engine->models->search(engine->models, "tree");
     model->setShader(model, shader);
     for (int i = -50; i < 50; i += 10)
     {
@@ -564,27 +561,27 @@ void draw(Backend* engine)
     model->resetPosition(model);
 
     // Draw wolf
-    model = engine->models->search(engine->models, "wolf");
+    model = (Box*)engine->models->search(engine->models, "wolf");
     model->setShader(model, shader);
     model->draw(model);
 
     // Draw sheep
     if (engine->options[GAME_PICKUP_WOLF])
     {
-        model = engine->models->search(engine->models, "sheep");
+        model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
         model->draw(model);
     }
 
     // Draw table
-    model = engine->models->search(engine->models, "table");
+    model = (Box*)engine->models->search(engine->models, "table");
     model->setShader(model, shader);
     model->draw(model);
 
     // Draw torch
     if (! engine->options[GAME_HAS_TORCH])
     {
-        model = engine->models->search(engine->models, "torch");
+        model = (Box*)engine->models->search(engine->models, "torch");
 
         // "Animate" torch
         model->move(model, (vec3){0.0f, sin(1.5f * glfwGetTime()) / 180.0f, 0.0f});
@@ -595,7 +592,7 @@ void draw(Backend* engine)
     }
 
     // Draw sign
-    model = engine->models->search(engine->models, "sign");
+    model = (Box*)engine->models->search(engine->models, "sign");
     model->setShader(model, shader);
     model->draw(model);
 
@@ -651,7 +648,6 @@ void setupShader(Backend* engine, Shader* shader, Camera* cam,
         shader->setVec3(shader, "light.diffuse", (vec3){0.0f, 0.0f, 0.0f});
         shader->setVec3(shader, "light.specular", (vec3){0.1f, 0.1f, 0.1f});
     }
-
 
     shader->setFloat(shader, "light.constant", 1.0f);
     shader->setFloat(shader, "light.linear", 0.09f);
@@ -711,7 +707,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             break;
 
         case GLFW_KEY_F:
-            model = engine->models->search(engine->models, "torch");
+            model = (Box*)engine->models->search(engine->models, "torch");
 
             if (engine->options[GAME_HAS_TORCH])
             {
@@ -733,7 +729,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 
 
         case GLFW_KEY_E:
-            model = engine->models->search(engine->models, "wolf");
+            model = (Box*)engine->models->search(engine->models, "wolf");
 
             if (engine->options[GAME_PICKUP_WOLF])
             {
