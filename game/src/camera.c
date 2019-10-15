@@ -196,14 +196,11 @@ static void moveRight(Camera* this, float timeDelta)
 static void moveMouse(Camera* this, double xoffset,
                       double yoffset, bool constraint)
 {
-    //static bool first = true;
-    //static float lastYaw = 0.0f;
+    ListNode* node;
+    Box* attach;
 
-    //ListNode* node;
-    //Box* attach;
-    //mat4 temp;
-
-    //lastYaw = this->yaw;
+    vec3 tempPos;
+    vec3 temp;
 
     this->yaw += xoffset * this->mouseSensitivity;
     this->pitch += yoffset * this->mouseSensitivity;
@@ -212,28 +209,18 @@ static void moveMouse(Camera* this, double xoffset,
 
     updateCameraVectors(this);
 
-    /*
-     * This code below would've allowed objects attached to the camera
-     * to rotate around the camera, but it messes up the model when
-     * detaching, so we have to omit it entirely
-     */
-
-    //if (first)
-    //{
-    //    first = false;
-    //    return;
-    //}
-
-    //glm_rotate_atm(temp, this->position,
-    //               glm_rad(this->yaw - lastYaw),
-    //               (vec3){0.0f, -1.0f, 0.0f});
-
-    //LIST_FOR_EACH(this->attached, node)
-    //{
-    //    attach = (Box*)(node->value);
-    //    attach->transformPosition(attach, temp);
-    //    attach->setRotation(attach, (vec3){0.0f, -(this->yaw + 90.0f), 0.0f});
-    //}
+    glm_vec3_copy(this->front, temp);
+    glm_vec3_normalize_to((vec3){temp[0], 0.0f, temp[2]}, temp);
+    LIST_FOR_EACH(this->attached, node)
+    {
+        attach = (Box*)(node->value);
+        glm_vec3_copy((vec3){this->position[0],
+                             attach->position[1],
+                             this->position[2]}, tempPos);
+        glm_vec3_add(temp, tempPos, temp);
+        attach->setPosition(attach, temp);
+        attach->setRotation(attach, (vec3){0.0f, -(this->yaw - 90.0f), 0.0f});
+    }
 }
 
 

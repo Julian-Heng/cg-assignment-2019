@@ -75,7 +75,6 @@ static void setModelPosition(Box*, vec3);
 static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
-static void setRotateLast(Box*, bool);
 
 static void recordInitialPosition(Box*);
 static void recordInitialRotation(Box*);
@@ -109,7 +108,6 @@ Box* newBox(vec3 modelPosition)
     box->setModelPosition(box, modelPosition);
     box->setScale(box, NULL);
     box->setRotation(box, NULL);
-    box->setRotateLast(box, false);
     box->recordInitialPosition(box);
     box->material = newMaterial();
 
@@ -133,7 +131,6 @@ static void linkMethods(Box* this)
     this->setPosition = setPosition;
     this->setScale = setScale;
     this->setRotation = setRotation;
-    this->setRotateLast = setRotateLast;
 
     this->recordInitialPosition = recordInitialPosition;
     this->recordInitialRotation = recordInitialRotation;
@@ -246,16 +243,6 @@ static void setRotation(Box* this, vec3 rotation)
 }
 
 
-static void setRotateLast(Box* this, bool rotateLast)
-{
-    ListNode* iter;
-    this->rotateLast = rotateLast;
-
-    LIST_FOR_EACH(this->attached, iter)
-        ((Box*)(iter->value))->setRotateLast((Box*)(iter->value), rotateLast);
-}
-
-
 static void recordInitialPosition(Box* this)
 {
     ListNode* iter;
@@ -351,26 +338,13 @@ static void draw(Box* this)
     glBindVertexArray(this->VAO);
     glm_mat4_identity(model);
 
-    if (this->rotateLast)
-    {
-        glm_translate(model, this->modelPosition);
+    glm_translate(model, this->position);
 
-        glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-        glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-        glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
 
-        glm_translate(model, this->position);
-    }
-    else
-    {
-        glm_translate(model, this->position);
-
-        glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-        glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-        glm_rotate_z(model, glm_rad(this->rotation[2]), model);
-
-        glm_translate(model, this->modelPosition);
-    }
+    glm_translate(model, this->modelPosition);
 
     glm_scale(model, this->scale);
 

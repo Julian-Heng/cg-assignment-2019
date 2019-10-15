@@ -326,6 +326,8 @@ void initWolf(Backend* engine, Material* defaultMaterial)
 
     // Move to position
     root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
+    root->recordInitialPosition(root);
+    root->recordInitialRotation(root);
 
     engine->models->insert(engine->models, "wolf", root, true);
 }
@@ -414,6 +416,8 @@ void initTable(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 
     // Move to position
     root->setPosition(root, (vec3){-25.0f, -0.7f, 25.0f});
+    root->recordInitialPosition(root);
+    root->recordInitialRotation(root);
 
     engine->models->insert(engine->models, "table", root, true);
 }
@@ -439,6 +443,8 @@ void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 
     // Move to position
     root->setPosition(root, (vec3){-25.0f, -0.2f, 25.0f});
+    root->recordInitialPosition(root);
+    root->recordInitialRotation(root);
 
     engine->models->insert(engine->models, "torch", root, true);
 }
@@ -463,6 +469,8 @@ void initSign(Backend* engine, Material* defaultMaterial)
 
     // Move to position
     root->setPosition(root, (vec3){-20.0f, -1.25f, -25.0f});
+    root->recordInitialPosition(root);
+    root->recordInitialRotation(root);
 
     engine->models->insert(engine->models, "sign", root, true);
 }
@@ -723,12 +731,10 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
                 temp[1] = -1.35f;
 
                 model->setPosition(model, temp);
-                model->setRotateLast(model, false);
                 engine->options[GAME_PICKUP_WOLF] = false;
             }
             else if (glm_vec3_distance(engine->cam->position, model->position) < 3.0f)
             {
-                model->setRotateLast(model, true);
                 engine->cam->attach(engine->cam, model);
                 engine->options[GAME_PICKUP_WOLF] = true;
             }
@@ -742,6 +748,9 @@ void instantKeyInputCallback(GLFWwindow* win)
 {
     Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
     Camera* cam = engine ? engine->cam : NULL;
+
+    Box* box;
+    HashEntry* iter;
 
     if (! cam)
     {
@@ -797,6 +806,14 @@ void instantKeyInputCallback(GLFWwindow* win)
         cam->setJump(cam, false);
         cam->resetPosition(cam);
         cam->resetFront(cam);
+        cam->detach(cam);
+
+        HASHTABLE_FOR_EACH(engine->models, iter)
+        {
+            box = (Box*)iter->value;
+            box->resetPosition(box);
+            box->resetRotation(box);
+        }
     }
 }
 
