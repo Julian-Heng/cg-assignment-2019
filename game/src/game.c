@@ -511,6 +511,8 @@ void loop(Backend* engine)
 
 void draw(Backend* engine)
 {
+    static bool direction = true;
+
     Shader* shader;
 
     Box* model;
@@ -551,6 +553,19 @@ void draw(Backend* engine)
     // Draw wolf
     model = (Box*)engine->models->search(engine->models, "wolf");
     model->setShader(model, shader);
+
+    // "Animate" tail
+    if (engine->options[GAME_PICKUP_WOLF])
+    {
+        direction = sin(glfwGetTime() * 8) > 0.0f;
+        model->attached->peekAt(model->attached, 5, (void**)&model, NULL);
+        model->setRotationDelta(
+            model, (vec3){0.0f, (direction ? -1 : 1) * 0.5f, 0.0f}
+        );
+
+        model = (Box*)engine->models->search(engine->models, "wolf");
+    }
+
     model->draw(model);
 
     // Draw sheep

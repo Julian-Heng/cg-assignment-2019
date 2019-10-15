@@ -75,6 +75,7 @@ static void setModelPosition(Box*, vec3);
 static void setPosition(Box*, vec3);
 static void setScale(Box*, vec3);
 static void setRotation(Box*, vec3);
+static void setRotationDelta(Box*, vec3);
 
 static void recordInitialPosition(Box*);
 static void recordInitialRotation(Box*);
@@ -131,6 +132,7 @@ static void linkMethods(Box* this)
     this->setPosition = setPosition;
     this->setScale = setScale;
     this->setRotation = setRotation;
+    this->setRotationDelta = setRotationDelta;
 
     this->recordInitialPosition = recordInitialPosition;
     this->recordInitialRotation = recordInitialRotation;
@@ -243,6 +245,19 @@ static void setRotation(Box* this, vec3 rotation)
 }
 
 
+static void setRotationDelta(Box* this, vec3 rotation)
+{
+    ListNode* iter;
+
+    glm_vec3_add(rotation ? rotation
+                          : (vec3){0.0f, 0.0f, 0.0f}, this->rotation,
+                                                      this->rotation);
+
+    LIST_FOR_EACH(this->attached, iter)
+        ((Box*)(iter->value))->setRotationDelta((Box*)(iter->value), rotation);
+}
+
+
 static void recordInitialPosition(Box* this)
 {
     ListNode* iter;
@@ -313,20 +328,16 @@ static void draw(Box* this)
 
     this->shader->use(this->shader);
 
-    this->shader->setVec3(this->shader,
-                          "material.ambient",
+    this->shader->setVec3(this->shader, "material.ambient",
                           this->material->ambient);
 
-    this->shader->setInt(this->shader,
-                         "material.diffuse",
+    this->shader->setInt(this->shader, "material.diffuse",
                          this->material->diffuse);
 
-    this->shader->setInt(this->shader,
-                         "material.specular",
+    this->shader->setInt(this->shader, "material.specular",
                          this->material->specular);
 
-    this->shader->setFloat(this->shader,
-                           "material.shininess",
+    this->shader->setFloat(this->shader, "material.shininess",
                            this->material->shininess);
 
     LIST_FOR_EACH(this->textures, iter)

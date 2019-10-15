@@ -40,6 +40,7 @@ typedef struct Box
     void (*setPosition)(struct Box*, vec3);
     void (*setScale)(struct Box*, vec3);
     void (*setRotation)(struct Box*, vec3);
+    void (*setRotationDelta)(struct Box*, vec3);
 
     void (*recordInitialPosition)(struct Box*);
     void (*recordInitialRotation)(struct Box*);
