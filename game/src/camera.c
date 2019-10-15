@@ -196,7 +196,7 @@ static void moveRight(Camera* this, float timeDelta)
 static void moveMouse(Camera* this, double xoffset,
                       double yoffset, bool constraint)
 {
-    static bool first = true;
+    //static bool first = true;
     //static float lastYaw = 0.0f;
 
     //ListNode* node;
@@ -212,17 +212,17 @@ static void moveMouse(Camera* this, double xoffset,
 
     updateCameraVectors(this);
 
-    if (first)
-    {
-        first = false;
-        return;
-    }
-
     /*
      * This code below would've allowed objects attached to the camera
      * to rotate around the camera, but it messes up the model when
      * detaching, so we have to omit it entirely
      */
+
+    //if (first)
+    //{
+    //    first = false;
+    //    return;
+    //}
 
     //glm_rotate_atm(temp, this->position,
     //               glm_rad(this->yaw - lastYaw),
