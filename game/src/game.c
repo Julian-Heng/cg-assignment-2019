@@ -421,31 +421,21 @@ void initTable(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 
 void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMaterial)
 {
-    Box* root;
-    Box* model;
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "black");
+    Box* root = NULL;
+    Box* model = NULL;
+    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "black");
+    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "white");
+    Texture* texture3 = (Texture*)engine->textures->search(engine->textures, "red");
 
-    // Torch "body"
-    root = newBox((vec3){0.0f, 0.0f, 0.0f});
-    root->setScale(root, (vec3){0.1f, 0.5f, 0.1f});
-    memcpy(root->material, shinyMaterial, sizeof(Material));
-    root->addTexture(root, texture);
+    vec3 specifications[][2] = {
+        {{0.0f, 0.0f, 0.0f}, {0.1f, 0.5f, 0.1f}},
+        {{0.0f, 0.2f, 0.0f}, {0.11f, 0.11f, 0.11f}},
+        {{0.0f, 0.0f, 0.05f}, {0.025f, 0.05f, 0.025f}}
+    };
 
-    // Torch Light
-    texture = (Texture*)engine->textures->search(engine->textures, "white");
-    model = newBox((vec3){0.0f, 0.2f, 0.0f});
-    model->setScale(model, (vec3){0.11f, 0.11f, 0.11f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
-
-    // Torch button
-    texture = (Texture*)engine->textures->search(engine->textures, "red");
-    model = newBox((vec3){0.0f, 0.0f, 0.05f});
-    model->setScale(model, (vec3){0.025f, 0.05f, 0.025f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
+    Texture* textureMap[] = {texture1, texture2, texture3};
+    Material* materialMap[] = {shinyMaterial, defaultMaterial, defaultMaterial};
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
 
     // Move to position
     root->setPosition(root, (vec3){-25.0f, -0.2f, 25.0f});
@@ -456,30 +446,20 @@ void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 
 void initSign(Backend* engine, Material* defaultMaterial)
 {
-    Box* root;
-    Box* model;
-    Texture* texture = (Texture*)engine->textures->search(engine->textures, "sign_1");
+    Box* root = NULL;
+    Box* model = NULL;
+    Texture* texture1 = (Texture*)engine->textures->search(engine->textures, "sign_1");
+    Texture* texture2 = (Texture*)engine->textures->search(engine->textures, "sign_2");
 
-    // Sign post
-    root = newBox((vec3){0.0f, 0.0f, 0.0f});
-    root->setScale(root, (vec3){0.1f, 1.5f, 0.1f});
-    memcpy(root->material, defaultMaterial, sizeof(Material));
-    root->addTexture(root, texture);
+    vec3 specifications[][2] = {
+        {{0.0f, 0.0f, 0.0f}, {0.1f, 1.5f, 0.1f}},
+        {{0.0f, 0.5f, 0.05f}, {1.0f, 1.0f, 0.1f}},
+        {{0.0f, 0.5f, 0.051f}, {0.9999f, 0.9999f, 0.1f}}
+    };
 
-    // Sign back
-    model = newBox((vec3){0.0f, 0.5f, 0.05f});
-    model->setScale(model, (vec3){1.0f, 1.0f, 0.1f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
-
-    // Sign message
-    texture = (Texture*)engine->textures->search(engine->textures, "sign_2");
-    model = newBox((vec3){0.0f, 0.5f, 0.051f});
-    model->setScale(model, (vec3){0.999f, 0.999f, 0.1f});
-    memcpy(model->material, defaultMaterial, sizeof(Material));
-    model->addTexture(model, texture);
-    root->attach(root, model);
+    Texture* textureMap[] = {texture1, texture1, texture2};
+    Material* materialMap[] = {defaultMaterial, defaultMaterial, defaultMaterial};
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
 
     // Move to position
     root->setPosition(root, (vec3){-20.0f, -1.25f, -25.0f});
