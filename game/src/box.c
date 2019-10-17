@@ -85,7 +85,7 @@ static void resetRotation(Box*);
 static void move(Box*, vec3);
 static void transformPosition(Box*, mat4);
 
-static void draw(Box*);
+static void draw(Box*, void*);
 static void destroy(Box*);
 
 
@@ -318,7 +318,7 @@ static void transformPosition(Box* this, mat4 transform)
 }
 
 
-static void draw(Box* this)
+static void draw(Box* this, void* pointer)
 {
     ListNode* iter;
     Box* box;
@@ -366,7 +366,7 @@ static void draw(Box* this)
     {
         box = (Box*)(iter->value);
         box->setShader(box, this->shader);
-        box->draw(box);
+        box->draw(box, pointer);
     }
 
     i = 0;

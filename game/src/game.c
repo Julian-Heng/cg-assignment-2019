@@ -544,7 +544,7 @@ void draw(Backend* engine)
     // Draw ground
     model = (Box*)engine->models->search(engine->models, "ground");
     model->setShader(model, shader);
-    model->draw(model);
+    model->draw(model, NULL);
 
     // Draw trees
     model = (Box*)engine->models->search(engine->models, "tree");
@@ -552,10 +552,10 @@ void draw(Backend* engine)
     for (int i = -50; i < 50; i += 10)
     {
         model->setPosition(model, (vec3){(float)i, 0.0f, 0.0f});
-        model->draw(model);
+        model->draw(model, NULL);
 
         model->setPosition(model, (vec3){0.0f, 0.0f, (float)i});
-        model->draw(model);
+        model->draw(model, NULL);
     }
     model->resetPosition(model);
 
@@ -575,20 +575,20 @@ void draw(Backend* engine)
         model = (Box*)engine->models->search(engine->models, "wolf");
     }
 
-    model->draw(model);
+    model->draw(model, NULL);
 
     // Draw sheep
     if (engine->options[GAME_PICKUP_WOLF])
     {
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
-        model->draw(model);
+        model->draw(model, NULL);
     }
 
     // Draw table
     model = (Box*)engine->models->search(engine->models, "table");
     model->setShader(model, shader);
-    model->draw(model);
+    model->draw(model, NULL);
 
     // Draw torch
     if (! engine->options[GAME_HAS_TORCH])
@@ -600,13 +600,13 @@ void draw(Backend* engine)
         model->setRotation(model, (vec3){0.0f, glfwGetTime() * 20.0f, 0.0f});
 
         model->setShader(model, shader);
-        model->draw(model);
+        model->draw(model, NULL);
     }
 
     // Draw sign
     model = (Box*)engine->models->search(engine->models, "sign");
     model->setShader(model, shader);
-    model->draw(model);
+    model->draw(model, NULL);
 
     cam->poll(cam);
 }

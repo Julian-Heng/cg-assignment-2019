@@ -50,7 +50,7 @@ typedef struct Box
     void (*move)(struct Box*, vec3);
     void (*transformPosition)(struct Box*, mat4);
 
-    void (*draw)(struct Box*);
+    void (*draw)(struct Box*, void*);
     void (*destroy)(struct Box*);
 } Box;
 
