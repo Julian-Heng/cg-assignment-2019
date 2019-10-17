@@ -633,17 +633,24 @@ void setupSheepModel(Box* this, mat4 model, void* pointer)
 {
     Backend* engine = (Backend*)pointer;
 
-    glm_mat4_identity(model);
+    if (engine->options[GAME_PICKUP_WOLF])
+    {
+        glm_mat4_identity(model);
 
-    glm_translate(model, this->position);
+        glm_translate(model, this->position);
 
-    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+        glm_rotate_x(model, glm_rad(this->rotation[0]), model);
+        glm_rotate_y(model, glm_rad(this->rotation[1]), model);
+        glm_rotate_z(model, glm_rad(this->rotation[2]), model);
 
-    glm_translate(model, this->modelPosition);
+        glm_translate(model, this->modelPosition);
 
-    glm_scale(model, this->scale);
+        glm_scale(model, this->scale);
+    }
+    else
+    {
+        glm_mat4_zero(model);
+    }
 }
 
 
