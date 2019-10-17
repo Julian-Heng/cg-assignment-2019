@@ -86,6 +86,9 @@ static void move(Box*, vec3);
 static void transformPosition(Box*, mat4);
 
 static void draw(Box*, void*);
+static void setupShader(Box*);
+static void setupTexture(Box*);
+static void setupModelMatrix(Box*, mat4, void*);
 static void destroy(Box*);
 
 
@@ -143,6 +146,9 @@ static void linkMethods(Box* this)
     this->transformPosition = transformPosition;
 
     this->draw = draw;
+    this->setupShader = setupShader;
+    this->setupTexture = setupTexture;
+    this->setupModelMatrix = setupModelMatrix;
     this->destroy = destroy;
 }
 
@@ -204,7 +210,7 @@ static void setModelPosition(Box* this, vec3 modelPosition)
     glm_vec3_sub(modelPosition, this->modelPosition, delta);
 
     glm_vec3_copy(modelPosition ? modelPosition
-                           : (vec3){0.0f, 0.0f, 0.0f}, this->modelPosition);
+                                : (vec3){0.0f, 0.0f, 0.0f}, this->modelPosition);
 
     LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->move((Box*)(iter->value), delta);
@@ -326,40 +332,13 @@ static void draw(Box* this, void* pointer)
 
     mat4 model;
 
-    this->shader->use(this->shader);
-
-    this->shader->setVec3(this->shader, "material.ambient",
-                          this->material->ambient);
-
-    this->shader->setInt(this->shader, "material.diffuse",
-                         this->material->diffuse);
-
-    this->shader->setInt(this->shader, "material.specular",
-                         this->material->specular);
-
-    this->shader->setFloat(this->shader, "material.shininess",
-                           this->material->shininess);
-
-    LIST_FOR_EACH(this->textures, iter)
-    {
-        glActiveTexture(GL_TEXTURE0 + i++);
-        glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
-    }
-
     glBindVertexArray(this->VAO);
-    glm_mat4_identity(model);
 
-    glm_translate(model, this->position);
-
-    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
-
-    glm_translate(model, this->modelPosition);
-
-    glm_scale(model, this->scale);
-
+    this->setupShader(this);
+    this->setupTexture(this);
+    this->setupModelMatrix(this, model, pointer);
     this->shader->setMat4(this->shader, "model", model);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     LIST_FOR_EACH(this->attached, iter)
@@ -375,6 +354,53 @@ static void draw(Box* this, void* pointer)
         glActiveTexture(GL_TEXTURE0 + i++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+}
+
+
+static void setupShader(Box* this)
+{
+    this->shader->use(this->shader);
+
+    this->shader->setVec3(this->shader, "material.ambient",
+                          this->material->ambient);
+
+    this->shader->setInt(this->shader, "material.diffuse",
+                         this->material->diffuse);
+
+    this->shader->setInt(this->shader, "material.specular",
+                         this->material->specular);
+
+    this->shader->setFloat(this->shader, "material.shininess",
+                           this->material->shininess);
+}
+
+
+static void setupTexture(Box* this)
+{
+    ListNode* iter;
+    int i = 0;
+
+    LIST_FOR_EACH(this->textures, iter)
+    {
+        glActiveTexture(GL_TEXTURE0 + i++);
+        glBindTexture(GL_TEXTURE_2D, ((Texture*)iter->value)->ID);
+    }
+}
+
+
+static void setupModelMatrix(Box* this, mat4 model, void* pointer)
+{
+    glm_mat4_identity(model);
+
+    glm_translate(model, this->position);
+
+    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+
+    glm_translate(model, this->modelPosition);
+
+    glm_scale(model, this->scale);
 }
 
 

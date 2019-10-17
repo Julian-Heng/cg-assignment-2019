@@ -51,6 +51,9 @@ typedef struct Box
     void (*transformPosition)(struct Box*, mat4);
 
     void (*draw)(struct Box*, void*);
+    void (*setupShader)(struct Box*);
+    void (*setupTexture)(struct Box*);
+    void (*setupModelMatrix)(struct Box*, mat4, void*);
     void (*destroy)(struct Box*);
 } Box;
 
