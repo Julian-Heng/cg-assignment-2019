@@ -26,12 +26,7 @@ int main(void)
 {
     bool ret = false;
     Backend* engine = init();
-
-    if (engine->window)
-    {
-        loop(engine);
-    }
-
+    loop(engine);
     terminate(&engine);
     return (int)ret;
 }
@@ -499,6 +494,11 @@ void loop(Backend* engine)
 {
     float lastTime = glfwGetTime();
     float currentTime;
+
+    if (! engine)
+    {
+        return;
+    }
 
     while (! glfwWindowShouldClose(engine->window))
     {
