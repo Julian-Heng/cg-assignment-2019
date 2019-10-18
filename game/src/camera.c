@@ -123,7 +123,7 @@ static void moveForward(Camera* this, float timeDelta)
     Box* attach;
 
     vec3 temp;
-    glm_vec3_copy((vec3){this->front[0], 0.0f, this->front[2]}, temp);
+    glm_vec3_copy((vec3){this->front[X_COORD], 0.0f, this->front[Z_COORD]}, temp);
     glm_vec3_normalize(temp);
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_add(temp, this->position, this->position);
@@ -161,7 +161,7 @@ static void moveBackward(Camera* this, float timeDelta)
     Box* attach;
 
     vec3 temp;
-    glm_vec3_copy((vec3){this->front[0], 0.0f, this->front[2]}, temp);
+    glm_vec3_copy((vec3){this->front[X_COORD], 0.0f, this->front[Z_COORD]}, temp);
     glm_vec3_normalize(temp);
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
     glm_vec3_sub(this->position, temp, this->position);
@@ -210,13 +210,13 @@ static void moveMouse(Camera* this, double xoffset,
     updateCameraVectors(this);
 
     glm_vec3_copy(this->front, temp);
-    glm_vec3_normalize_to((vec3){temp[0], 0.0f, temp[2]}, temp);
+    glm_vec3_normalize_to((vec3){temp[X_COORD], 0.0f, temp[Z_COORD]}, temp);
     LIST_FOR_EACH(this->attached, node)
     {
         attach = (Box*)(node->value);
-        glm_vec3_copy((vec3){this->position[0],
-                             attach->position[1],
-                             this->position[2]}, tempPos);
+        glm_vec3_copy((vec3){this->position[X_COORD],
+                             attach->position[Y_COORD],
+                             this->position[Z_COORD]}, tempPos);
         glm_vec3_add(temp, tempPos, temp);
         attach->setPosition(attach, temp);
         attach->setRotation(attach, (vec3){0.0f, -(this->yaw - 90.0f), 0.0f});
@@ -329,7 +329,7 @@ static void jump(Camera* this)
         start = true;
         startTime = 0.0f;
         initialPosition = 0.0f;
-        this->position[1] = initialPosition;
+        this->position[Y_COORD] = initialPosition;
         this->setJump(this, false);
 
         return;
@@ -339,18 +339,18 @@ static void jump(Camera* this)
     {
         start = false;
         startTime = glfwGetTime();
-        initialPosition = this->position[1];
+        initialPosition = this->position[Y_COORD];
         return;
     }
 
-    this->position[1] = initialPosition + calcJump(glfwGetTime() - startTime);
+    this->position[Y_COORD] = initialPosition + calcJump(glfwGetTime() - startTime);
 
-    if ((this->position[1] - initialPosition) < 0.0f)
+    if ((this->position[Y_COORD] - initialPosition) < 0.0f)
     {
         start = true;
         startTime = 0.0f;
         initialPosition = 0.0f;
-        this->position[1] = initialPosition;
+        this->position[Y_COORD] = initialPosition;
         this->setJump(this, false);
     }
 }

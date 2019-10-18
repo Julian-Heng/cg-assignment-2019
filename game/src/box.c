@@ -394,9 +394,9 @@ static void setupModelMatrix(Box* this, mat4 model, void* pointer)
 
     glm_translate(model, this->position);
 
-    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+    glm_rotate_x(model, glm_rad(this->rotation[X_COORD]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[Y_COORD]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[Z_COORD]), model);
 
     glm_translate(model, this->modelPosition);
 

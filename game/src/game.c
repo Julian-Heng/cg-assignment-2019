@@ -522,7 +522,7 @@ void loop(Backend* engine)
 
     while (! glfwWindowShouldClose(engine->window))
     {
-        //logInfo(stderr, engine);
+        logInfo(stderr, engine);
         instantKeyInputCallback(engine->window);
 
         currentTime = glfwGetTime();
@@ -604,7 +604,7 @@ void draw(Backend* engine)
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
 
-        if (engine->cam->position[0] < model->position[0])
+        if (engine->cam->position[X_COORD] < model->position[X_COORD])
         {
             glm_vec3_sub(model->position, engine->cam->position, temp);
             angle = 180.0f;
@@ -620,7 +620,7 @@ void draw(Backend* engine)
 
         // Slowly mode the sheep towards the camera
         glm_vec3_sub(engine->cam->position, model->position, temp);
-        temp[1] = 0.0f;
+        temp[Y_COORD] = 0.0f;
         glm_vec3_normalize(temp);
         glm_vec3_scale(temp, 0.08f, temp);
         model->move(model, temp);
@@ -674,9 +674,9 @@ void drawWolfTail(Box* this, mat4 model, void* pointer)
         );
     }
 
-    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+    glm_rotate_x(model, glm_rad(this->rotation[X_COORD]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[Y_COORD]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[Z_COORD]), model);
 
     glm_translate(model, this->modelPosition);
 
@@ -692,9 +692,9 @@ void drawSheepLeg(Box* this, mat4 model, void* pointer)
 
     glm_translate(model, this->position);
 
-    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+    glm_rotate_x(model, glm_rad(this->rotation[X_COORD]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[Y_COORD]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[Z_COORD]), model);
 
     glm_translate(model, this->modelPosition);
 
@@ -815,7 +815,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             {
                 // Set new position for the torch
                 glm_vec3_copy(engine->cam->front, temp);
-                glm_vec3_normalize_to((vec3){temp[0], 0.0f, temp[2]}, temp);
+                glm_vec3_normalize_to((vec3){temp[X_COORD], 0.0f, temp[Z_COORD]}, temp);
                 glm_vec3_scale(temp, 2.0f, temp);
                 glm_vec3_add(engine->cam->position, temp, temp);
 
@@ -839,10 +839,10 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
 
                 // Set new position for the wolf
                 glm_vec3_copy(engine->cam->front, temp);
-                glm_vec3_normalize_to((vec3){temp[0], 0.0f, temp[2]}, temp);
+                glm_vec3_normalize_to((vec3){temp[X_COORD], 0.0f, temp[Z_COORD]}, temp);
                 glm_vec3_scale(temp, 2.0f, temp);
                 glm_vec3_add(engine->cam->position, temp, temp);
-                temp[1] = -1.35f;
+                temp[Y_COORD] = -1.35f;
 
                 model->setPosition(model, temp);
                 engine->options[GAME_PICKUP_WOLF] = false;
