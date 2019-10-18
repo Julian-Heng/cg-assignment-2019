@@ -363,10 +363,10 @@ void initSheep(Backend* engine, Material* defaultMaterial)
         {{-0.35f, -1.0f, -0.6f},  {0.25f, 0.8f, 0.25f}}, // Legs
         {{0.35f, -0.75f, -0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
         {{0.35f, -1.0f, -0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
-        {{-0.35f, -0.75f, 0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
-        {{-0.35f, -1.0f, 0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
         {{0.35f, -0.75f, 0.6f},   {0.3f, 0.4f, 0.3f}},   // Legs
         {{0.35f, -1.0f, 0.6f},    {0.25f, 0.8f, 0.25f}}, // Legs
+        {{-0.35f, -0.75f, 0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
+        {{-0.35f, -1.0f, 0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
 
         {{0.0f, 0.4f, 1.251f}, {0.699f, 0.699f, 0.699f}}, // Head
     };
@@ -600,7 +600,6 @@ void draw(Backend* engine)
     // Draw sheep
     if (engine->options[GAME_PICKUP_WOLF])
     {
-
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
 
@@ -686,6 +685,9 @@ void drawWolfTail(Box* this, mat4 model, void* pointer)
 
 void drawSheepLeg(Box* this, mat4 model, void* pointer)
 {
+    static int alternate = 0;
+    float direction;
+
     Backend* engine = (Backend*)pointer;
 
     glm_mat4_identity(model);
@@ -696,9 +698,21 @@ void drawSheepLeg(Box* this, mat4 model, void* pointer)
     glm_rotate_y(model, glm_rad(this->rotation[Y_COORD]), model);
     glm_rotate_z(model, glm_rad(this->rotation[Z_COORD]), model);
 
+    // Alternate diagonal legs
+    switch (alternate)
+    {
+        case 0: case 1: case 4: case 5: direction = -1.0f; break;
+        case 2: case 3: case 6: case 7: direction = 1.0f; break;
+    }
+
+    direction *= sin(glfwGetTime() * 4) - 12.5f > 0.0f ? -1.0f : 1.0f;
+    glm_rotate_x(model, direction * sin(glfwGetTime() * 4) / 5.0f, model);
+
     glm_translate(model, this->modelPosition);
 
     glm_scale(model, this->scale);
+
+    alternate = (alternate + 1) % 8;
 }
 
 
