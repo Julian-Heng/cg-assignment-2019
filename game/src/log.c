@@ -46,6 +46,7 @@ void logInfo(FILE* f, Backend* engine)
 
     _logInfo(f, &rows, LOG_CLEAR LOG_PROJECTION_TYPE "\n",
         engine->options[GAME_USE_PERSPECTIVE] ? "Perspective" : "Orthographic");
+    _logInfo(f, &rows, LOG_CLEAR LOG_PLAYER_STATE "\n", engine->options[GAME_PLAYER_DIE] ? "Dead" : "Alive");
     _logInfo(f, &rows, LOG_CLEAR LOG_RESOLUTION "\n", engine->width,
                                                       engine->height);
     _logInfo(f, &rows, LOG_CLEAR LOG_LIGHT_LEVEL "\n", engine->lightLevel);

@@ -68,6 +68,7 @@ Backend* init()
     engine->options[GAME_LIGHTS_ON] = false;
     engine->options[GAME_HAS_TORCH] = false;
     engine->options[GAME_PICKUP_WOLF] = false;
+    engine->options[GAME_PLAYER_DIE] = false;
 
     engine->lightLevel = 1.0f;
 
@@ -699,6 +700,11 @@ void draw(Backend* engine)
         model->draw(model, (void*)engine);
 
         angle = 0.0f;
+
+        if (! engine->options[GAME_PLAYER_DIE])
+        {
+            engine->options[GAME_PLAYER_DIE] = glm_vec3_distance(model->position, engine->cam->position) < 2.0f;
+        }
     }
 
     // Draw traps
@@ -712,8 +718,18 @@ void draw(Backend* engine)
             model->setPosition(model, (vec3){(float)i, -2.0f, 0.0f});
             model->draw(model, NULL);
 
+            if (! engine->options[GAME_PLAYER_DIE])
+            {
+                engine->options[GAME_PLAYER_DIE] = glm_vec3_distance((vec3){(float)i, 0.0f, 0.0f}, engine->cam->position) < 2.0f;
+            }
+
             model->setPosition(model, (vec3){0.0f, -2.0f, (float)i});
             model->draw(model, NULL);
+
+            if (! engine->options[GAME_PLAYER_DIE])
+            {
+                engine->options[GAME_PLAYER_DIE] = glm_vec3_distance((vec3){0.0f, 0.0f, (float)i}, engine->cam->position) < 2.0f;
+            }
         }
 
         model->resetPosition(model);
@@ -980,11 +996,11 @@ void instantKeyInputCallback(GLFWwindow* win)
     float timeDelta = engine->timeDelta;
 
     bool keys[] = {
-        KEY_PRESSED(win, GLFW_KEY_W),
-        KEY_PRESSED(win, GLFW_KEY_A),
-        KEY_PRESSED(win, GLFW_KEY_S),
-        KEY_PRESSED(win, GLFW_KEY_D),
-        KEY_PRESSED(win, GLFW_KEY_SPACE),
+        KEY_PRESSED(win, GLFW_KEY_W) && ! engine->options[GAME_PLAYER_DIE],
+        KEY_PRESSED(win, GLFW_KEY_A) && ! engine->options[GAME_PLAYER_DIE],
+        KEY_PRESSED(win, GLFW_KEY_S) && ! engine->options[GAME_PLAYER_DIE],
+        KEY_PRESSED(win, GLFW_KEY_D) && ! engine->options[GAME_PLAYER_DIE],
+        KEY_PRESSED(win, GLFW_KEY_SPACE) && ! engine->options[GAME_PLAYER_DIE],
 
         KEY_PRESSED(win, GLFW_KEY_R)
     };
@@ -1020,6 +1036,7 @@ void instantKeyInputCallback(GLFWwindow* win)
         engine->options[GAME_LIGHTS_ON] = false;
         engine->options[GAME_HAS_TORCH] = false;
         engine->options[GAME_PICKUP_WOLF] = false;
+        engine->options[GAME_PLAYER_DIE] = false;
 
         engine->lightLevel = 1.0f;
 

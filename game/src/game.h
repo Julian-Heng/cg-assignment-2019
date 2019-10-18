@@ -36,6 +36,7 @@ typedef enum
     GAME_HAS_TORCH,
 
     GAME_PICKUP_WOLF,
+    GAME_PLAYER_DIE,
 
     GAME_OPTION_COUNT
 } GameOptions;
