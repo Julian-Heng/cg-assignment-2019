@@ -686,14 +686,14 @@ void draw(Backend* engine)
         }
 
         // Rotate sheep to the camera
-        angle += (180.0f * glm_vec3_angle(sheepDirection, temp)) / acos(-1);
+        angle += (180.0f * glm_vec3_angle(sheepDirection, temp)) / GLM_PI;
         model->setRotation(model, (vec3){0.0f, angle, 0.0f});
 
         // Slowly mode the sheep towards the camera
         glm_vec3_sub(engine->cam->position, model->position, temp);
         temp[Y_COORD] = 0.0f;
         glm_vec3_normalize(temp);
-        glm_vec3_scale(temp, 0.08f, temp);
+        glm_vec3_scale(temp, 0.09f, temp);
         model->move(model, temp);
 
         model->draw(model, (void*)engine);
@@ -707,7 +707,7 @@ void draw(Backend* engine)
         model = (Box*)engine->models->search(engine->models, "trap");
         model->setShader(model, shader);
 
-        for (int i = -50; i < 50; i += 4)
+        for (int i = -46; i < 46; i += 4)
         {
             model->setPosition(model, (vec3){(float)i, -2.0f, 0.0f});
             model->draw(model, NULL);
