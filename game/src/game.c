@@ -688,8 +688,6 @@ void drawSheepLeg(Box* this, mat4 model, void* pointer)
     static int alternate = 0;
     float direction;
 
-    Backend* engine = (Backend*)pointer;
-
     glm_mat4_identity(model);
 
     glm_translate(model, this->position);
