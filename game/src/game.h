@@ -81,8 +81,8 @@ void initSign(Backend*, Material*);
 void loop(Backend*);
 void draw(Backend*);
 
-void setupSheepModel(Box*, mat4, void*);
-void setupWolfModel(Box*, mat4, void*);
+void drawWolfTail(Box*, mat4, void*);
+void drawSheepLeg(Box*, mat4, void*);
 
 void setupProjection(Backend*, Camera*, mat4);
 void setupShader(Backend*, Shader*, Camera*, mat4, mat4);

@@ -277,7 +277,6 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     Box* root = NULL;
     Box* model = NULL;
     HashTable* textures = engine->textures;
-    ListNode* iter;
 
     Texture* texture1 = (Texture*)textures->search(textures, "grey");
     Texture* texture2 = (Texture*)textures->search(textures, "wolf_face");
@@ -321,16 +320,26 @@ void initWolf(Backend* engine, Material* defaultMaterial)
         defaultMaterial  // Head
     };
 
-    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
+    void (*drawingFuncs[])(Box*, mat4, void*) = {
+        NULL,
+        NULL,
+
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+
+        drawWolfTail,
+        NULL
+    };
+
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
 
     // Move to position
-    root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
+    //root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
+    root->setPosition(root, (vec3){-25.0f, -1.35f, -25.0f});
     root->recordInitialPosition(root);
     root->recordInitialRotation(root);
-
-    root->setupModelMatrix = setupWolfModel;
-    LIST_FOR_EACH(root->attached, iter)
-        ((Box*)(iter->value))->setupModelMatrix = setupWolfModel;
 
     engine->models->insert(engine->models, "wolf", root, true);
 }
@@ -341,7 +350,6 @@ void initSheep(Backend* engine, Material* defaultMaterial)
     Box* root = NULL;
     Box* model = NULL;
     HashTable* textures = engine->textures;
-    ListNode* iter;
 
     Texture* texture1 = (Texture*)textures->search(textures, "black");
     Texture* texture2 = (Texture*)textures->search(textures, "sheep_skin");
@@ -387,11 +395,21 @@ void initSheep(Backend* engine, Material* defaultMaterial)
         defaultMaterial
     };
 
-    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
+    void (*drawingFuncs[])(Box*, mat4, void*) = {
+        NULL,
+        NULL,
 
-    root->setupModelMatrix = setupSheepModel;
-    LIST_FOR_EACH(root->attached, iter)
-        ((Box*)(iter->value))->setupModelMatrix = setupSheepModel;
+        drawSheepLeg, drawSheepLeg,
+        drawSheepLeg, drawSheepLeg,
+        drawSheepLeg, drawSheepLeg,
+        drawSheepLeg, drawSheepLeg,
+
+        NULL,
+    };
+
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
+
+    root->setPosition(root, (vec3){25.0f, -0.6f, -25.0f});
 
     engine->models->insert(engine->models, "sheep", root, true);
 }
@@ -451,7 +469,8 @@ void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMateri
 
     Texture* textureMap[] = {texture1, texture2, texture3};
     Material* materialMap[] = {shinyMaterial, defaultMaterial, defaultMaterial};
-    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
+    void (*drawingFuncs[])(Box*, mat4, void*) = {NULL, NULL, NULL};
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
 
     // Move to position
     root->setPosition(root, (vec3){-25.0f, -0.2f, 25.0f});
@@ -479,7 +498,8 @@ void initSign(Backend* engine, Material* defaultMaterial)
 
     Texture* textureMap[] = {texture1, texture1, texture2};
     Material* materialMap[] = {defaultMaterial, defaultMaterial, defaultMaterial};
-    MAKE_MODEL(root, model, specifications, textureMap, materialMap);
+    void (*drawingFuncs[])(Box*, mat4, void*) = {NULL, NULL, NULL};
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
 
     // Move to position
     root->setPosition(root, (vec3){-20.0f, -1.25f, -25.0f});
@@ -502,7 +522,7 @@ void loop(Backend* engine)
 
     while (! glfwWindowShouldClose(engine->window))
     {
-        logInfo(stderr, engine);
+        //logInfo(stderr, engine);
         instantKeyInputCallback(engine->window);
 
         currentTime = glfwGetTime();
@@ -531,6 +551,9 @@ void loop(Backend* engine)
 void draw(Backend* engine)
 {
     //static bool direction = true;
+    vec3 sheepDirection = {0.0f, 0.0f, 1.0f};
+    vec3 temp;
+    float angle = 0.0f;
 
     Shader* shader;
 
@@ -574,33 +597,38 @@ void draw(Backend* engine)
     model->setShader(model, shader);
     model->draw(model, (void*)engine);
 
-    model = (Box*)engine->models->search(engine->models, "sheep");
-    model->setShader(model, shader);
-    model->draw(model, (void*)engine);
-
-    /*
-    // "Animate" tail
-    if (engine->options[GAME_PICKUP_WOLF])
-    {
-        direction = sin(glfwGetTime() * 8) > 0.0f;
-        model->attached->peekAt(model->attached, 5, (void**)&model, NULL);
-        model->setRotationDelta(
-            model, (vec3){0.0f, (direction ? -1 : 1) * 0.5f, 0.0f}
-        );
-
-        model = (Box*)engine->models->search(engine->models, "wolf");
-    }
-
-    model->draw(model, NULL);
-
     // Draw sheep
     if (engine->options[GAME_PICKUP_WOLF])
     {
+
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
-        model->draw(model, NULL);
+
+        if (engine->cam->position[0] < model->position[0])
+        {
+            glm_vec3_sub(model->position, engine->cam->position, temp);
+            angle = 180.0f;
+        }
+        else
+        {
+            glm_vec3_sub(engine->cam->position, model->position, temp);
+        }
+
+        // Rotate sheep to the camera
+        angle += (180.0f * glm_vec3_angle(sheepDirection, temp)) / acos(-1);
+        model->setRotation(model, (vec3){0.0f, angle, 0.0f});
+
+        // Slowly mode the sheep towards the camera
+        glm_vec3_sub(engine->cam->position, model->position, temp);
+        temp[1] = 0.0f;
+        glm_vec3_normalize(temp);
+        glm_vec3_scale(temp, 0.08f, temp);
+        model->move(model, temp);
+
+        model->draw(model, (void*)engine);
+
+        angle = 0.0f;
     }
-    */
 
     // Draw table
     model = (Box*)engine->models->search(engine->models, "table");
@@ -629,32 +657,34 @@ void draw(Backend* engine)
 }
 
 
-void setupSheepModel(Box* this, mat4 model, void* pointer)
+void drawWolfTail(Box* this, mat4 model, void* pointer)
 {
+    static bool direction = true;
     Backend* engine = (Backend*)pointer;
+
+    glm_mat4_identity(model);
+
+    glm_translate(model, this->position);
 
     if (engine->options[GAME_PICKUP_WOLF])
     {
-        glm_mat4_identity(model);
-
-        glm_translate(model, this->position);
-
-        glm_rotate_x(model, glm_rad(this->rotation[0]), model);
-        glm_rotate_y(model, glm_rad(this->rotation[1]), model);
-        glm_rotate_z(model, glm_rad(this->rotation[2]), model);
-
-        glm_translate(model, this->modelPosition);
-
-        glm_scale(model, this->scale);
+        direction = sin(glfwGetTime() * 8) > 0.0f;
+        this->setRotationDelta(
+            this, (vec3){0.0f, (direction ? -1 : 1) * 0.5f, 0.0f}
+        );
     }
-    else
-    {
-        glm_mat4_zero(model);
-    }
+
+    glm_rotate_x(model, glm_rad(this->rotation[0]), model);
+    glm_rotate_y(model, glm_rad(this->rotation[1]), model);
+    glm_rotate_z(model, glm_rad(this->rotation[2]), model);
+
+    glm_translate(model, this->modelPosition);
+
+    glm_scale(model, this->scale);
 }
 
 
-void setupWolfModel(Box* this, mat4 model, void* pointer)
+void drawSheepLeg(Box* this, mat4 model, void* pointer)
 {
     Backend* engine = (Backend*)pointer;
 
