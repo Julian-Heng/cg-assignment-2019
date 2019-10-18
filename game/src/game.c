@@ -201,6 +201,7 @@ void initShapes(Backend* engine)
     initTable(engine, defaultMaterial, shinyMaterial);
     initTorch(engine, defaultMaterial, shinyMaterial);
     initSign(engine, defaultMaterial);
+    initTrap(engine, shinyMaterial);
 
     SAFE_FREE(defaultMaterial);
     SAFE_FREE(shinyMaterial);
@@ -510,6 +511,77 @@ void initSign(Backend* engine, Material* defaultMaterial)
 }
 
 
+void initTrap(Backend* engine, Material* shinyMaterial)
+{
+    Box* root = NULL;
+    Box* model = NULL;
+    HashTable* textures = engine->textures;
+
+    Texture* texture1 = (Texture*)textures->search(textures, "black");
+
+    vec3 specifications[][2] = {
+        {{0.0f, 0.0f, 0.0f}, {1.0f, 0.05f, 1.0f}},  // Base
+
+        // Teeth
+        {{-0.475f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+
+        {{-0.475f, 0.075f, -0.2375f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f, 0.0f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f, 0.2375f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+
+        {{-0.2375f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.0f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.2375, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+
+        {{0.475f, 0.075f, 0.2375f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f, 0.0f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f, -0.2375f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+
+        {{0.2375f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.0f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.2375, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}}
+    };
+
+    Texture* textureMap[] = {
+        texture1,   // Base
+        texture1,   // Teeth
+
+        texture1, texture1, texture1, texture1,
+        texture1, texture1, texture1, texture1,
+        texture1, texture1, texture1, texture1,
+        texture1, texture1, texture1, texture1
+    };
+
+    Material* materialMap[] = {
+        shinyMaterial,  // Base
+        shinyMaterial,  // Teeth
+
+        shinyMaterial, shinyMaterial, shinyMaterial, shinyMaterial,
+        shinyMaterial, shinyMaterial, shinyMaterial, shinyMaterial,
+        shinyMaterial, shinyMaterial, shinyMaterial, shinyMaterial,
+        shinyMaterial, shinyMaterial, shinyMaterial, shinyMaterial
+    };
+
+    void (*drawingFuncs[])(Box*, mat4, void*) = {
+        NULL,   // Base
+        NULL,   // Teeth
+
+        NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL
+    };
+
+    MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
+
+    engine->models->insert(engine->models, "trap", root, true);
+}
+
+
 void loop(Backend* engine)
 {
     float lastTime = glfwGetTime();
@@ -629,6 +701,24 @@ void draw(Backend* engine)
         angle = 0.0f;
     }
 
+    // Draw traps
+    if (engine->options[GAME_PICKUP_WOLF])
+    {
+        model = (Box*)engine->models->search(engine->models, "trap");
+        model->setShader(model, shader);
+
+        for (int i = -50; i < 50; i += 4)
+        {
+            model->setPosition(model, (vec3){(float)i, -2.0f, 0.0f});
+            model->draw(model, NULL);
+
+            model->setPosition(model, (vec3){0.0f, -2.0f, (float)i});
+            model->draw(model, NULL);
+        }
+
+        model->resetPosition(model);
+    }
+
     // Draw table
     model = (Box*)engine->models->search(engine->models, "table");
     model->setShader(model, shader);
@@ -649,6 +739,10 @@ void draw(Backend* engine)
 
     // Draw sign
     model = (Box*)engine->models->search(engine->models, "sign");
+    model->setShader(model, shader);
+    model->draw(model, NULL);
+
+    model = (Box*)engine->models->search(engine->models, "trap");
     model->setShader(model, shader);
     model->draw(model, NULL);
 

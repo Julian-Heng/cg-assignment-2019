@@ -77,6 +77,7 @@ void initSheep(Backend*, Material*);
 void initTable(Backend*, Material*, Material*);
 void initTorch(Backend*, Material*, Material*);
 void initSign(Backend*, Material*);
+void initTrap(Backend*, Material*);
 
 void loop(Backend*);
 void draw(Backend*);
