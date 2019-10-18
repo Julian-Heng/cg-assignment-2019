@@ -778,9 +778,9 @@ void toggleWireframe()
 {
     static int toggle = 0;
     toggle = (toggle + 1) % 3;
-    glPolygonMode(GL_FRONT_AND_BACK, toggle == 0 ? GL_FILL :
-                                     toggle == 1 ? GL_LINE :
-                                     GL_POINT);
+    glPolygonMode(GL_FRONT_AND_BACK, toggle == 1 ? GL_LINE:
+                                     toggle == 2 ? GL_POINT :
+                                     GL_FILL);
 }
 
 
