@@ -623,7 +623,6 @@ void loop(Backend* engine)
 
 void draw(Backend* engine)
 {
-    //static bool direction = true;
     vec3 sheepDirection = {0.0f, 0.0f, 1.0f};
     vec3 temp;
     float angle = 0.0f;
@@ -701,10 +700,7 @@ void draw(Backend* engine)
 
         angle = 0.0f;
 
-        if (! engine->options[GAME_PLAYER_DIE])
-        {
-            engine->options[GAME_PLAYER_DIE] = glm_vec3_distance(model->position, engine->cam->position) < 2.0f;
-        }
+        engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, model->position, 2.0f);
     }
 
     // Draw traps
@@ -717,19 +713,11 @@ void draw(Backend* engine)
         {
             model->setPosition(model, (vec3){(float)i, -2.0f, 0.0f});
             model->draw(model, NULL);
-
-            if (! engine->options[GAME_PLAYER_DIE])
-            {
-                engine->options[GAME_PLAYER_DIE] = glm_vec3_distance((vec3){(float)i, 0.0f, 0.0f}, engine->cam->position) < 2.0f;
-            }
+            engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){(float)i, 0.0f, 0.0f}, 0.5f);
 
             model->setPosition(model, (vec3){0.0f, -2.0f, (float)i});
             model->draw(model, NULL);
-
-            if (! engine->options[GAME_PLAYER_DIE])
-            {
-                engine->options[GAME_PLAYER_DIE] = glm_vec3_distance((vec3){0.0f, 0.0f, (float)i}, engine->cam->position) < 2.0f;
-            }
+            engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){0.0f, 0.0f, (float)i}, 0.5f);
         }
 
         model->resetPosition(model);
@@ -821,6 +809,15 @@ void drawSheepLeg(Box* this, mat4 model, void* pointer)
     glm_scale(model, this->scale);
 
     alternate = (alternate + 1) % 8;
+}
+
+
+bool checkHitbox(Backend* engine, vec3 pos, float distance)
+{
+    if (engine->options[GAME_PLAYER_DIE])
+        return true;
+
+    return glm_vec3_distance(engine->cam->position, pos) < distance;
 }
 
 
@@ -944,7 +941,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
                 model->setPosition(model, temp);
                 engine->options[GAME_HAS_TORCH] = false;
             }
-            else if (glm_vec3_distance(engine->cam->position, model->position) < 3.0f)
+            else if (checkHitbox(engine, model->position, 3.0f))
             {
                 engine->options[GAME_HAS_TORCH] = true;
             }
@@ -969,7 +966,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
                 model->setPosition(model, temp);
                 engine->options[GAME_PICKUP_WOLF] = false;
             }
-            else if (glm_vec3_distance(engine->cam->position, model->position) < 3.0f)
+            else if (checkHitbox(engine, model->position, 3.0f))
             {
                 engine->cam->attach(engine->cam, model);
                 engine->options[GAME_PICKUP_WOLF] = true;
