@@ -206,6 +206,7 @@ static void moveMouse(Camera* this, double xoffset,
     vec3 tempPos;
     vec3 temp;
 
+    // Update yaw and pitch by mouse sensitivity
     this->yaw += xoffset * this->mouseSensitivity;
     this->pitch += yoffset * this->mouseSensitivity;
     this->pitch = constraint && this->pitch > 89.0f ? 89.0f : this->pitch;
