@@ -38,6 +38,8 @@ typedef enum
 
     GAME_PICKUP_WOLF,
     GAME_PLAYER_DIE,
+    GAME_WIN,
+    GAME_LOSE,
 
     GAME_OPTION_COUNT
 } GameOptions;
@@ -72,16 +74,6 @@ void initGlad(Backend*);
 void initShader(Backend*);
 void initTextures(Backend*);
 void initShapes(Backend*);
-
-void initGround(Backend*, Material*);
-void initTree(Backend*, Material*);
-void initWolf(Backend*, Material*);
-void initSheep(Backend*, Material*);
-void initTable(Backend*, Material*, Material*);
-void initTorch(Backend*, Material*, Material*);
-void initSign(Backend*, Material*);
-void initTrap(Backend*, Material*);
-void initSafeZone(Backend*, Material*);
 
 void loop(Backend*);
 void draw(Backend*);
