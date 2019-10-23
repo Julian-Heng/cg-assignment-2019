@@ -44,7 +44,9 @@ Backend* init()
 
     memset(engine, 0, sizeof(Backend));
 
-    if (! (engine->cam = newCamera((vec3){-20.0f, 0.0f, -20.0f})))
+    glm_vec3_copy((vec3){-20.0f, 0.0f, -20.0f}, engine->safeZone);
+
+    if (! (engine->cam = newCamera(engine->safeZone)))
     {
         free(engine);
         engine = NULL;
@@ -148,6 +150,7 @@ void initTextures(Backend* engine)
         "grass",
         "grey",
         "red",
+        "safe_zone",
         "sheep_face",
         "sheep_skin",
         "sign_1",
@@ -203,6 +206,7 @@ void initShapes(Backend* engine)
     initTorch(engine, defaultMaterial, shinyMaterial);
     initSign(engine, defaultMaterial);
     initTrap(engine, shinyMaterial);
+    initSafeZone(engine, shinyMaterial);
 
     SAFE_FREE(defaultMaterial);
     SAFE_FREE(shinyMaterial);
@@ -284,16 +288,16 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     Texture* texture2 = (Texture*)textures->search(textures, "wolf_face");
 
     vec3 specifications[][2] = {
-        {{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f, 1.0f}},    // Body
+        {{0.0f, 0.0f, 0.0f}, {0.5f,  0.5f,  1.0f}},  // Body
         {{0.0f, 0.0f, 0.6f}, {0.35f, 0.35f, 0.35f}}, // Head
 
         {{-0.2f, -0.45f, -0.4f}, {0.1f, 0.4f, 0.1f}}, // Legs
-        {{0.2f, -0.45f, -0.4f}, {0.1f, 0.4f, 0.1f}},  // Legs
-        {{-0.2f, -0.45f, 0.4f}, {0.1f, 0.4f, 0.1f}},  // Legs
-        {{0.2f, -0.45f, 0.4f}, {0.1f, 0.4f, 0.1f}},   // Legs
+        {{0.2f,  -0.45f, -0.4f}, {0.1f, 0.4f, 0.1f}}, // Legs
+        {{-0.2f, -0.45f,  0.4f}, {0.1f, 0.4f, 0.1f}}, // Legs
+        {{0.2f,  -0.45f,  0.4f}, {0.1f, 0.4f, 0.1f}}, // Legs
 
-        {{0.0f, 0.2f, -0.7f}, {0.1f, 0.1f, 0.4f}},          // Tail
-        {{0.0f, 0.0f, 0.601f}, {0.3499f, 0.3499f, 0.3499f}} // Head
+        {{0.0f, 0.2f, -0.7f},   {0.1f,    0.1f,    0.4f}},   // Tail
+        {{0.0f, 0.0f,  0.601f}, {0.3499f, 0.3499f, 0.3499f}} // Head
     };
 
     Texture* textureMap[] = {
@@ -358,17 +362,17 @@ void initSheep(Backend* engine, Material* defaultMaterial)
     Texture* texture3 = (Texture*)textures->search(textures, "sheep_face");
 
     vec3 specifications[][2] = {
-        {{0.0f, 0.0f, 0.0f}, {1.25f, 1.25f, 2.0f}}, // Body
-        {{0.0f, 0.4f, 1.25f}, {0.7f, 0.7f, 0.7f}},  // Head
+        {{0.0f, 0.0f, 0.0f},  {1.25f, 1.25f, 2.0f}}, // Body
+        {{0.0f, 0.4f, 1.25f}, {0.7f,  0.7f,  0.7f}}, // Head
 
-        {{-0.35f, -0.75f, -0.6f}, {0.3f, 0.4f, 0.3f}},   // Legs
-        {{-0.35f, -1.0f, -0.6f},  {0.25f, 0.8f, 0.25f}}, // Legs
-        {{0.35f, -0.75f, -0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
-        {{0.35f, -1.0f, -0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
-        {{0.35f, -0.75f, 0.6f},   {0.3f, 0.4f, 0.3f}},   // Legs
-        {{0.35f, -1.0f, 0.6f},    {0.25f, 0.8f, 0.25f}}, // Legs
-        {{-0.35f, -0.75f, 0.6f},  {0.3f, 0.4f, 0.3f}},   // Legs
-        {{-0.35f, -1.0f, 0.6f},   {0.25f, 0.8f, 0.25f}}, // Legs
+        {{-0.35f, -0.75f, -0.6f}, {0.3f,  0.4f, 0.3f}},  // Legs
+        {{-0.35f, -1.0f,  -0.6f}, {0.25f, 0.8f, 0.25f}}, // Legs
+        {{0.35f,  -0.75f, -0.6f}, {0.3f,  0.4f, 0.3f}},  // Legs
+        {{0.35f,  -1.0f,  -0.6f}, {0.25f, 0.8f, 0.25f}}, // Legs
+        {{0.35f,  -0.75f,  0.6f}, {0.3f,  0.4f, 0.3f}},  // Legs
+        {{0.35f,  -1.0f,   0.6f}, {0.25f, 0.8f, 0.25f}}, // Legs
+        {{-0.35f, -0.75f,  0.6f}, {0.3f,  0.4f, 0.3f}},  // Legs
+        {{-0.35f, -1.0f,   0.6f}, {0.25f, 0.8f, 0.25f}}, // Legs
 
         {{0.0f, 0.4f, 1.251f}, {0.699f, 0.699f, 0.699f}}, // Head
     };
@@ -464,8 +468,8 @@ void initTorch(Backend* engine, Material* defaultMaterial, Material* shinyMateri
     Texture* texture3 = (Texture*)textures->search(textures, "red");
 
     vec3 specifications[][2] = {
-        {{0.0f, 0.0f, 0.0f}, {0.1f, 0.5f, 0.1f}},
-        {{0.0f, 0.2f, 0.0f}, {0.11f, 0.11f, 0.11f}},
+        {{0.0f, 0.0f, 0.0f},  {0.1f,   0.5f,  0.1f}},
+        {{0.0f, 0.2f, 0.0f},  {0.11f,  0.11f, 0.11f}},
         {{0.0f, 0.0f, 0.05f}, {0.025f, 0.05f, 0.025f}}
     };
 
@@ -493,8 +497,8 @@ void initSign(Backend* engine, Material* defaultMaterial)
     Texture* texture2 = (Texture*)textures->search(textures, "sign_2");
 
     vec3 specifications[][2] = {
-        {{0.0f, 0.0f, 0.0f}, {0.1f, 1.5f, 0.1f}},
-        {{0.0f, 0.5f, 0.05f}, {1.0f, 1.0f, 0.1f}},
+        {{0.0f, 0.0f, 0.0f},   {0.1f,    1.5f,    0.1f}},
+        {{0.0f, 0.5f, 0.05f},  {1.0f,    1.0f,    0.1f}},
         {{0.0f, 0.5f, 0.051f}, {0.9999f, 0.9999f, 0.1f}}
     };
 
@@ -527,22 +531,22 @@ void initTrap(Backend* engine, Material* shinyMaterial)
         {{-0.475f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
 
         {{-0.475f, 0.075f, -0.2375f}, {0.05f, 0.1f, 0.05f}},
-        {{-0.475f, 0.075f, 0.0f}, {0.05f, 0.1f, 0.05f}},
-        {{-0.475f, 0.075f, 0.2375f}, {0.05f, 0.1f, 0.05f}},
-        {{-0.475f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f,  0.0f},    {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f,  0.2375f}, {0.05f, 0.1f, 0.05f}},
+        {{-0.475f, 0.075f,  0.475f},  {0.05f, 0.1f, 0.05f}},
 
         {{-0.2375f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
-        {{0.0f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
-        {{0.2375, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
-        {{0.475f, 0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.0f,     0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.2375,   0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f,   0.075f, 0.475f}, {0.05f, 0.1f, 0.05f}},
 
-        {{0.475f, 0.075f, 0.2375f}, {0.05f, 0.1f, 0.05f}},
-        {{0.475f, 0.075f, 0.0f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f,  0.2375f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f,  0.0f},    {0.05f, 0.1f, 0.05f}},
         {{0.475f, 0.075f, -0.2375f}, {0.05f, 0.1f, 0.05f}},
-        {{0.475f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.475f, 0.075f, -0.475f},  {0.05f, 0.1f, 0.05f}},
 
         {{0.2375f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
-        {{0.0f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
+        {{0.0f,    0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
         {{-0.2375, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}},
         {{-0.475f, 0.075f, -0.475f}, {0.05f, 0.1f, 0.05f}}
     };
@@ -580,6 +584,25 @@ void initTrap(Backend* engine, Material* shinyMaterial)
     MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
 
     engine->models->insert(engine->models, "trap", root, true);
+}
+
+
+void initSafeZone(Backend* engine, Material* shinyMaterial)
+{
+    Box* root = NULL;
+    HashTable* textures = engine->textures;
+
+    Texture* texture1 = (Texture*)textures->search(textures, "safe_zone");
+
+    root = newBox((vec3){0.0f, 0.0f, 0.0f});
+    root->setScale(root, (vec3){1.0f, 0.05f, 1.0f});
+    memcpy(root->material, shinyMaterial, sizeof(Material));
+    root->addTexture(root, texture1);
+
+    root->setPosition(root, (vec3){engine->safeZone[X_COORD],
+                                   -2.0f,
+                                   engine->safeZone[Z_COORD]});
+    engine->models->insert(engine->models, "safe_zone", root, true);
 }
 
 
@@ -713,10 +736,11 @@ void draw(Backend* engine)
         {
             model->setPosition(model, (vec3){(float)i, -2.0f, 0.0f});
             model->draw(model, NULL);
-            engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){(float)i, 0.0f, 0.0f}, 0.5f);
 
             model->setPosition(model, (vec3){0.0f, -2.0f, (float)i});
             model->draw(model, NULL);
+
+            engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){(float)i, 0.0f, 0.0f}, 0.5f);
             engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){0.0f, 0.0f, (float)i}, 0.5f);
         }
 
@@ -746,7 +770,8 @@ void draw(Backend* engine)
     model->setShader(model, shader);
     model->draw(model, NULL);
 
-    model = (Box*)engine->models->search(engine->models, "trap");
+    // Draw safe zone
+    model = (Box*)engine->models->search(engine->models, "safe_zone");
     model->setShader(model, shader);
     model->draw(model, NULL);
 

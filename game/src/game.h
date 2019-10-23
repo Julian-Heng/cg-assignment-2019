@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include <cglm/vec3.h>
 #include <stdio.h>
 
 #include "camera.h"
@@ -50,6 +51,7 @@ typedef struct Backend
 
     bool options[GAME_OPTION_COUNT];
 
+    vec3 safeZone;
     Camera* cam;
     float timeDelta;
 
@@ -79,6 +81,7 @@ void initTable(Backend*, Material*, Material*);
 void initTorch(Backend*, Material*, Material*);
 void initSign(Backend*, Material*);
 void initTrap(Backend*, Material*);
+void initSafeZone(Backend*, Material*);
 
 void loop(Backend*);
 void draw(Backend*);
