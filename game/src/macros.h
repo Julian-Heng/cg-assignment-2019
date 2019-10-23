@@ -15,6 +15,9 @@
 #define ASPECT_RATIO(w, h) ((float)(w) / (float)(h))
 #define KEY_PRESSED(window, key) glfwGetKey((window), (key)) == GLFW_PRESS
 
+#define CHECK_GAME_STATE(e) \
+    ! (e)->options[GAME_PLAYER_DIE] && ! (e)->options[GAME_WIN]
+
 #define X_COORD 0
 #define Y_COORD 1
 #define Z_COORD 2

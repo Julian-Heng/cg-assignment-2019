@@ -340,6 +340,7 @@ static void jump(Camera* this)
         start = false;
         startTime = glfwGetTime();
         initialPosition = this->position[Y_COORD];
+
         return;
     }
 

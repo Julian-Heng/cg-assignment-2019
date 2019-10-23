@@ -6,6 +6,7 @@
 #define LOG_CLEAR           "\r\e[2K"
 #define LOG_PROJECTION_TYPE "Projection type : %s"
 #define LOG_PLAYER_STATE    "Player state    : %s"
+#define LOG_GAME_STATE      "Game state      : %s"
 #define LOG_RESOLUTION      "Resolution      : %d x %d"
 #define LOG_LIGHT_LEVEL     "Light level     : %f"
 #define LOG_FRAME_COUNT     "Frame count     : %lld"

@@ -66,16 +66,7 @@ Backend* init()
     }
 
     glfwSetWindowUserPointer(engine->window, engine);
-
-    engine->options[GAME_USE_PERSPECTIVE] = true;
-    engine->options[GAME_LIGHTS_ON] = false;
-    engine->options[GAME_HAS_TORCH] = false;
-    engine->options[GAME_PICKUP_WOLF] = false;
-    engine->options[GAME_PLAYER_DIE] = false;
-    engine->options[GAME_WIN] = false;
-    engine->options[GAME_LOSE] = false;
-
-    engine->lightLevel = 1.0f;
+    resetGameSettings(engine);
 
     return engine;
 }
@@ -123,7 +114,7 @@ void initGlad(Backend* engine)
 void initShader(Backend* engine)
 {
     HashTable* shaders = newHashTable();
-    char* filenames[] = {"shader", "lamp"};
+    char* filenames[] = {"shader"};
 
     for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
     {
@@ -216,6 +207,19 @@ void initShapes(Backend* engine)
 }
 
 
+void resetGameSettings(Backend* engine)
+{
+    engine->options[GAME_USE_PERSPECTIVE] = true;
+    engine->options[GAME_LIGHTS_ON] = false;
+    engine->options[GAME_HAS_TORCH] = false;
+    engine->options[GAME_PICKUP_WOLF] = false;
+    engine->options[GAME_PLAYER_DIE] = false;
+    engine->options[GAME_WIN] = false;
+
+    engine->lightLevel = 1.0f;
+}
+
+
 void loop(Backend* engine)
 {
     float lastTime = glfwGetTime();
@@ -275,6 +279,14 @@ void draw(Backend* engine)
 
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
+    if (engine->options[GAME_PLAYER_DIE])
+    {
+        engine->cam->setPosition(engine->cam,
+                                 (vec3){engine->cam->position[X_COORD],
+                                        -1.0f,
+                                        engine->cam->position[Z_COORD]});
+    }
+
     cam->getViewMatrix(cam, view);
     setupProjection(engine, cam, projection);
     setupShader(engine, shader, cam, projection, view);
@@ -298,12 +310,18 @@ void draw(Backend* engine)
     model->resetPosition(model);
 
     // Draw wolf
-    model = (Box*)engine->models->search(engine->models, "wolf");
-    model->setShader(model, shader);
-    model->draw(model, (void*)engine);
+    if (! engine->options[GAME_PLAYER_DIE] &&
+        ! engine->options[GAME_WIN])
+    {
+        model = (Box*)engine->models->search(engine->models, "wolf");
+        model->setShader(model, shader);
+        model->draw(model, (void*)engine);
+    }
 
     // Draw sheep
-    if (engine->options[GAME_PICKUP_WOLF])
+    if (engine->options[GAME_PICKUP_WOLF] &&
+        ! engine->options[GAME_PLAYER_DIE] &&
+        ! engine->options[GAME_WIN])
     {
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
@@ -386,6 +404,9 @@ void draw(Backend* engine)
     model->draw(model, NULL);
 
     cam->poll(cam);
+
+    engine->options[GAME_WIN] = engine->options[GAME_PICKUP_WOLF] &&
+                                checkHitbox(engine, engine->safeZone, 0.5f);
 }
 
 
@@ -628,11 +649,11 @@ void instantKeyInputCallback(GLFWwindow* win)
     float timeDelta = engine->timeDelta;
 
     bool keys[] = {
-        KEY_PRESSED(win, GLFW_KEY_W) && ! engine->options[GAME_PLAYER_DIE],
-        KEY_PRESSED(win, GLFW_KEY_A) && ! engine->options[GAME_PLAYER_DIE],
-        KEY_PRESSED(win, GLFW_KEY_S) && ! engine->options[GAME_PLAYER_DIE],
-        KEY_PRESSED(win, GLFW_KEY_D) && ! engine->options[GAME_PLAYER_DIE],
-        KEY_PRESSED(win, GLFW_KEY_SPACE) && ! engine->options[GAME_PLAYER_DIE],
+        KEY_PRESSED(win, GLFW_KEY_W) && CHECK_GAME_STATE(engine),
+        KEY_PRESSED(win, GLFW_KEY_A) && CHECK_GAME_STATE(engine),
+        KEY_PRESSED(win, GLFW_KEY_S) && CHECK_GAME_STATE(engine),
+        KEY_PRESSED(win, GLFW_KEY_D) && CHECK_GAME_STATE(engine),
+        KEY_PRESSED(win, GLFW_KEY_SPACE) && CHECK_GAME_STATE(engine),
 
         KEY_PRESSED(win, GLFW_KEY_R)
     };
@@ -664,13 +685,7 @@ void instantKeyInputCallback(GLFWwindow* win)
 
     if (keys[GAME_RESET])
     {
-        engine->options[GAME_USE_PERSPECTIVE] = true;
-        engine->options[GAME_LIGHTS_ON] = false;
-        engine->options[GAME_HAS_TORCH] = false;
-        engine->options[GAME_PICKUP_WOLF] = false;
-        engine->options[GAME_PLAYER_DIE] = false;
-
-        engine->lightLevel = 1.0f;
+        resetGameSettings(engine);
 
         cam->setJump(cam, false);
         cam->resetPosition(cam);

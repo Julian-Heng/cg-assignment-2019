@@ -39,7 +39,6 @@ typedef enum
     GAME_PICKUP_WOLF,
     GAME_PLAYER_DIE,
     GAME_WIN,
-    GAME_LOSE,
 
     GAME_OPTION_COUNT
 } GameOptions;
@@ -74,6 +73,7 @@ void initGlad(Backend*);
 void initShader(Backend*);
 void initTextures(Backend*);
 void initShapes(Backend*);
+void resetGameSettings(Backend*);
 
 void loop(Backend*);
 void draw(Backend*);

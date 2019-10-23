@@ -143,8 +143,7 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
 
     // Move to position
-    //root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
-    root->setPosition(root, (vec3){-25.0f, -1.35f, -25.0f});
+    root->setPosition(root, (vec3){25.0f, -1.35f, 25.0f});
     root->recordInitialPosition(root);
     root->recordInitialRotation(root);
 
@@ -216,7 +215,10 @@ void initSheep(Backend* engine, Material* defaultMaterial)
 
     MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
 
+    // Set position
     root->setPosition(root, (vec3){25.0f, -0.6f, -25.0f});
+    root->recordInitialPosition(root);
+    root->recordInitialRotation(root);
 
     engine->models->insert(engine->models, "sheep", root, true);
 }
@@ -403,6 +405,9 @@ void initSafeZone(Backend* engine, Material* shinyMaterial)
     root->setPosition(root, (vec3){engine->safeZone[X_COORD],
                                    -2.0f,
                                    engine->safeZone[Z_COORD]});
+    root->recordInitialPosition(root);
+    root->recordInitialRotation(root);
+
     engine->models->insert(engine->models, "safe_zone", root, true);
 }
 
