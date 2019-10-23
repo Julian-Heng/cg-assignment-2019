@@ -1,0 +1,30 @@
+\usepackage{listings}
+\usepackage{multicol}
+\IfFileExists{inconsolata.sty}{\usepackage{inconsolata}}
+
+\definecolor{codegray}{gray}{0.9}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstdefinestyle{numbers} {numbers=left, numberstyle=\ttfamily}
+\lstdefinestyle{color}
+{
+    commentstyle=\color{dkgreen},
+    keywordstyle=\color{blue},
+    stringstyle=\color{mauve},
+}
+
+\lstdefinestyle{common}
+{
+    breakatwhitespace=true,
+    breaklines=true,
+    columns=fixed,
+    showstringspaces=false,
+    xleftmargin=0.65cm,
+    basicstyle=\small\ttfamily,
+    tabsize=4
+}
+
+\lstdefinestyle{code} {style=common, style=color, style=numbers}
+\lstdefinestyle{codenonum} {style=common, style=color}
