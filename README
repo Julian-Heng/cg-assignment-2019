@@ -1,0 +1,45 @@
+Computer Graphics Assigment
+By Julian Heng (19473701)
+
+========================
+Source Directory
+========================
+./game/src/
+├── box.c           Box source file
+├── box.h           Box header file
+├── camera.c        Camera source file for character movement and jumping
+├── camera.h        Camera header file
+├── game.c          Game logic and main loop
+├── game.h          Game header file
+├── glad.c          GLAD library
+├── hashtable.c     Hash Table implementation
+├── hashtable.h     Hash Table Header
+├── list.c          List implementation
+├── list.h          List header
+├── log.c           Game logging infomation
+├── log.h           Logging header
+├── macros.h        Macros for common functions
+├── material.c      Material source file for storing material info
+├── material.h      Material header file
+├── models.c        Models creation for the game
+├── models.h        Models header file
+├── shader.c        Shader source file for reading and compiling shader programs
+├── shader.h        Shader header file
+├── shaders
+│   ├── shader.fs   Fragment shader
+│   └── shader.vs   Vertex shader
+├── texture.c       Texture source file for loading a texture and binding it in OpenGL
+└── texture.h       Texture header file
+
+
+========================
+Compilation instructions
+========================
+
+$ cd game           # Enter game directory
+$ mkdir build       # Make a build directory
+$ cd build          # Enter build directory
+$ cmake ..          # Invoke cmake
+$ make              # Compile game
+$ cd bin            # Enter bin directory
+$ ./game            # Launch game
