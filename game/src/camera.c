@@ -123,6 +123,8 @@ static void moveForward(Camera* this, float timeDelta)
     Box* attach;
 
     vec3 temp;
+
+    // Suppress y component of the camera front
     glm_vec3_copy((vec3){this->front[X_COORD], 0.0f, this->front[Z_COORD]}, temp);
     glm_vec3_normalize(temp);
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
@@ -161,6 +163,8 @@ static void moveBackward(Camera* this, float timeDelta)
     Box* attach;
 
     vec3 temp;
+
+    // Suppress y component of the camera front
     glm_vec3_copy((vec3){this->front[X_COORD], 0.0f, this->front[Z_COORD]}, temp);
     glm_vec3_normalize(temp);
     glm_vec3_scale(temp, this->speed * timeDelta, temp);
@@ -240,6 +244,7 @@ static void attach(Camera* this, Box* box)
 
 static void detach(Camera* this)
 {
+    // Drop everything
     this->attached->deleteListShallow(&(this->attached));
     this->attached = newList();
 }
@@ -324,6 +329,7 @@ static void jump(Camera* this)
     static float startTime = 0.0f;
     static float initialPosition = 0.0f;
 
+    // Set variables if activated
     if (! this->jumping)
     {
         start = true;
@@ -335,6 +341,7 @@ static void jump(Camera* this)
         return;
     }
 
+    // Check if first called
     if (start)
     {
         start = false;
@@ -344,8 +351,10 @@ static void jump(Camera* this)
         return;
     }
 
+    // Set y position along curve as time increases
     this->position[Y_COORD] = initialPosition + calcJump(glfwGetTime() - startTime);
 
+    // Check jump finish
     if ((this->position[Y_COORD] - initialPosition) < 0.0f)
     {
         start = true;

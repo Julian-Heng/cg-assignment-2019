@@ -21,6 +21,7 @@ void initGround(Backend* engine, Material* defaultMaterial)
     HashTable* textures = engine->textures;
     Texture* texture = (Texture*)textures->search(textures, "grass");
 
+    // Make a grid from (-50, -50) to (50, 50)
     for (int i = -50; i < 50; i += 10)
     {
         for (int j = -50; j < 50; j += 10)
@@ -410,5 +411,3 @@ void initSafeZone(Backend* engine, Material* shinyMaterial)
 
     engine->models->insert(engine->models, "safe_zone", root, true);
 }
-
-

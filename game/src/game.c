@@ -45,8 +45,10 @@ Backend* init()
 
     memset(engine, 0, sizeof(Backend));
 
+    // Mark safe zone for winning condition
     glm_vec3_copy((vec3){-20.0f, 0.0f, -20.0f}, engine->safeZone);
 
+    // Init camera
     if (! (engine->cam = newCamera(engine->safeZone)))
     {
         free(engine);
@@ -192,6 +194,7 @@ void initShapes(Backend* engine)
     shinyMaterial->setSpecular(shinyMaterial, 0);
     shinyMaterial->setShininess(shinyMaterial, 128.0f);
 
+    // Make models
     initGround(engine, defaultMaterial);
     initTree(engine, defaultMaterial);
     initWolf(engine, defaultMaterial);
@@ -239,6 +242,7 @@ void loop(Backend* engine)
         engine->timeDelta = currentTime - lastTime;
         lastTime = currentTime;
 
+        // Set sky color depending on light setting
         if (! engine->options[GAME_LIGHTS_ON])
         {
             glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
@@ -279,6 +283,7 @@ void draw(Backend* engine)
 
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
+    // Move camera down if player is dead
     if (engine->options[GAME_PLAYER_DIE])
     {
         engine->cam->setPosition(engine->cam,
@@ -307,7 +312,6 @@ void draw(Backend* engine)
         model->setPosition(model, (vec3){0.0f, 0.0f, (float)i});
         model->draw(model, NULL);
     }
-    model->resetPosition(model);
 
     // Draw wolf
     if (! engine->options[GAME_PLAYER_DIE] &&
@@ -326,6 +330,8 @@ void draw(Backend* engine)
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
 
+        // Change angle and direction of vector depending on the player's
+        // x coordinate and the sheep's x coordinate
         if (engine->cam->position[X_COORD] < model->position[X_COORD])
         {
             glm_vec3_sub(model->position, engine->cam->position, temp);
@@ -351,6 +357,7 @@ void draw(Backend* engine)
 
         angle = 0.0f;
 
+        // Check sheep's distance to player
         engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, model->position, 2.0f);
     }
 
@@ -368,6 +375,7 @@ void draw(Backend* engine)
             model->setPosition(model, (vec3){0.0f, -2.0f, (float)i});
             model->draw(model, NULL);
 
+            // Check if player touched a trap
             engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){(float)i, 0.0f, 0.0f}, 0.5f);
             engine->options[GAME_PLAYER_DIE] = checkHitbox(engine, (vec3){0.0f, 0.0f, (float)i}, 0.5f);
         }
@@ -405,6 +413,7 @@ void draw(Backend* engine)
 
     cam->poll(cam);
 
+    // Check win condition
     engine->options[GAME_WIN] = engine->options[GAME_PICKUP_WOLF] &&
                                 checkHitbox(engine, engine->safeZone, 0.5f);
 }
@@ -419,8 +428,10 @@ void drawWolfTail(Box* this, mat4 model, void* pointer)
 
     glm_translate(model, this->position);
 
+    // Rotate tail if picked up
     if (engine->options[GAME_PICKUP_WOLF])
     {
+        // Change direction periodically
         direction = sin(glfwGetTime() * 8) > 0.0f;
         this->setRotationDelta(
             this, (vec3){0.0f, (direction ? -1 : 1) * 0.5f, 0.0f}
@@ -457,13 +468,13 @@ void drawSheepLeg(Box* this, mat4 model, void* pointer)
         case 2: case 3: case 6: case 7: direction = 1.0f; break;
     }
 
+    // Change direction periodically
     direction *= sin(glfwGetTime() * 4) - 12.5f > 0.0f ? -1.0f : 1.0f;
     glm_rotate_x(model, direction * sin(glfwGetTime() * 4) / 5.0f, model);
-
     glm_translate(model, this->modelPosition);
-
     glm_scale(model, this->scale);
 
+    // Alternate across legs diagonally
     alternate = (alternate + 1) % 8;
 }
 
@@ -568,6 +579,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
         case GLFW_KEY_O:    engine->options[GAME_LIGHTS_ON] ^= 1; break;
 
         case GLFW_KEY_K:
+            // Change light level if player has torch
             if (engine->options[GAME_HAS_TORCH])
             {
                 engine->lightLevel = MAX(engine->lightLevel - 0.1f, 0.0f);
@@ -576,6 +588,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             break;
 
         case GLFW_KEY_L:
+            // Change light level if player has torch
             if (engine->options[GAME_HAS_TORCH])
             {
                 engine->lightLevel = MIN(engine->lightLevel + 0.1f, 2.0f);
@@ -586,9 +599,9 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
         case GLFW_KEY_F:
             model = (Box*)engine->models->search(engine->models, "torch");
 
+            // Set new position for the torch
             if (engine->options[GAME_HAS_TORCH])
             {
-                // Set new position for the torch
                 glm_vec3_copy(engine->cam->front, temp);
                 glm_vec3_normalize_to((vec3){temp[X_COORD], 0.0f, temp[Z_COORD]}, temp);
                 glm_vec3_scale(temp, 2.0f, temp);
@@ -608,6 +621,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
         case GLFW_KEY_E:
             model = (Box*)engine->models->search(engine->models, "wolf");
 
+            // Drop wolf
             if (engine->options[GAME_PICKUP_WOLF])
             {
                 engine->cam->detach(engine->cam);
@@ -624,6 +638,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
             }
             else if (checkHitbox(engine, model->position, 3.0f))
             {
+                // Pickup wolf
                 engine->cam->attach(engine->cam, model);
                 engine->options[GAME_PICKUP_WOLF] = true;
             }
@@ -683,6 +698,7 @@ void instantKeyInputCallback(GLFWwindow* win)
         cam->setJump(cam, true);
     }
 
+    // Reset game state
     if (keys[GAME_RESET])
     {
         resetGameSettings(engine);
@@ -750,9 +766,7 @@ void scrollCallback(GLFWwindow* win, double xoffset, double yoffset)
 
 void framebufferSizeCallback(GLFWwindow* win, int width, int height)
 {
-    Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
     glViewport(0, 0, width, height);
-    draw(engine);
 }
 
 

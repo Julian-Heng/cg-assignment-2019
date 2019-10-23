@@ -161,6 +161,7 @@ static void attach(Box* this, Box* attach)
 
 static void setGlBuffers(Box* this)
 {
+    // Make VAO and VBO buffers
     glGenVertexArrays(1, &(this->VAO));
     glGenBuffers(1, &(this->VBO));
 
@@ -204,6 +205,7 @@ static void addTexture(Box* this, Texture* texture)
 
 static void setModelPosition(Box* this, vec3 modelPosition)
 {
+    // Model Position is the position of the box relative to the model
     ListNode* iter;
     vec3 delta;
 
@@ -219,6 +221,8 @@ static void setModelPosition(Box* this, vec3 modelPosition)
 
 static void setPosition(Box* this, vec3 position)
 {
+    // Position is the position of the box relative to the world, added to the
+    // model position
     ListNode* iter;
     vec3 delta;
 
@@ -380,6 +384,7 @@ static void setupTexture(Box* this)
     ListNode* iter;
     int i = 0;
 
+    // Bind all textures in box
     LIST_FOR_EACH(this->textures, iter)
     {
         glActiveTexture(GL_TEXTURE0 + i++);
@@ -390,16 +395,20 @@ static void setupTexture(Box* this)
 
 static void setupModelMatrix(Box* this, mat4 model, void* pointer)
 {
+    // Apply transformations to the model
     glm_mat4_identity(model);
 
+    // Move box relative to world
     glm_translate(model, this->position);
 
     glm_rotate_x(model, glm_rad(this->rotation[X_COORD]), model);
     glm_rotate_y(model, glm_rad(this->rotation[Y_COORD]), model);
     glm_rotate_z(model, glm_rad(this->rotation[Z_COORD]), model);
 
+    // Move box relative to model
     glm_translate(model, this->modelPosition);
 
+    // Scale model
     glm_scale(model, this->scale);
 }
 

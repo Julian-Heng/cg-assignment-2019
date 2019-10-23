@@ -1,3 +1,7 @@
+// Hash Table adapted from:
+// https://github.com/jamesroutley/write-a-hash-table
+// Accessed 12/10/19
+
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
