@@ -77,6 +77,7 @@ void resetGameSettings(Backend*);
 
 void loop(Backend*);
 void draw(Backend*);
+void drawMessage(Backend*, const char*);
 
 void drawWolfTail(Box*, mat4, void*);
 void drawSheepLeg(Box*, mat4, void*);

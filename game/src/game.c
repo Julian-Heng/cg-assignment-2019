@@ -143,6 +143,8 @@ void initTextures(Backend* engine)
     HashTable* textures = newHashTable();
     char* filenames[] = {
         "black",
+        "game_over",
+        "game_win",
         "grass",
         "grey",
         "red",
@@ -204,6 +206,8 @@ void initShapes(Backend* engine)
     initSign(engine, defaultMaterial);
     initTrap(engine, shinyMaterial);
     initSafeZone(engine, shinyMaterial);
+    initGameMessage(engine, defaultMaterial, "game_over");
+    initGameMessage(engine, defaultMaterial, "game_win");
 
     SAFE_FREE(defaultMaterial);
     SAFE_FREE(shinyMaterial);
@@ -254,7 +258,18 @@ void loop(Backend* engine)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        draw(engine);
+        if (engine->options[GAME_PLAYER_DIE])
+        {
+            drawMessage(engine, "game_over");
+        }
+        else if (engine->options[GAME_WIN])
+        {
+            drawMessage(engine, "game_win");
+        }
+        else
+        {
+            draw(engine);
+        }
 
         glfwSwapBuffers(engine->window);
         glfwPollEvents();
@@ -284,14 +299,6 @@ void draw(Backend* engine)
     glfwGetWindowSize(engine->window, &(engine->width), &(engine->height));
 
     // Move camera down if player is dead
-    if (engine->options[GAME_PLAYER_DIE])
-    {
-        engine->cam->setPosition(engine->cam,
-                                 (vec3){engine->cam->position[X_COORD],
-                                        -1.0f,
-                                        engine->cam->position[Z_COORD]});
-    }
-
     cam->getViewMatrix(cam, view);
     setupProjection(engine, cam, projection);
     setupShader(engine, shader, cam, projection, view);
@@ -314,18 +321,12 @@ void draw(Backend* engine)
     }
 
     // Draw wolf
-    if (! engine->options[GAME_PLAYER_DIE] &&
-        ! engine->options[GAME_WIN])
-    {
-        model = (Box*)engine->models->search(engine->models, "wolf");
-        model->setShader(model, shader);
-        model->draw(model, (void*)engine);
-    }
+    model = (Box*)engine->models->search(engine->models, "wolf");
+    model->setShader(model, shader);
+    model->draw(model, (void*)engine);
 
     // Draw sheep
-    if (engine->options[GAME_PICKUP_WOLF] &&
-        ! engine->options[GAME_PLAYER_DIE] &&
-        ! engine->options[GAME_WIN])
+    if (engine->options[GAME_PICKUP_WOLF])
     {
         model = (Box*)engine->models->search(engine->models, "sheep");
         model->setShader(model, shader);
@@ -416,6 +417,33 @@ void draw(Backend* engine)
     // Check win condition
     engine->options[GAME_WIN] = engine->options[GAME_PICKUP_WOLF] &&
                                 checkHitbox(engine, engine->safeZone, 0.5f);
+}
+
+
+void drawMessage(Backend* engine, const char* key)
+{
+    Camera* cam = engine->cam;
+    Shader* shader = (Shader*)engine->shaders->search(engine->shaders, "shader");
+
+    mat4 view;
+    mat4 projection;
+
+    // Setup scene
+    engine->options[GAME_LIGHTS_ON] = true;
+
+    // Move camera to position
+    cam->setPosition(cam, (vec3){-5.0f, 20.0f, 20.0f});
+    cam->resetFront(cam);
+
+    // Setup camera view
+    cam->getViewMatrix(cam, view);
+    setupProjection(engine, cam, projection);
+    setupShader(engine, shader, cam, projection, view);
+
+    // Draw the message as a box
+    Box* model = engine->models->search(engine->models, key);
+    model->setShader(model, shader);
+    model->draw(model, NULL);
 }
 
 
@@ -730,7 +758,7 @@ void mouseCallback(GLFWwindow* win, double x, double y)
     Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
     Camera* cam = engine ? engine->cam : NULL;
 
-    if (! cam)
+    if (! cam || engine->options[GAME_PLAYER_DIE])
     {
         return;
     }

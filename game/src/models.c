@@ -411,3 +411,17 @@ void initSafeZone(Backend* engine, Material* shinyMaterial)
 
     engine->models->insert(engine->models, "safe_zone", root, true);
 }
+
+
+void initGameMessage(Backend* engine, Material* defaultMaterial, const char* key)
+{
+    Box* root = NULL;
+    HashTable* textures = engine->textures;
+    Texture* texture1 = (Texture*)textures->search(textures, key);
+    root = newBox((vec3){0.0f, 0.0f, 0.0f});
+    root->setScale(root, (vec3){100.0f, 100.0f, 100.0f});
+    memcpy(root->material, defaultMaterial, sizeof(Material));
+    root->addTexture(root, texture1);
+    root->setRotation(root, (vec3){90.0f, 0.0f, 0.0f});
+    engine->models->insert(engine->models, key, root, true);
+}

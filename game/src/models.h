@@ -13,5 +13,6 @@ void initTorch(Backend*, Material*, Material*);
 void initSign(Backend*, Material*);
 void initTrap(Backend*, Material*);
 void initSafeZone(Backend*, Material*);
+void initGameMessage(Backend*, Material*, const char*);
 
 #endif
