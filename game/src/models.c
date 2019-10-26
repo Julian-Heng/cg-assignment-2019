@@ -32,13 +32,9 @@ void initGround(Backend* engine, Material* defaultMaterial)
             model->addTexture(model, texture);
 
             if (root)
-            {
                 root->attach(root, model);
-            }
             else
-            {
                 root = model;
-            }
         }
     }
 
@@ -103,42 +99,24 @@ void initWolf(Backend* engine, Material* defaultMaterial)
     };
 
     Texture* textureMap[] = {
-        texture1, // Body
-        texture1, // Head
-
-        texture1, // Legs
-        texture1, // Legs
-        texture1, // Legs
-        texture1, // Legs
-
-        texture1, // Tail
-        texture2  // Head
+        texture1, texture1, // Body, Head
+        texture1, texture1, // Legs
+        texture1, texture1, // Legs
+        texture1, texture2  // Tail, Head
     };
 
     Material* materialMap[] = {
-        defaultMaterial, // Body
-        defaultMaterial, // Head
-
-        defaultMaterial, // Legs
-        defaultMaterial, // Legs
-        defaultMaterial, // Legs
-        defaultMaterial, // Legs
-
-        defaultMaterial, // Tail
-        defaultMaterial  // Head
+        defaultMaterial, defaultMaterial, // Body, Head
+        defaultMaterial, defaultMaterial, // Legs
+        defaultMaterial, defaultMaterial, // Legs
+        defaultMaterial, defaultMaterial  // Tail, Head
     };
 
     void (*drawingFuncs[])(Box*, mat4, void*) = {
-        NULL,
-        NULL,
-
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-
-        drawWolfTail,
-        NULL
+        NULL, NULL,
+        NULL, NULL,
+        NULL, NULL,
+        drawWolfTail, NULL
     };
 
     MAKE_MODEL(root, model, specifications, textureMap, materialMap, drawingFuncs);
@@ -179,38 +157,30 @@ void initSheep(Backend* engine, Material* defaultMaterial)
     };
 
     Texture* textureMap[] = {
-        texture1, // Body
-        texture1, // Head
-
+        texture1, texture1, // Body, Head
         texture1, texture2, // Legs
         texture1, texture2, // Legs
         texture1, texture2, // Legs
         texture1, texture2, // Legs
-
         texture3  // Head
     };
 
     Material* materialMap[] = {
         defaultMaterial,
         defaultMaterial,
-
         defaultMaterial, defaultMaterial,
         defaultMaterial, defaultMaterial,
         defaultMaterial, defaultMaterial,
         defaultMaterial, defaultMaterial,
-
         defaultMaterial
     };
 
     void (*drawingFuncs[])(Box*, mat4, void*) = {
-        NULL,
-        NULL,
-
+        NULL, NULL,
         drawSheepLeg, drawSheepLeg,
         drawSheepLeg, drawSheepLeg,
         drawSheepLeg, drawSheepLeg,
         drawSheepLeg, drawSheepLeg,
-
         NULL,
     };
 

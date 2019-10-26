@@ -168,18 +168,12 @@ static void setGlBuffers(Box* this)
     glBindVertexArray(this->VAO);
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(VERTICES),
-                 VERTICES,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                           (void*)(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float),
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                           (void*)(6 * sizeof(float)));
 
     glEnableVertexAttribArray(0);
@@ -211,8 +205,8 @@ static void setModelPosition(Box* this, vec3 modelPosition)
 
     glm_vec3_sub(modelPosition, this->modelPosition, delta);
 
-    glm_vec3_copy(modelPosition ? modelPosition
-                                : (vec3){0.0f, 0.0f, 0.0f}, this->modelPosition);
+    glm_vec3_copy(modelPosition ? modelPosition : (vec3){0.0f, 0.0f, 0.0f},
+                  this->modelPosition);
 
     LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->move((Box*)(iter->value), delta);
@@ -228,8 +222,8 @@ static void setPosition(Box* this, vec3 position)
 
     glm_vec3_sub(position, this->position, delta);
 
-    glm_vec3_copy(position ? position
-                           : (vec3){0.0f, 0.0f, 0.0f}, this->position);
+    glm_vec3_copy(position ? position : (vec3){0.0f, 0.0f, 0.0f},
+                  this->position);
 
     LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->move((Box*)(iter->value), delta);
@@ -238,8 +232,8 @@ static void setPosition(Box* this, vec3 position)
 
 static void setScale(Box* this, vec3 scale)
 {
-    glm_vec3_copy(scale ? scale
-                        : (vec3){1.0f, 1.0f, 1.0f}, this->scale);
+    glm_vec3_copy(scale ? scale : (vec3){1.0f, 1.0f, 1.0f},
+                  this->scale);
 }
 
 
@@ -247,8 +241,8 @@ static void setRotation(Box* this, vec3 rotation)
 {
     ListNode* iter;
 
-    glm_vec3_copy(rotation ? rotation
-                           : (vec3){0.0f, 0.0f, 0.0f}, this->rotation);
+    glm_vec3_copy(rotation ? rotation : (vec3){0.0f, 0.0f, 0.0f},
+                  this->rotation);
 
     LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->setRotation((Box*)(iter->value), rotation);
@@ -259,9 +253,8 @@ static void setRotationDelta(Box* this, vec3 rotation)
 {
     ListNode* iter;
 
-    glm_vec3_add(rotation ? rotation
-                          : (vec3){0.0f, 0.0f, 0.0f}, this->rotation,
-                                                      this->rotation);
+    glm_vec3_add(rotation ? rotation : (vec3){0.0f, 0.0f, 0.0f},
+                 this->rotation, this->rotation);
 
     LIST_FOR_EACH(this->attached, iter)
         ((Box*)(iter->value))->setRotationDelta((Box*)(iter->value), rotation);
@@ -338,13 +331,16 @@ static void draw(Box* this, void* pointer)
 
     glBindVertexArray(this->VAO);
 
+    // Build up box's shader, textures and model matrix
     this->setupShader(this);
     this->setupTexture(this);
     this->setupModelMatrix(this, model, pointer);
-    this->shader->setMat4(this->shader, "model", model);
 
+    // Draw
+    this->shader->setMat4(this->shader, "model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+    // Draw each attached box to this box
     LIST_FOR_EACH(this->attached, iter)
     {
         box = (Box*)(iter->value);
@@ -364,16 +360,12 @@ static void draw(Box* this, void* pointer)
 static void setupShader(Box* this)
 {
     this->shader->use(this->shader);
-
     this->shader->setVec3(this->shader, "material.ambient",
                           this->material->ambient);
-
     this->shader->setInt(this->shader, "material.diffuse",
                          this->material->diffuse);
-
     this->shader->setInt(this->shader, "material.specular",
                          this->material->specular);
-
     this->shader->setFloat(this->shader, "material.shininess",
                            this->material->shininess);
 }

@@ -146,6 +146,7 @@ static void checkCompile(unsigned int shader, int type, char* name)
                 glGetShaderInfoLog(shader, BUFSIZ, NULL, info);
                 fprintf(stderr, ERR_SHADER, name, info);
             }
+
             break;
 
         case PROGRAM:
@@ -155,6 +156,7 @@ static void checkCompile(unsigned int shader, int type, char* name)
                 glGetProgramInfoLog(shader, BUFSIZ, NULL, info);
                 fprintf(stderr, ERR_PROGRAM, name, info);
             }
+
             break;
     }
 }
@@ -171,18 +173,14 @@ static char* fileRead(char* filename)
     if ((fp = fopen(filename, "r")))
     {
         while ((ch = fgetc(fp)) != EOF && ! ferror(fp))
-        {
             count++;
-        }
 
         fseek(fp, 0, SEEK_SET);
         file = (char*)malloc((count + 1) * sizeof(char));
         memset(file, 0, count + 1);
 
         while ((ch = fgetc(fp)) != EOF && ! ferror(fp))
-        {
             file[++i] = ch;
-        }
 
         fclose(fp);
     }

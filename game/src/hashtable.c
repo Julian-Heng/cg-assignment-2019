@@ -73,18 +73,14 @@ static HashTable* newHashTableSized(const int baseSize)
     HashTable* table;
 
     if (! (table = (HashTable*)malloc(sizeof(HashTable))))
-    {
         fprintf(stderr, ERR_HASHTABLE_MALLOC);
-    }
 
     table->baseSize = baseSize;
     table->size = nextPrime(table->baseSize);
     table->count = 0;
 
     if (! (table->items = (HashEntry**)malloc(table->size * sizeof(HashEntry*))))
-    {
         fprintf(stderr, ERR_HASHTABLE_MALLOC);
-    }
 
     memset(table->items, 0, table->size * sizeof(HashEntry*));
     linkMethods(table);
@@ -120,14 +116,10 @@ static void insert(HashTable* this, const char* key, void* value, bool isMalloc)
     int i;
 
     if (((this->count * 100) / this->size) > 70)
-    {
         resizeUp(this);
-    }
 
     if (! (item = newHashEntry(key, value, isMalloc)))
-    {
         return;
-    }
 
     index = hash(item->key, this->size, 0);
     current = this->items[index];
@@ -163,12 +155,8 @@ static void* search(HashTable* this, const char* key)
     while (item != NULL)
     {
         if (item != &DELETED)
-        {
             if (! strncmp(item->key, key, BUFSIZ))
-            {
                 return item->value;
-            }
-        }
 
         index = hash(key, this->size, i++);
         item = this->items[index];
@@ -188,22 +176,17 @@ static void delete(HashTable* this, const char* key)
     // Table will never downsize
     /*
     if (((this->count * 100) / this->size) < 10)
-    {
         resizeDown(this);
-    }
     */
 
     while (item != NULL)
     {
-        if (item != &DELETED)
+        if (item != &DELETED && ! strncmp(item->key, key, BUFSIZ))
         {
-            if (! strncmp(item->key, key, BUFSIZ))
-            {
-                deleteHashEntry(&item);
-                this->items[index] = &DELETED;
-                this->count--;
-                return;
-            }
+            deleteHashEntry(&item);
+            this->items[index] = &DELETED;
+            this->count--;
+            return;
         }
 
         index = hash(key, this->size, i++);
@@ -222,22 +205,17 @@ static void deleteShallow(HashTable* this, const char* key)
     // Table will never downsize
     /*
     if (((this->count * 100) / this->size) < 10)
-    {
         resizeDown(this);
-    }
     */
 
     while (item != NULL)
     {
-        if (item != &DELETED)
+        if (item != &DELETED && ! strncmp(item->key, key, BUFSIZ))
         {
-            if (! strncmp(item->key, key, BUFSIZ))
-            {
-                deleteHashEntryShallow(&item);
-                this->items[index] = &DELETED;
-                this->count--;
-                return;
-            }
+            deleteHashEntryShallow(&item);
+            this->items[index] = &DELETED;
+            this->count--;
+            return;
         }
 
         index = hash(key, this->size, i++);
@@ -259,9 +237,7 @@ static void deleteHashEntry(HashEntry** entry)
     if (*entry && *entry != &DELETED)
     {
         if ((*entry)->isMalloc)
-        {
             SAFE_FREE((*entry)->value);
-        }
 
         deleteHashEntryShallow(entry);
     }
@@ -284,9 +260,7 @@ static void deleteHashEntryShallow(HashEntry** entry)
 static void deleteHashTable(HashTable** table)
 {
     for (int i = 0; i < (*table)->size; i++)
-    {
         deleteHashEntry((*table)->items + i);
-    }
 
     SAFE_FREE((*table)->items);
     SAFE_FREE(*table);
@@ -296,9 +270,7 @@ static void deleteHashTable(HashTable** table)
 static void deleteHashTableShallow(HashTable** table)
 {
     for (int i = 0; i < (*table)->size; i++)
-    {
         deleteHashEntryShallow((*table)->items + i);
-    }
 
     SAFE_FREE((*table)->items);
     SAFE_FREE(*table);
@@ -308,9 +280,7 @@ static void deleteHashTableShallow(HashTable** table)
 static void resize(HashTable* table, const int baseSize)
 {
     if (baseSize < BASE_SIZE)
-    {
         return;
-    }
 
     HashTable* newTable = newHashTableSized(baseSize);
     HashEntry* item;
@@ -319,9 +289,7 @@ static void resize(HashTable* table, const int baseSize)
     int temp;
 
     HASHTABLE_FOR_EACH(table, item)
-    {
         newTable->insert(newTable, item->key, item->value, item->isMalloc);
-    }
 
     table->baseSize = newTable->baseSize;
     table->count = newTable->count;
@@ -355,25 +323,15 @@ static int _hash(const char* string, const int prime, const int bucket)
 static int isPrime(const int x)
 {
     if (x < 2)
-    {
         return -1;
-    }
     else if (x < 4)
-    {
         return 1;
-    }
     else if (! (x & 1))
-    {
         return 0;
-    }
 
     for (int i = 3; i <= floor(sqrt((double)x)); i += 2)
-    {
         if (! (x % i))
-        {
             return 0;
-        }
-    }
 
     return 1;
 }

@@ -31,18 +31,11 @@
         (model)->addTexture((model), (text)[i]);                              \
                                                                               \
         if ((draw)[i])                                                        \
-        {                                                                     \
             (model)->setupModelMatrix = (draw)[i];                            \
-        }                                                                     \
-                                                                              \
         if ((root))                                                           \
-        {                                                                     \
             (root)->attach((root), (model));                                  \
-        }                                                                     \
         else                                                                  \
-        {                                                                     \
             (root) = (model);                                                 \
-        }                                                                     \
     }
 
 #endif

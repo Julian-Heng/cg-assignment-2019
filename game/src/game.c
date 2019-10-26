@@ -86,9 +86,7 @@ void initWindow(Backend* engine)
 #endif
 
     if (! (engine->window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, NULL, NULL)))
-    {
         fprintf(stderr, ERR_WINDOW);
-    }
     else
     {
         glfwMakeContextCurrent(engine->window);
@@ -142,22 +140,10 @@ void initTextures(Backend* engine)
 {
     HashTable* textures = newHashTable();
     char* filenames[] = {
-        "black",
-        "game_over",
-        "game_win",
-        "grass",
-        "grey",
-        "red",
-        "safe_zone",
-        "sheep_face",
-        "sheep_skin",
-        "sign_1",
-        "sign_2",
-        "table",
-        "tree_1",
-        "tree_2",
-        "white",
-        "wolf_face"
+        "black", "game_over", "game_win", "grass",
+        "grey", "red", "safe_zone", "sheep_face",
+        "sheep_skin", "sign_1", "sign_2", "table",
+        "tree_1", "tree_2", "white", "wolf_face"
     };
 
     for (int i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++)
@@ -233,9 +219,7 @@ void loop(Backend* engine)
     float currentTime;
 
     if (! engine)
-    {
         return;
-    }
 
     while (! glfwWindowShouldClose(engine->window))
     {
@@ -248,28 +232,18 @@ void loop(Backend* engine)
 
         // Set sky color depending on light setting
         if (! engine->options[GAME_LIGHTS_ON])
-        {
             glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-        }
         else
-        {
             glClearColor(0.2f, 0.2f, 0.5f, 1.0f);
-        }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (engine->options[GAME_PLAYER_DIE])
-        {
             drawMessage(engine, "game_over");
-        }
         else if (engine->options[GAME_WIN])
-        {
             drawMessage(engine, "game_win");
-        }
         else
-        {
             draw(engine);
-        }
 
         glfwSwapBuffers(engine->window);
         glfwPollEvents();
@@ -339,9 +313,7 @@ void draw(Backend* engine)
             angle = 180.0f;
         }
         else
-        {
             glm_vec3_sub(engine->cam->position, model->position, temp);
-        }
 
         // Rotate sheep to the camera
         angle += (180.0f * glm_vec3_angle(sheepDirection, temp)) / GLM_PI;
@@ -519,19 +491,15 @@ bool checkHitbox(Backend* engine, vec3 pos, float distance)
 void setupProjection(Backend* engine, Camera* cam, mat4 projection)
 {
     if (engine->options[GAME_USE_PERSPECTIVE])
-    {
         glm_perspective(glm_rad(cam->zoom),
                         ASPECT_RATIO(engine->width, engine->height),
                         0.1f, 100.0f, projection);
-    }
     else
-    {
         glm_ortho(-((float)engine->width / 200.0f),
                    (float)engine->width / 200.0f,
                   -((float)engine->height / 200.0f),
                    (float)engine->height / 200.0f,
                   -1000.0f, 1000.0f, projection);
-    }
 }
 
 
@@ -594,9 +562,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
     Backend* engine = (Backend*)glfwGetWindowUserPointer(win);
 
     if (action != GLFW_PRESS || ! engine)
-    {
         return;
-    }
 
     switch (key)
     {
@@ -609,19 +575,13 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
         case GLFW_KEY_K:
             // Change light level if player has torch
             if (engine->options[GAME_HAS_TORCH])
-            {
                 engine->lightLevel = MAX(engine->lightLevel - 0.1f, 0.0f);
-            }
-
             break;
 
         case GLFW_KEY_L:
             // Change light level if player has torch
             if (engine->options[GAME_HAS_TORCH])
-            {
                 engine->lightLevel = MIN(engine->lightLevel + 0.1f, 2.0f);
-            }
-
             break;
 
         case GLFW_KEY_F:
@@ -639,10 +599,7 @@ void normalInputCallback(GLFWwindow* win, int key, int scancode,
                 engine->options[GAME_HAS_TORCH] = false;
             }
             else if (checkHitbox(engine, model->position, 3.0f))
-            {
                 engine->options[GAME_HAS_TORCH] = true;
-            }
-
             break;
 
 
@@ -685,9 +642,7 @@ void instantKeyInputCallback(GLFWwindow* win)
     HashEntry* iter;
 
     if (! cam)
-    {
         return;
-    }
 
     float timeDelta = engine->timeDelta;
 
@@ -702,29 +657,15 @@ void instantKeyInputCallback(GLFWwindow* win)
     };
 
     if (keys[CAM_MOVE_FORWARD] && ! keys[CAM_MOVE_BACKWARD])
-    {
         cam->moveForward(cam, timeDelta);
-    }
-
     if (keys[CAM_MOVE_LEFT] && ! keys[CAM_MOVE_RIGHT])
-    {
         cam->moveLeft(cam, timeDelta);
-    }
-
     if (keys[CAM_MOVE_BACKWARD] && ! keys[CAM_MOVE_FORWARD])
-    {
         cam->moveBackward(cam, timeDelta);
-    }
-
     if (keys[CAM_MOVE_RIGHT] && ! keys[CAM_MOVE_LEFT])
-    {
         cam->moveRight(cam, timeDelta);
-    }
-
     if (keys[CAM_JUMP])
-    {
         cam->setJump(cam, true);
-    }
 
     // Reset game state
     if (keys[GAME_RESET])
@@ -759,9 +700,7 @@ void mouseCallback(GLFWwindow* win, double x, double y)
     Camera* cam = engine ? engine->cam : NULL;
 
     if (! cam || engine->options[GAME_PLAYER_DIE])
-    {
         return;
-    }
 
     if (first)
     {
@@ -786,9 +725,7 @@ void scrollCallback(GLFWwindow* win, double xoffset, double yoffset)
     Camera* cam = engine ? engine->cam : NULL;
 
     if (cam)
-    {
         cam->scrollMouse(cam, yoffset);
-    }
 }
 
 
@@ -809,9 +746,7 @@ void terminate(Backend** engine)
     glDeleteBuffers(1, &(_engine->VBO));
 
     if (! _engine)
-    {
         return;
-    }
 
     HASHTABLE_FOR_EACH(_engine->models, iter)
     {

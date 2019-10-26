@@ -139,9 +139,7 @@ static void removeFirst(List* this, void** dest, bool* isMalloc)
             this->tail = NULL;
         }
         else
-        {
             this->head = this->head->next;
-        }
 
         deleteNode(&node);
         this->length--;
@@ -165,9 +163,7 @@ static void removeLast(List* this, void** dest, bool* isMalloc)
             this->tail = NULL;
         }
         else
-        {
             this->tail = this->tail->prev;
-        }
 
         deleteNode(&node);
         this->length--;
@@ -206,9 +202,7 @@ static void deleteList(List** this)
         removeLast(*this, &value, &isMalloc);
 
         if (isMalloc)
-        {
             SAFE_FREE(value);
-        }
     }
 
     SAFE_FREE(*this);
@@ -221,9 +215,7 @@ static void deleteListShallow(List** this)
     bool isMalloc;
 
     while ((*this)->head)
-    {
         removeLast(*this, &value, &isMalloc);
-    }
 
     SAFE_FREE(*this);
 }

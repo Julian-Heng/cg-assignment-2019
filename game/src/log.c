@@ -21,9 +21,7 @@ void logInfo(FILE* f, Backend* engine)
     Camera* cam;
 
     if (! engine)
-    {
         return;
-    }
 
     cam = engine->cam;
     frameDelta++;
