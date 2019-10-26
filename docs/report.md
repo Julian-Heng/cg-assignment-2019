@@ -82,6 +82,12 @@ of the model and not the entire model. As such, we would need to override
 `setupModelMatrix` such that we can rotate the model without affecting the
 entire model.
 
+`setupShader` would set the different uniform variables within the shader
+program. All of the box's material properties is stored within the Material
+struct, so each box can have individual material. `setupTextures` binds the
+textures of a box to be drawn. `setupModelMatrix` would just create a
+transformation matrix to be passed to the shader program.
+
 The order of transformation to a model is as follows:
 
    1. Scale the box
@@ -208,10 +214,10 @@ This entire assignment was created from scratch with references to
 This assignment uses:
 
   - [GLAD](https://github.com/Dav1dde/glad)
-      - For loading OpenGL
+      - Used for loading OpenGL
   - [GLFW](https://github.com/glfw/glfw)
-      - For interfacing with OpenGL
+      - Used for interfacing with OpenGL
   - [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
-      - For loading images to textures
+      - Used for loading images to textures
   - [cglm](https://github.com/recp/cglm)
-      - For a `C` version of `glm` math library
+      - Used for a `C` version of the `glm` math library
