@@ -25,11 +25,10 @@
 
 int main(void)
 {
-    bool ret = false;
     Backend* engine = init();
     loop(engine);
     terminate(&engine);
-    return (int)ret;
+    return 0;
 }
 
 
@@ -644,8 +643,6 @@ void instantKeyInputCallback(GLFWwindow* win)
     if (! cam)
         return;
 
-    float timeDelta = engine->timeDelta;
-
     bool keys[] = {
         KEY_PRESSED(win, GLFW_KEY_W) && CHECK_GAME_STATE(engine),
         KEY_PRESSED(win, GLFW_KEY_A) && CHECK_GAME_STATE(engine),
@@ -657,13 +654,13 @@ void instantKeyInputCallback(GLFWwindow* win)
     };
 
     if (keys[CAM_MOVE_FORWARD] && ! keys[CAM_MOVE_BACKWARD])
-        cam->moveForward(cam, timeDelta);
+        cam->moveForward(cam, engine->timeDelta);
     if (keys[CAM_MOVE_LEFT] && ! keys[CAM_MOVE_RIGHT])
-        cam->moveLeft(cam, timeDelta);
+        cam->moveLeft(cam, engine->timeDelta);
     if (keys[CAM_MOVE_BACKWARD] && ! keys[CAM_MOVE_FORWARD])
-        cam->moveBackward(cam, timeDelta);
+        cam->moveBackward(cam, engine->timeDelta);
     if (keys[CAM_MOVE_RIGHT] && ! keys[CAM_MOVE_LEFT])
-        cam->moveRight(cam, timeDelta);
+        cam->moveRight(cam, engine->timeDelta);
     if (keys[CAM_JUMP])
         cam->setJump(cam, true);
 

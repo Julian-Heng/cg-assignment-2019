@@ -166,8 +166,7 @@ void initSheep(Backend* engine, Material* defaultMaterial)
     };
 
     Material* materialMap[] = {
-        defaultMaterial,
-        defaultMaterial,
+        defaultMaterial, defaultMaterial,
         defaultMaterial, defaultMaterial,
         defaultMaterial, defaultMaterial,
         defaultMaterial, defaultMaterial,

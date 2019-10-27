@@ -1,11 +1,11 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define SAFE_FREE(p) \
-    if ((p)) \
-    { \
-        free((p)); \
-        (p) = NULL; \
+#define SAFE_FREE(p)                                                          \
+    if ((p))                                                                  \
+    {                                                                         \
+        free((p));                                                            \
+        (p) = NULL;                                                           \
     }
 
 
