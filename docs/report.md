@@ -2,7 +2,7 @@
 title: Computer Graphics Assignment
 author: Julian Heng (19473701)
 date: \today
-toc: false
+toc: true
 geometry: margin=25.4mm
 papersize: a4
 linkcolor: blue
@@ -207,11 +207,7 @@ models to models and textures. These data structures are my own implementation.
 
 # References and External Libraries
 
-This entire assignment was created from scratch with references to
-[learnOpenGL](https://www.learnopengl.com) and the sample source code provided
-[here](https://github.com/JoeyDeVries/LearnOpenGL).
-
-This assignment uses:
+This assignment used:
 
   - [GLAD](https://github.com/Dav1dde/glad)
       - Used for loading OpenGL
@@ -221,3 +217,11 @@ This assignment uses:
       - Used for loading images to textures
   - [cglm](https://github.com/recp/cglm)
       - Used for a `C` version of the `glm` math library
+
+
+Resources used:
+
+  - [learnOpenGL](https://www.learnopengl.com)
+      - Basic OpenGL tutorial
+  - [write-a-hash-table](https://github.com/jamesroutley/write-a-hash-table)
+      - Writing a hash table in `C`
